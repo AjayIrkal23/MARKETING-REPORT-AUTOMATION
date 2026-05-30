@@ -1,28 +1,35 @@
 """Application settings: MongoDB connection + seed-admin credentials.
 
-Values are read from environment variables (and a local ``.env`` via
-python-dotenv), falling back to localhost-friendly defaults. Real secrets must
-come from the environment, never the source tree.
+Values are read from environment variables and a local ``.env`` (via
+pydantic-settings). Real secrets MUST come from the environment — there is no
+hardcoded password fallback in the source tree (OWASP A02).
 """
 
 from __future__ import annotations
 
-import os
 from functools import lru_cache
 
-from dotenv import load_dotenv
-from pydantic import BaseModel
-
-load_dotenv()
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Settings(BaseModel):
-    """Runtime configuration, resolved once and cached."""
+class Settings(BaseSettings):
+    """Runtime configuration, resolved once and cached.
 
-    mongodb_uri: str = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-    mongodb_db: str = os.getenv("MONGODB_DB", "marketing_report")
-    seed_admin_email: str = os.getenv("SEED_ADMIN_EMAIL", "ajayirkal@docketrun.com")
-    seed_admin_password: str = os.getenv("SEED_ADMIN_PASSWORD", "loloklol")
+    Field names map to env vars case-insensitively
+    (``SEED_ADMIN_PASSWORD`` -> ``seed_admin_password``).
+    """
+
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
+
+    mongodb_uri: str = "mongodb://localhost:27017"
+    mongodb_db: str = "marketing_report"
+    seed_admin_email: str = "ajayirkal@docketrun.com"
+    # No default secret: must come from the environment / .env. When empty,
+    # seeding is skipped (a warning is logged) rather than provisioning a
+    # known password.
+    seed_admin_password: str = ""
 
     cors_origins: tuple[str, ...] = (
         "http://localhost:5173",

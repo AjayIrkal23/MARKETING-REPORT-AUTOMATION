@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket
 
 from ..controllers import meta as meta_ctrl
 from ..core.responses import SuccessEnvelope
@@ -26,11 +26,4 @@ router.add_api_route(
 
 @router.websocket("/ws/ping")
 async def ws_ping(websocket: WebSocket) -> None:
-    """WebSocket channel: every ``ping`` frame is answered with ``pong``."""
-    await websocket.accept()
-    try:
-        while True:
-            text = await websocket.receive_text()
-            await websocket.send_text("pong" if text.strip().lower() == "ping" else f"echo:{text}")
-    except WebSocketDisconnect:
-        return
+    await meta_ctrl.ws_ping_controller(websocket)

@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 from .common import PageQuery
 
@@ -17,8 +17,12 @@ class UserListQuery(PageQuery):
     """Query params for ``GET /users`` — sort keys are whitelisted."""
 
     sortBy: UserSortBy = "emailid"
+    # Ascending by default: a user list reads best alphabetically by email.
+    # This intentionally overrides the PageQuery `desc` default (which suits
+    # time-ordered lists).
     sortOrder: Literal["asc", "desc"] = "asc"
-    q: str | None = None  # optional case-insensitive email search
+    # Optional case-insensitive email search; length-capped to bound the regex.
+    q: str | None = Field(default=None, max_length=100)
 
 
 class UserPublic(BaseModel):

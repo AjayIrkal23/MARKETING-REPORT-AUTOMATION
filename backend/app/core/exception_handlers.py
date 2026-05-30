@@ -39,9 +39,11 @@ async def _handle_validation_error(_: Request, exc: RequestValidationError) -> J
 
 
 async def _handle_http_exception(_: Request, exc: StarletteHTTPException) -> JSONResponse:
+    # Only surface string details; a dict/object detail would leak its repr.
+    detail = exc.detail if isinstance(exc.detail, str) else "An error occurred"
     return JSONResponse(
         status_code=exc.status_code,
-        content=_envelope("HTTP_ERROR", str(exc.detail)),
+        content=_envelope("HTTP_ERROR", detail),
     )
 
 

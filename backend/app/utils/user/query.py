@@ -2,16 +2,21 @@
 
 from __future__ import annotations
 
+import re
+from typing import Any
+
 from ...schemas.user import UserListQuery
 
 
-def build_user_filter(query: UserListQuery) -> dict:
+def build_user_filter(query: UserListQuery) -> dict[str, Any]:
     """Translate validated query params into a MongoDB filter document."""
-    filt: dict = {}
+    filt: dict[str, Any] = {}
     if query.q:
-        # Case-insensitive email search. Fine for a small users table; revisit
-        # (index / text search) if this collection ever grows large.
-        filt["emailid"] = {"$regex": query.q, "$options": "i"}
+        # Escape user input before using it as a regex: a raw `$regex` would
+        # allow catastrophic-backtracking patterns (ReDoS, OWASP A05). The
+        # length is already capped to 100 chars on the schema. Case-insensitive
+        # "contains" match on email.
+        filt["emailid"] = {"$regex": re.escape(query.q), "$options": "i"}
     return filt
 
 

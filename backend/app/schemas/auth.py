@@ -11,7 +11,8 @@ class LoginRequest(BaseModel):
     """Validated login payload."""
 
     emailid: EmailStr
-    password: str = Field(min_length=1)
+    # Cap length so an oversized payload can't be passed to bcrypt (bcrypt-DoS, OWASP A07).
+    password: str = Field(min_length=1, max_length=128)
 
 
 class AuthUser(BaseModel):

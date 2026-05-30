@@ -34,7 +34,7 @@ class SuccessEnvelope(BaseModel, Generic[T]):
     success: bool = True
     data: T
     message: str = ""
-    meta: dict[str, Any] | None = None
+    meta: PaginationMeta | None = None
 
 
 class ErrorBody(BaseModel):
@@ -48,6 +48,6 @@ class ErrorEnvelope(BaseModel):
     error: ErrorBody
 
 
-def success(data: T, message: str = "", meta: dict[str, Any] | None = None) -> SuccessEnvelope[T]:
+def success(data: T, message: str = "", meta: PaginationMeta | None = None) -> SuccessEnvelope[T]:
     """Build a success envelope."""
     return SuccessEnvelope[T](data=data, message=message, meta=meta)

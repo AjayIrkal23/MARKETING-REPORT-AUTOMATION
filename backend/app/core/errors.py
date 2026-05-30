@@ -46,3 +46,15 @@ class NotFoundError(AppError):
 class ConflictError(AppError):
     status_code = 409
     code = "CONFLICT"
+
+
+class RateLimitError(AppError):
+    status_code = 429
+    code = "RATE_LIMITED"
+
+    def __init__(
+        self,
+        message: str = "Too many requests. Please try again later.",
+        details: Any | None = None,
+    ) -> None:
+        super().__init__(message, details)
