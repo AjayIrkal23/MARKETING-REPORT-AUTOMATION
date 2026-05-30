@@ -1,0 +1,17 @@
+# graphify scope: index frontend + backend code (and markdown docs).
+# Exclude raw data dumps and self-generated artifacts.
+
+# graphify's own output (was self-indexing GRAPH_REPORT.md, etc.)
+graphify-out/
+
+# raw SAP Excel exports — binary data, not code.
+# ZSD_CURRSTK_HR.xlsx has a corrupt cell that makes openpyxl raise ValueError,
+# which would crash the watcher rebuild. Keep the macro_docs/ dictionary instead.
+macro_files/
+
+# GSD planning scratch — not source.
+.planning/
+
+# dependency / venv dirs (default-ignored, listed for clarity)
+node_modules/
+.venv/
