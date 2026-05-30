@@ -1,16 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
-export interface AuthUser {
-  name: string
-  email: string
-  role: string
-}
-
-interface AuthState {
-  isAuthenticated: boolean
-  user: AuthUser | null
-  token: string | null
-}
+import type { AuthState, SessionUser } from "@/types/auth/session"
 
 const TOKEN_KEY = "app.auth.token"
 const USER_KEY = "app.auth.user"
@@ -20,7 +10,7 @@ function loadInitialState(): AuthState {
     const token = localStorage.getItem(TOKEN_KEY)
     const userRaw = localStorage.getItem(USER_KEY)
     if (token && userRaw) {
-      return { isAuthenticated: true, token, user: JSON.parse(userRaw) as AuthUser }
+      return { isAuthenticated: true, token, user: JSON.parse(userRaw) as SessionUser }
     }
   } catch {
     /* ignore corrupt storage */
@@ -32,7 +22,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState: loadInitialState(),
   reducers: {
-    loginSuccess(state, action: PayloadAction<{ user: AuthUser; token: string }>) {
+    loginSuccess(state, action: PayloadAction<{ user: SessionUser; token: string }>) {
       state.isAuthenticated = true
       state.user = action.payload.user
       state.token = action.payload.token

@@ -1,12 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
+import type { ReactNode } from "react"
 
-type Theme = "light" | "dark"
-
-interface ThemeContextValue {
-  theme: Theme
-  toggleTheme: () => void
-  setTheme: (t: Theme) => void
-}
+import type { Theme, ThemeContextValue } from "@/types/theme/theme"
 
 const STORAGE_KEY = "app.theme"
 const ThemeContext = createContext<ThemeContextValue | null>(null)
@@ -18,7 +13,7 @@ function getInitialTheme(): Theme {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme)
 
   useEffect(() => {

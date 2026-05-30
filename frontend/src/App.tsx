@@ -1,8 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 import { ProtectedRoute } from "@/routes/ProtectedRoute"
-import { LoginPage } from "@/pages/LoginPage"
-import { HomePage } from "@/pages/HomePage"
+import { LoginPage } from "@/pages/auth/login"
+import { HomePage } from "@/pages/dashboard/home"
 
 export default function App() {
   return (
