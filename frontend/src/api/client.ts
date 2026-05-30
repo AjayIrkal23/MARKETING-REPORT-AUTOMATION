@@ -33,6 +33,8 @@ export class ApiError extends Error {
 
 async function request<T>(path: string, init?: RequestInit): Promise<ApiSuccess<T>> {
   const res = await fetch(`${BASE_URL}${path}`, {
+    // Send/receive the httpOnly session cookie on every request.
+    credentials: "include",
     headers: { Accept: "application/json", "Content-Type": "application/json" },
     ...init,
   })
@@ -57,6 +59,16 @@ export async function getData<T>(path: string): Promise<T> {
 /** POST a JSON body and unwrap `data`. */
 export async function postData<T>(path: string, body: unknown): Promise<T> {
   return (await request<T>(path, { method: "POST", body: JSON.stringify(body) })).data
+}
+
+/** PATCH a JSON body and unwrap `data`. */
+export async function patchData<T>(path: string, body: unknown): Promise<T> {
+  return (await request<T>(path, { method: "PATCH", body: JSON.stringify(body) })).data
+}
+
+/** DELETE a resource and unwrap `data` (may be `null` for 204-style responses). */
+export async function deleteData<T>(path: string): Promise<T> {
+  return (await request<T>(path, { method: "DELETE" })).data
 }
 
 /** GET a backend-driven paginated list — returns rows + pagination meta. */

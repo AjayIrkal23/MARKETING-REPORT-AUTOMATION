@@ -37,10 +37,11 @@ def test_security_headers_present() -> None:
     assert r.headers["x-frame-options"] == "DENY"
 
 
-def test_unknown_user_query_param_rejected() -> None:
-    # Controller guard rejects unrecognised keys before touching the DB.
+def test_users_list_requires_auth() -> None:
+    # GET /users is protected (get_current_user): an unauthenticated client is
+    # rejected with 401 before any DB access — no Mongo needed for this test.
     r = client.get("/users", params={"bogus": "1"})
-    assert r.status_code == 400
+    assert r.status_code == 401
     body = r.json()
     assert body["success"] is False
-    assert body["error"]["code"] == "VALIDATION_ERROR"
+    assert body["error"]["code"] == "UNAUTHORIZED"

@@ -1,0 +1,140 @@
+- generic [ref=e2]:
+  - generic [ref=e38]:
+    - generic [ref=e41]:
+      - generic [ref=e43]:
+        - img "JSW Steel" [ref=e45]
+        - generic [ref=e46]: Marketing Reports
+      - generic [ref=e48]:
+        - generic [ref=e49]: Navigation
+        - list [ref=e51]:
+          - listitem [ref=e52]:
+            - link "Dashboard" [ref=e53] [cursor=pointer]:
+              - /url: /home
+              - img [ref=e54]
+              - generic [ref=e59]: Dashboard
+          - listitem [ref=e60]:
+            - link "Credit" [ref=e61] [cursor=pointer]:
+              - /url: /credit
+              - img [ref=e62]
+              - generic [ref=e64]: Credit
+          - listitem [ref=e65]:
+            - link "Customers" [ref=e66] [cursor=pointer]:
+              - /url: /customers
+              - img [ref=e67]
+              - generic [ref=e72]: Customers
+          - listitem [ref=e73]:
+            - link "Current Stock" [ref=e74] [cursor=pointer]:
+              - /url: /stock
+              - img [ref=e75]
+              - generic [ref=e85]: Current Stock
+          - listitem [ref=e86]:
+            - link "Branches" [ref=e87] [cursor=pointer]:
+              - /url: /branches
+              - img [ref=e88]
+              - generic [ref=e92]: Branches
+          - listitem [ref=e93]:
+            - link "Settings" [ref=e94] [cursor=pointer]:
+              - /url: /settings
+              - img [ref=e95]
+              - generic [ref=e98]: Settings
+      - paragraph [ref=e100]: West-Central
+      - button "Toggle Sidebar" [ref=e101]
+    - main [ref=e102]:
+      - generic [ref=e103]:
+        - button "Toggle Sidebar" [ref=e104]:
+          - img
+          - generic [ref=e105]: Toggle Sidebar
+        - heading "Dashboard" [level=1] [ref=e106]
+        - generic [ref=e107]:
+          - button "Switch to dark mode" [ref=e108]:
+            - img
+          - button "Open user menu" [ref=e109]:
+            - generic [ref=e110]: Open user menu
+            - generic [ref=e112]: A
+      - main [ref=e113]:
+        - generic [ref=e114]:
+          - generic [ref=e115]:
+            - heading "Marketing Overview" [level=2] [ref=e116]
+            - paragraph [ref=e117]: West-Central region · updated just now
+          - generic [ref=e118]:
+            - generic [ref=e119]:
+              - generic [ref=e121]:
+                - generic [ref=e122]: Outstanding Credit
+                - img [ref=e124]
+              - generic [ref=e126]:
+                - paragraph [ref=e127]: ₹4.82 Cr
+                - paragraph [ref=e128]:
+                  - img [ref=e129]
+                  - text: +3.1%
+            - generic [ref=e132]:
+              - generic [ref=e134]:
+                - generic [ref=e135]: Active Customers
+                - img [ref=e137]
+              - generic [ref=e142]:
+                - paragraph [ref=e143]: 1,284
+                - paragraph [ref=e144]:
+                  - img [ref=e145]
+                  - text: +18 this month
+            - generic [ref=e148]:
+              - generic [ref=e150]:
+                - generic [ref=e151]: Stock at Risk
+                - img [ref=e153]
+              - generic [ref=e163]:
+                - paragraph [ref=e164]: 7,420 MT
+                - paragraph [ref=e165]:
+                  - img [ref=e166]
+                  - text: −840 MT ageing
+            - generic [ref=e169]:
+              - generic [ref=e171]:
+                - generic [ref=e172]: Dispatch (MTD)
+                - img [ref=e174]
+              - generic [ref=e179]:
+                - paragraph [ref=e180]: 18,940 MT
+                - paragraph [ref=e181]:
+                  - img [ref=e182]
+                  - text: +6.4% vs last month
+          - generic [ref=e185]:
+            - generic [ref=e186]:
+              - generic [ref=e188]: Dispatch by Branch
+              - generic [ref=e189]:
+                - generic [ref=e190]:
+                  - generic [ref=e191]:
+                    - generic [ref=e192]: 88%
+                    - generic [ref=e193]: Mumbai
+                  - generic [ref=e194]:
+                    - generic [ref=e195]: 72%
+                    - generic [ref=e196]: Pune
+                  - generic [ref=e197]:
+                    - generic [ref=e198]: 54%
+                    - generic [ref=e199]: Nagpur
+                  - generic [ref=e200]:
+                    - generic [ref=e201]: 41%
+                    - generic [ref=e202]: Nashik
+                  - generic [ref=e203]:
+                    - generic [ref=e204]: 28%
+                    - generic [ref=e205]: Goa
+                - paragraph [ref=e206]: "% of monthly dispatch target achieved · illustrative data"
+            - generic [ref=e207]:
+              - generic [ref=e209]: Top Accounts
+              - list [ref=e211]:
+                - listitem [ref=e212]:
+                  - generic [ref=e213]:
+                    - paragraph [ref=e214]: Tata Motors Ltd
+                    - paragraph [ref=e215]: ₹1.20 Cr
+                  - generic [ref=e216]: Active
+                - listitem [ref=e217]:
+                  - generic [ref=e218]:
+                    - paragraph [ref=e219]: Bharat Forge
+                    - paragraph [ref=e220]: ₹0.86 Cr
+                  - generic [ref=e221]: Review
+                - listitem [ref=e222]:
+                  - generic [ref=e223]:
+                    - paragraph [ref=e224]: Mahindra & Mahindra
+                    - paragraph [ref=e225]: ₹0.74 Cr
+                  - generic [ref=e226]: Active
+                - listitem [ref=e227]:
+                  - generic [ref=e228]:
+                    - paragraph [ref=e229]: Kalyani Steels
+                    - paragraph [ref=e230]: ₹0.52 Cr
+                  - generic [ref=e231]: Overdue
+  - region "Notifications alt+T"

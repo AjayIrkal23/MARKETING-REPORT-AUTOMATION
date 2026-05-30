@@ -1,0 +1,168 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                - generic: Marketing Reports
+            - generic:
+              - generic:
+                - generic: Navigation
+                - generic:
+                  - list:
+                    - listitem:
+                      - link:
+                        - /url: /home
+                        - img
+                        - generic: Dashboard
+                    - listitem:
+                      - link:
+                        - /url: /credit
+                        - img
+                        - generic: Credit
+                    - listitem:
+                      - link:
+                        - /url: /customers
+                        - img
+                        - generic: Customers
+                    - listitem:
+                      - link:
+                        - /url: /stock
+                        - img
+                        - generic: Current Stock
+                    - listitem:
+                      - link:
+                        - /url: /branches
+                        - img
+                        - generic: Branches
+                    - listitem:
+                      - link:
+                        - /url: /settings
+                        - img
+                        - generic: Settings
+            - generic:
+              - paragraph: West-Central
+            - button
+      - main:
+        - generic:
+          - button:
+            - img
+            - generic: Toggle Sidebar
+          - heading [level=1]: Dashboard
+          - generic:
+            - button:
+              - img
+            - button [expanded]:
+              - generic: Open user menu
+              - generic:
+                - generic: A
+        - main:
+          - generic:
+            - generic:
+              - heading [level=2]: Marketing Overview
+              - paragraph: West-Central region · updated just now
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Outstanding Credit
+                    - generic:
+                      - img
+                - generic:
+                  - paragraph: ₹4.82 Cr
+                  - paragraph:
+                    - img
+                    - text: +3.1%
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Active Customers
+                    - generic:
+                      - img
+                - generic:
+                  - paragraph: 1,284
+                  - paragraph:
+                    - img
+                    - text: +18 this month
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Stock at Risk
+                    - generic:
+                      - img
+                - generic:
+                  - paragraph: 7,420 MT
+                  - paragraph:
+                    - img
+                    - text: −840 MT ageing
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Dispatch (MTD)
+                    - generic:
+                      - img
+                - generic:
+                  - paragraph: 18,940 MT
+                  - paragraph:
+                    - img
+                    - text: +6.4% vs last month
+            - generic:
+              - generic:
+                - generic:
+                  - generic: Dispatch by Branch
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: 88%
+                      - generic: Mumbai
+                    - generic:
+                      - generic: 72%
+                      - generic: Pune
+                    - generic:
+                      - generic: 54%
+                      - generic: Nagpur
+                    - generic:
+                      - generic: 41%
+                      - generic: Nashik
+                    - generic:
+                      - generic: 28%
+                      - generic: Goa
+                  - paragraph: "% of monthly dispatch target achieved · illustrative data"
+              - generic:
+                - generic:
+                  - generic: Top Accounts
+                - generic:
+                  - list:
+                    - listitem:
+                      - generic:
+                        - paragraph: Tata Motors Ltd
+                        - paragraph: ₹1.20 Cr
+                      - generic: Active
+                    - listitem:
+                      - generic:
+                        - paragraph: Bharat Forge
+                        - paragraph: ₹0.86 Cr
+                      - generic: Review
+                    - listitem:
+                      - generic:
+                        - paragraph: Mahindra & Mahindra
+                        - paragraph: ₹0.74 Cr
+                      - generic: Active
+                    - listitem:
+                      - generic:
+                        - paragraph: Kalyani Steels
+                        - paragraph: ₹0.52 Cr
+                      - generic: Overdue
+    - region "Notifications alt+T"
+  - menu "Open user menu" [active] [ref=e232]:
+    - generic [ref=e233]:
+      - generic [ref=e234]: ajayirkal
+      - generic [ref=e235]: ajayirkal@docketrun.com
+    - separator [ref=e236]
+    - menuitem "Log out" [ref=e237] [cursor=pointer]:
+      - img
+      - text: Log out

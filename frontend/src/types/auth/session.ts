@@ -11,9 +11,14 @@ export interface SessionUser {
   role: string
 }
 
-/** Redux `auth` slice state. */
+/**
+ * Redux `auth` slice state.
+ *
+ * No `token` field: the session lives in an httpOnly cookie that JS cannot read.
+ * `isAuthenticated` is optimistic from the cached user and confirmed by
+ * `AuthBootstrap` via `GET /auth/me`.
+ */
 export interface AuthState {
   isAuthenticated: boolean
   user: SessionUser | null
-  token: string | null
 }

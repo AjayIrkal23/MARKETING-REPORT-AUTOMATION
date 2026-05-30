@@ -58,3 +58,25 @@ class RateLimitError(AppError):
         details: Any | None = None,
     ) -> None:
         super().__init__(message, details)
+
+
+class PasswordSetupRequiredError(AppError):
+    """Raised when a user with status='invited' attempts login.
+
+    The frontend catches code='PASSWORD_SETUP_REQUIRED' (409) and redirects
+    the user into the OTP first-login setup flow. Contract: §3.3.
+    """
+
+    status_code = 409
+    code = "PASSWORD_SETUP_REQUIRED"
+
+
+class AccountDisabledError(AppError):
+    """Raised when a user with status='disabled' attempts login.
+
+    The frontend catches code='ACCOUNT_DISABLED' (403) and surfaces a
+    "your account has been disabled" message. Contract: §3.3.
+    """
+
+    status_code = 403
+    code = "ACCOUNT_DISABLED"

@@ -13,7 +13,9 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { NAV_ITEMS } from "@/components/layout/nav-items"
+import { NAV_ITEMS, ADMIN_NAV_ITEMS } from "@/components/layout/nav-items"
+import { useAppSelector } from "@/app/hooks"
+import { selectIsAdmin } from "@/store/auth/selectors"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AppSidebar — premium redesign
@@ -34,6 +36,7 @@ import { NAV_ITEMS } from "@/components/layout/nav-items"
 
 export function AppSidebar() {
   const { pathname } = useLocation()
+  const isAdmin = useAppSelector(selectIsAdmin)
 
   return (
     <Sidebar collapsible="icon">
@@ -156,6 +159,64 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* ── Administrator Config (admin-only) ───────────────────────── */}
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="px-3 text-[10px] font-medium uppercase tracking-widest text-sidebar-foreground/45 group-data-[collapsible=icon]:hidden">
+              Administrator Config
+            </SidebarGroupLabel>
+
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5 px-1">
+                {ADMIN_NAV_ITEMS.map((item) => {
+                  const isActive =
+                    pathname === item.to || pathname.startsWith(item.to + "/")
+
+                  return (
+                    <SidebarMenuItem key={item.to} className="relative">
+                      {isActive && (
+                        <div
+                          aria-hidden
+                          className="
+                            absolute inset-y-1 left-0 w-[3px] rounded-full
+                            bg-sidebar-primary
+                            group-data-[collapsible=icon]:hidden
+                          "
+                        />
+                      )}
+
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        tooltip={item.label}
+                        size="default"
+                        className="
+                          relative h-9 gap-3 rounded-md pl-3
+                          text-sidebar-foreground/80
+                          transition-all duration-150 ease-in-out
+                          hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
+                          focus-visible:ring-2 focus-visible:ring-sidebar-ring
+                          data-[active=true]:bg-sidebar-accent
+                          data-[active=true]:font-medium
+                          data-[active=true]:text-sidebar-accent-foreground
+                          [&_svg]:transition-colors [&_svg]:duration-150
+                          data-[active=true]:[&_svg]:text-sidebar-primary
+                          group-data-[collapsible=icon]:pl-2
+                        "
+                      >
+                        <NavLink to={item.to}>
+                          <item.icon aria-hidden="true" />
+                          <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       {/* ── Footer: elevated region indicator ───────────────────────── */}

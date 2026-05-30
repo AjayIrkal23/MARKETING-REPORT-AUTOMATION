@@ -1,0 +1,41 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - button "Switch to dark mode" [ref=e4]:
+      - img
+    - complementary [ref=e5]:
+      - img "JSW Steel" [ref=e8]
+      - generic [ref=e10]:
+        - heading "West-Central Region Performance Intelligence." [level=2] [ref=e11]:
+          - generic [ref=e12]: West-Central Region
+          - generic [ref=e13]: Performance Intelligence.
+        - paragraph [ref=e14]: SAP-integrated credit, stock, and dispatch analytics for JSW Steel's marketing operations.
+      - paragraph [ref=e15]: JSW Steel Ltd. · Authorized personnel only · All activity is monitored and logged.
+    - main [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - heading "Sign in to your account" [level=1] [ref=e19]
+          - paragraph [ref=e20]: Enter your JSW credentials to access the report dashboard.
+        - generic [ref=e21]:
+          - group [ref=e22]:
+            - generic [ref=e23]: Email address
+            - textbox "Email address" [ref=e24]:
+              - /placeholder: you@jsw.in
+          - group [ref=e25]:
+            - generic [ref=e26]:
+              - generic [ref=e27]: Password
+              - button "Forgot password?" [ref=e28]
+            - generic [ref=e29]:
+              - textbox "Password" [ref=e30]:
+                - /placeholder: ••••••••
+              - button "Show password" [ref=e31]:
+                - img
+        - generic [ref=e32]:
+          - checkbox "Remember my email" [ref=e33]
+          - checkbox
+          - generic [ref=e34]: Remember my email
+        - button "Sign in" [ref=e35]
+        - paragraph [ref=e36]:
+          - text: Need access?
+          - link "Contact your administrator" [ref=e37] [cursor=pointer]:
+            - /url: mailto:it-admin@jsw.in
+  - region "Notifications alt+T"

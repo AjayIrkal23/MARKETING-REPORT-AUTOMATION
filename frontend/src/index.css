@@ -49,72 +49,76 @@
 }
 
 :root {
-    --background: oklch(0.99 0.004 256);
-    --foreground: oklch(0.18 0.02 258);
+    /* Executive Navy — light. Deep JSW royal-indigo (hue 264) primary,
+       warm-gold (hue 78) secondary/accent, JSW red (hue 27) destructive. */
+    --background: oklch(0.98 0.006 264);
+    --foreground: oklch(0.16 0.025 264);
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.18 0.02 258);
+    --card-foreground: oklch(0.16 0.025 264);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.18 0.02 258);
-    --primary: oklch(0.45 0.16 256);
-    --primary-foreground: oklch(0.99 0.005 256);
-    --secondary: oklch(0.96 0.012 256);
-    --secondary-foreground: oklch(0.3 0.05 257);
-    --muted: oklch(0.96 0.008 256);
-    --muted-foreground: oklch(0.5 0.025 257);
-    --accent: oklch(0.93 0.03 256);
-    --accent-foreground: oklch(0.38 0.12 257);
-    --destructive: oklch(0.56 0.24 26);
-    --border: oklch(0.9 0.012 256);
-    --input: oklch(0.9 0.012 256);
-    --ring: oklch(0.45 0.16 256);
-    --chart-1: oklch(0.45 0.16 256);
-    --chart-2: oklch(0.56 0.24 26);
-    --chart-3: oklch(0.62 0.13 230);
-    --chart-4: oklch(0.72 0.15 75);
-    --chart-5: oklch(0.6 0.1 195);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.33 0.13 258);
-    --sidebar-foreground: oklch(0.96 0.01 256);
-    --sidebar-primary: oklch(0.99 0.005 256);
-    --sidebar-primary-foreground: oklch(0.33 0.13 258);
-    --sidebar-accent: oklch(0.4 0.14 257);
-    --sidebar-accent-foreground: oklch(0.98 0.005 256);
-    --sidebar-border: oklch(0.4 0.1 258);
-    --sidebar-ring: oklch(0.7 0.14 256);
+    --popover-foreground: oklch(0.16 0.025 264);
+    --primary: oklch(0.40 0.17 264);
+    --primary-foreground: oklch(0.98 0.005 264);
+    --secondary: oklch(0.94 0.06 78);
+    --secondary-foreground: oklch(0.22 0.07 78);
+    --muted: oklch(0.95 0.010 264);
+    --muted-foreground: oklch(0.48 0.025 264);
+    --accent: oklch(0.80 0.14 78);
+    --accent-foreground: oklch(0.22 0.07 78);
+    --destructive: oklch(0.56 0.24 27);
+    --border: oklch(0.88 0.014 264);
+    --input: oklch(0.90 0.012 264);
+    --ring: oklch(0.40 0.17 264);
+    --chart-1: oklch(0.40 0.17 264);
+    --chart-2: oklch(0.56 0.24 27);
+    --chart-3: oklch(0.76 0.14 78);
+    --chart-4: oklch(0.52 0.14 200);
+    --chart-5: oklch(0.46 0.16 290);
+    --radius: 0.375rem;
+    --sidebar: oklch(0.22 0.12 264);
+    --sidebar-foreground: oklch(0.97 0.008 264);
+    --sidebar-primary: oklch(0.76 0.14 78);
+    --sidebar-primary-foreground: oklch(0.18 0.06 78);
+    --sidebar-accent: oklch(0.30 0.13 264);
+    --sidebar-accent-foreground: oklch(0.97 0.008 264);
+    --sidebar-border: oklch(0.32 0.10 264);
+    --sidebar-ring: oklch(0.76 0.14 78);
 }
 
 .dark {
-    --background: oklch(0.17 0.02 258);
-    --foreground: oklch(0.97 0.008 256);
-    --card: oklch(0.21 0.025 258);
-    --card-foreground: oklch(0.97 0.008 256);
-    --popover: oklch(0.21 0.025 258);
-    --popover-foreground: oklch(0.97 0.008 256);
-    --primary: oklch(0.62 0.17 256);
-    --primary-foreground: oklch(0.16 0.02 258);
-    --secondary: oklch(0.27 0.03 258);
-    --secondary-foreground: oklch(0.97 0.008 256);
-    --muted: oklch(0.27 0.03 258);
-    --muted-foreground: oklch(0.72 0.02 256);
-    --accent: oklch(0.3 0.05 257);
-    --accent-foreground: oklch(0.97 0.008 256);
-    --destructive: oklch(0.64 0.22 26);
-    --border: oklch(1 0 0 / 12%);
-    --input: oklch(1 0 0 / 16%);
-    --ring: oklch(0.62 0.17 256);
-    --chart-1: oklch(0.62 0.17 256);
-    --chart-2: oklch(0.64 0.22 26);
-    --chart-3: oklch(0.7 0.13 230);
-    --chart-4: oklch(0.76 0.15 75);
-    --chart-5: oklch(0.68 0.1 195);
-    --sidebar: oklch(0.21 0.025 258);
-    --sidebar-foreground: oklch(0.97 0.008 256);
-    --sidebar-primary: oklch(0.62 0.17 256);
-    --sidebar-primary-foreground: oklch(0.16 0.02 258);
-    --sidebar-accent: oklch(0.3 0.05 257);
-    --sidebar-accent-foreground: oklch(0.97 0.008 256);
-    --sidebar-border: oklch(1 0 0 / 12%);
-    --sidebar-ring: oklch(0.62 0.17 256);
+    /* Executive Navy — dark. Deep-navy surfaces, lifted indigo primary,
+       brighter gold accent; brand panel stays navy in both modes. */
+    --background: oklch(0.12 0.025 264);
+    --foreground: oklch(0.97 0.006 264);
+    --card: oklch(0.18 0.030 264);
+    --card-foreground: oklch(0.97 0.006 264);
+    --popover: oklch(0.18 0.030 264);
+    --popover-foreground: oklch(0.97 0.006 264);
+    --primary: oklch(0.65 0.18 264);
+    --primary-foreground: oklch(0.10 0.020 264);
+    --secondary: oklch(0.26 0.06 78);
+    --secondary-foreground: oklch(0.92 0.05 78);
+    --muted: oklch(0.22 0.028 264);
+    --muted-foreground: oklch(0.68 0.018 264);
+    --accent: oklch(0.82 0.17 78);
+    --accent-foreground: oklch(0.18 0.06 78);
+    --destructive: oklch(0.62 0.24 27);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 14%);
+    --ring: oklch(0.65 0.18 264);
+    --chart-1: oklch(0.65 0.18 264);
+    --chart-2: oklch(0.64 0.23 27);
+    --chart-3: oklch(0.82 0.15 78);
+    --chart-4: oklch(0.64 0.14 200);
+    --chart-5: oklch(0.62 0.16 290);
+    --sidebar: oklch(0.14 0.030 264);
+    --sidebar-foreground: oklch(0.96 0.008 264);
+    --sidebar-primary: oklch(0.82 0.15 78);
+    --sidebar-primary-foreground: oklch(0.18 0.06 78);
+    --sidebar-accent: oklch(0.22 0.035 264);
+    --sidebar-accent-foreground: oklch(0.96 0.008 264);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.82 0.15 78);
 }
 
 @layer base {
@@ -126,5 +130,20 @@
     }
   html {
     @apply font-sans;
+    }
+  /* Tailwind v4 Preflight sets interactive elements to `cursor: default`.
+     Restore the pointer cursor for buttons and clickable UI (shadcn / Radix). */
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  [role="menuitem"]:not([aria-disabled="true"]),
+  [role="menuitemcheckbox"]:not([aria-disabled="true"]),
+  [role="menuitemradio"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]),
+  [role="tab"]:not([aria-disabled="true"]),
+  [role="switch"]:not(:disabled),
+  label[for],
+  summary,
+  select:not(:disabled) {
+    cursor: pointer;
     }
 }

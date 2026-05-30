@@ -37,6 +37,37 @@ class Settings(BaseSettings):
         "http://localhost:4173",
     )
 
+    # --- Session cookie auth (httpOnly) ---
+    # HS256 signing secret for session JWTs. MUST be set in the environment;
+    # when empty, login cannot mint a session (a warning is logged) — no
+    # insecure default secret ships in source (OWASP A02).
+    session_secret: str = ""
+    session_cookie_name: str = "app_session"
+    session_ttl_seconds: int = 86400  # 24h
+    cookie_secure: bool = False  # True in production (HTTPS only)
+    cookie_samesite: str = "lax"
+
+    # --- Email / SMTP ---
+    # Dev fallback: when smtp_host is empty, emails are logged to the server
+    # console (including OTP) so the flow is testable without a mail server.
+    # Production: set all SMTP_* env vars.  OTP is NEVER returned in an API
+    # response (OWASP A02, user-enumeration prevention).
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = "no-reply@jsw-marketing.local"
+    smtp_starttls: bool = True
+    app_name: str = "JSW Marketing Reports"
+    app_base_url: str = "http://localhost:5173"
+
+    # --- OTP / password policy ---
+    otp_length: int = 6
+    otp_ttl_seconds: int = 600          # 10 minutes
+    otp_max_attempts: int = 5
+    otp_resend_interval_seconds: int = 60
+    password_min_length: int = 8
+
 
 @lru_cache
 def get_settings() -> Settings:
