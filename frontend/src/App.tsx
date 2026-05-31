@@ -7,6 +7,9 @@ import { AdminRoute } from "@/routes/AdminRoute"
 import { LoginPage } from "@/pages/auth/login"
 import { HomePage } from "@/pages/dashboard/home"
 import { UserManagementPage } from "@/pages/admin/users"
+import { AuditLogsPage } from "@/pages/admin/audit-logs"
+import { RegionManagementPage } from "@/pages/admin/regions"
+import { CustomerCodeManagementPage } from "@/pages/admin/customer-codes"
 
 export default function App() {
   return (
@@ -20,6 +23,9 @@ export default function App() {
             <Route path="/home" element={<HomePage />} />
             <Route element={<AdminRoute />}>
               <Route path="/admin/users" element={<UserManagementPage />} />
+              <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
+              <Route path="/admin/regions" element={<RegionManagementPage />} />
+              <Route path="/admin/customer-codes" element={<CustomerCodeManagementPage />} />
             </Route>
           </Route>
         </Route>

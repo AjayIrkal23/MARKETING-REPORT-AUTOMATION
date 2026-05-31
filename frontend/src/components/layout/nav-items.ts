@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react"
-import { LayoutDashboard, UsersRound } from "lucide-react"
+import { Building2, LayoutDashboard, MapPin, ScrollText, UsersRound } from "lucide-react"
 
 export interface NavItem {
   label: string
@@ -13,6 +13,9 @@ export const NAV_ITEMS: NavItem[] = [
 
 export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "User Management", to: "/admin/users", icon: UsersRound },
+  { label: "Audit Logs", to: "/admin/audit-logs", icon: ScrollText },
+  { label: "Region Management", to: "/admin/regions", icon: MapPin },
+  { label: "Customer Codes", to: "/admin/customer-codes", icon: Building2 },
 ]
 
 /** Resolve the page title for the current pathname (exact or nested match). */

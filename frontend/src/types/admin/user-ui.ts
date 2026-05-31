@@ -69,7 +69,7 @@ export type ResetPasswordFormValues = ResetPasswordInput
 // Confirm action dialog (delete / enable / disable)
 // ---------------------------------------------------------------------------
 
-export type ConfirmActionVariant = "delete" | "enable" | "disable"
+export type ConfirmActionVariant = "delete" | "enable" | "disable" | "activate" | "deactivate"
 
 export interface ConfirmActionDialogProps extends DialogBaseProps {
   variant: ConfirmActionVariant

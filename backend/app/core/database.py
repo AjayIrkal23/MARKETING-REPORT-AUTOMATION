@@ -13,12 +13,12 @@ from beanie import init_beanie
 from pymongo import AsyncMongoClient
 
 from .config import get_settings
-from ..models import User
+from ..models import AuditLog, CustomerCode, Region, User
 
 logger = logging.getLogger(__name__)
 
 # All Beanie document models the app persists. Add new models here.
-DOCUMENT_MODELS = [User]
+DOCUMENT_MODELS = [User, AuditLog, CustomerCode, Region]
 
 _client: AsyncMongoClient | None = None
 

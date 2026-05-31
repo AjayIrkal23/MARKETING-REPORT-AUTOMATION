@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JSW Dashboard — Pick a Direction</title>
+<style>
+  :root { --pick:#3b82f6; }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  html,body { background:#0a0b0e; color:#e8eaf0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1320px; margin:0 auto; padding:40px 28px 80px; }
+  header.page { text-align:center; margin-bottom:34px; }
+  header.page h1 { font-size:26px; font-weight:700; letter-spacing:-0.02em; }
+  header.page p { margin-top:10px; color:#9aa3b5; font-size:14.5px; line-height:1.6; max-width:680px; margin-left:auto; margin-right:auto; }
+  header.page .note { margin-top:14px; font-size:12.5px; color:#6b7488; }
+
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(370px,1fr)); gap:24px; }
+
+  .mock-card { position:relative; background:#101218; border:1px solid #1d2230; border-radius:18px;
+    padding:16px; cursor:pointer; transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+  .mock-card:hover { transform:translateY(-4px); border-color:#2c3346; box-shadow:0 24px 60px -28px rgba(0,0,0,.8); }
+  .mock-card.selected { border-color:var(--pick); box-shadow:0 0 0 2px var(--pick), 0 24px 60px -24px rgba(0,0,0,.85); }
+  .mock-card.selected::after { content:"✓ selected"; position:absolute; top:14px; right:14px; z-index:5;
+    background:var(--pick); color:#fff; font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; }
+
+  .card-top { display:flex; align-items:center; gap:12px; margin-bottom:14px; padding:2px 4px; }
+  .card-top .badge { width:30px; height:30px; border-radius:9px; display:grid; place-items:center;
+    font-weight:800; font-size:14px; flex:none; }
+  .card-top h3 { font-size:16px; font-weight:700; letter-spacing:-0.01em; }
+  .card-top p { font-size:11.5px; color:#8b93a6; margin-top:2px; }
+
+  /* ── shared mini-app frame ── */
+  .screen { border-radius:13px; overflow:hidden; border:1px solid rgba(255,255,255,.06); }
+  .app { display:flex; height:330px; font-size:11px; }
+  .sb { width:108px; flex:none; display:flex; flex-direction:column; }
+  .sb .logo { display:flex; align-items:center; gap:6px; padding:13px 12px 12px; }
+  .sb .logo .mk { font-weight:800; font-size:12px; letter-spacing:.04em; }
+  .sb .nav { padding:6px 8px; display:flex; flex-direction:column; gap:2px; flex:1; }
+  .sb .nav a { display:flex; align-items:center; gap:7px; padding:6px 8px; border-radius:7px;
+    font-size:10.5px; position:relative; }
+  .sb .nav .ic { width:13px; height:13px; border-radius:4px; flex:none; opacity:.85; }
+  .sb .foot { padding:10px 12px; display:flex; align-items:center; gap:6px; font-size:9px; }
+  .sb .foot .dot { width:6px; height:6px; border-radius:50%; }
+
+  .main { flex:1; display:flex; flex-direction:column; min-width:0; }
+  .topbar { height:38px; flex:none; display:flex; align-items:center; gap:8px; padding:0 12px; }
+  .topbar .ttl { font-size:11.5px; font-weight:600; }
+  .topbar .spacer { flex:1; }
+  .topbar .search { height:20px; border-radius:6px; flex:none; }
+  .topbar .av { width:20px; height:20px; border-radius:50%; flex:none; }
+
+  .body { flex:1; padding:12px; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
+  .body .hd { display:flex; align-items:baseline; gap:8px; }
+  .body .hd b { font-size:13px; font-weight:700; letter-spacing:-0.01em; }
+  .body .hd span { font-size:9px; }
+
+  .stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .tile { padding:9px 10px; border-radius:9px; display:flex; flex-direction:column; gap:3px; }
+  .tile .lbl { font-size:8.5px; }
+  .tile .val { font-size:16px; font-weight:700; letter-spacing:-0.02em; line-height:1; }
+  .tile .val i { font-size:9px; font-weight:600; font-style:normal; opacity:.7; margin-left:2px; }
+  .tile .dlt { font-size:8.5px; font-weight:600; }
+  .panel { flex:1; border-radius:10px; padding:10px 11px; display:flex; flex-direction:column; gap:7px; }
+  .panel .pt { font-size:10px; font-weight:600; }
+  .panel .chart { flex:1; }
+  .tabnum { font-variant-numeric: tabular-nums; }
+
+  .card-foot { display:flex; flex-wrap:wrap; gap:6px; margin-top:13px; padding:0 4px; }
+  .chip { font-size:10.5px; padding:4px 9px; border-radius:999px; background:#171b25; border:1px solid #232a3a; color:#aab2c4; }
+
+  /* ════════ A · EXECUTIVE STEEL ════════ */
+  .dir-a .badge { background:#11203f; color:#d9b25e; }
+  .dir-a .screen { background:#f5f6f9; }
+  .dir-a .sb { background:#101a35; color:#e7ebf6;
+    background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+    background-size:18px 18px; }
+  .dir-a .sb .logo .chip { background:#fff; border-radius:5px; padding:3px 6px; }
+  .dir-a .sb .logo .mk { color:#0f1c3a; }
+  .dir-a .sb .nav a { color:rgba(231,235,246,.72); }
+  .dir-a .sb .nav a .ic { background:rgba(231,235,246,.55); }
+  .dir-a .sb .nav a.on { background:rgba(255,255,255,.08); color:#fff; font-weight:600; }
+  .dir-a .sb .nav a.on::before { content:""; position:absolute; left:0; top:5px; bottom:5px; width:3px; border-radius:2px; background:#cda353; }
+  .dir-a .sb .nav a.on .ic { background:#cda353; opacity:1; }
+  .dir-a .sb .foot { color:rgba(231,235,246,.5); border-top:1px solid rgba(255,255,255,.08); }
+  .dir-a .sb .foot .dot { background:#cda353; box-shadow:0 0 6px #cda353; }
+  .dir-a .topbar { background:#ffffff; border-bottom:1px solid #e7e9ef; }
+  .dir-a .topbar .ttl { color:#0f1729; }
+  .dir-a .topbar .search { width:120px; background:#f1f3f7; border:1px solid #e3e6ee; }
+  .dir-a .topbar .av { background:#11203f; }
+  .dir-a .body .hd b { color:#0f1729; }
+  .dir-a .body .hd span { color:#7b86a0; }
+  .dir-a .tile { background:#fff; border:1px solid #e7e9ef; box-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px -18px rgba(16,24,40,.22); }
+  .dir-a .tile .lbl { color:#7b86a0; }
+  .dir-a .tile .val { color:#0f1729; }
+  .dir-a .tile .dlt.up { color:#1a8f5a; }
+  .dir-a .tile .dlt.dn { color:#cf3f38; }
+  .dir-a .panel { background:#fff; border:1px solid #e7e9ef; box-shadow:0 1px 2px rgba(16,24,40,.05); }
+  .dir-a .panel .pt { color:#0f1729; }
+
+  /* ════════ B · INDUSTRIAL FORGE ════════ */
+  .dir-b .badge { background:#2a1409; color:#f3933f; }
+  .dir-b .screen { background:#161519; }
+  .dir-b .sb { background:linear-gradient(180deg,#1b1a1f,#121116); color:#efe9e1;
+    border-right:1px solid #2a2730; }
+  .dir-b .sb .logo .chip { background:linear-gradient(145deg,#3a3640,#211f26); border:1px solid #45404c; border-radius:5px; padding:3px 6px; }
+  .dir-b .sb .logo .mk { color:#f6ad55; }
+  .dir-b .sb .nav a { color:rgba(239,233,225,.66); }
+  .dir-b .sb .nav a .ic { background:rgba(239,233,225,.5); }
+  .dir-b .sb .nav a.on { color:#fff; background:linear-gradient(90deg,rgba(243,124,46,.22),transparent); font-weight:700; }
+  .dir-b .sb .nav a.on::before { content:""; position:absolute; left:0; top:4px; bottom:4px; width:3px; border-radius:2px; background:linear-gradient(#f8a13c,#ec5f2b); box-shadow:0 0 8px #ef7c3c; }
+  .dir-b .sb .nav a.on .ic { background:#f5933c; opacity:1; box-shadow:0 0 6px rgba(245,147,60,.7); }
+  .dir-b .sb .foot { color:rgba(239,233,225,.45); border-top:1px solid #2a2730; }
+  .dir-b .sb .foot .dot { background:#f5933c; box-shadow:0 0 7px #f5933c; }
+  .dir-b .topbar { background:#1a191e; border-bottom:1px solid #2a2730; }
+  .dir-b .topbar .ttl { color:#efe9e1; text-transform:uppercase; letter-spacing:.06em; font-size:10.5px; }
+  .dir-b .topbar .search { width:118px; background:#221f27; border:1px solid #322e3a; }
+  .dir-b .topbar .av { background:linear-gradient(145deg,#f5933c,#d65a26); }
+  .dir-b .body .hd b { color:#f4efe8; text-transform:uppercase; letter-spacing:.04em; }
+  .dir-b .body .hd span { color:#8d857c; }
+  .dir-b .tile { background:linear-gradient(158deg,#211f27,#191820); border:1px solid #2e2b35;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 10px 24px -16px rgba(0,0,0,.7); }
+  .dir-b .tile .lbl { color:#938a80; text-transform:uppercase; letter-spacing:.05em; }
+  .dir-b .tile .val { color:#f6efe6; }
+  .dir-b .tile .val.hot { color:#f7a44f; }
+  .dir-b .tile .dlt.up { color:#5fbf83; }
+  .dir-b .tile .dlt.dn { color:#ef7d5e; }
+  .dir-b .panel { background:linear-gradient(158deg,#211f27,#181820); border:1px solid #2e2b35; }
+  .dir-b .panel .pt { color:#efe9e1; text-transform:uppercase; letter-spacing:.05em; }
+
+  /* ════════ C · DATA-DENSE PRO ════════ */
+  .dir-c .badge { background:#06262b; color:#34d8ef; }
+  .dir-c .screen { background:#07080b; }
+  .dir-c .sb { background:#0a0c11; color:#dbe3ef; border-right:1px solid #161c28; }
+  .dir-c .sb .logo .chip { background:#0f1320; border:1px solid #1d2636; border-radius:4px; padding:3px 6px; }
+  .dir-c .sb .logo .mk { color:#36d8ef; }
+  .dir-c .sb .nav a { color:#8390a6; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:9.5px; }
+  .dir-c .sb .nav a .ic { background:#5b687f; border-radius:2px; }
+  .dir-c .sb .nav a.on { color:#eaf2fb; background:rgba(52,216,239,.08); }
+  .dir-c .sb .nav a.on::before { content:""; position:absolute; left:0; top:4px; bottom:4px; width:2px; background:#2bd4ee; box-shadow:0 0 6px #2bd4ee; }
+  .dir-c .sb .nav a.on .ic { background:#2bd4ee; }
+  .dir-c .sb .foot { color:#5b687f; border-top:1px solid #161c28; font-family:ui-monospace,monospace; }
+  .dir-c .sb .foot .dot { background:#2bd4ee; box-shadow:0 0 6px #2bd4ee; }
+  .dir-c .topbar { background:#090b0f; border-bottom:1px solid #161c28; }
+  .dir-c .topbar .ttl { color:#dbe3ef; font-family:ui-monospace,monospace; }
+  .dir-c .topbar .search { width:128px; background:#0f1320; border:1px solid #1d2636; }
+  .dir-c .topbar .av { background:#13324a; border:1px solid #2bd4ee; }
+  .dir-c .body { gap:8px; }
+  .dir-c .body .hd b { color:#eaf2fb; }
+  .dir-c .body .hd span { color:#677488; font-family:ui-monospace,monospace; }
+  .dir-c .stats { gap:6px; }
+  .dir-c .tile { background:#0d1018; border:1px solid #18202e; border-radius:6px; padding:7px 9px; }
+  .dir-c .tile .lbl { color:#677488; text-transform:uppercase; letter-spacing:.07em; font-size:8px; }
+  .dir-c .tile .val { color:#eaf2fb; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:14px; }
+  .dir-c .tile .val.key { color:#5fe0f3; }
+  .dir-c .tile .dlt { font-family:ui-monospace,monospace; }
+  .dir-c .tile .dlt.up { color:#41d693; }
+  .dir-c .tile .dlt.dn { color:#ff6b6b; }
+  .dir-c .panel { background:#0d1018; border:1px solid #18202e; border-radius:6px; }
+  .dir-c .panel .pt { color:#dbe3ef; font-family:ui-monospace,monospace; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <h1>Pick the direction for your JSW dashboard</h1>
+    <p>Same screen — your real data (Outstanding Credit, Dispatch, Active Customers) — rendered three ways. This look becomes the law for every page: sidebar, navbar, user management, and everything built later.</p>
+    <p class="note">Click a card to select it, or just tell me <b>A</b>, <b>B</b>, or <b>C</b> in the terminal. Hover to lift.</p>
+  </header>
+
+  <div class="grid">
+
+    <!-- ════ A ════ -->
+    <div class="mock-card dir-a" data-choice="a" onclick="pick(this)">
+      <div class="card-top">
+        <span class="badge">A</span>
+        <div><h3>Executive Steel</h3><p>JSW boardroom × Stripe polish · recommended</p></div>
+      </div>
+      <div class="screen"><div class="app">
+        <aside class="sb">
+          <div class="logo"><span class="chip"><span class="mk">JSW</span></span></div>
+          <div class="nav">
+            <a class="on"><span class="ic"></span>Dashboard</a>
+            <a><span class="ic"></span>Credit</a>
+            <a><span class="ic"></span>Stock</a>
+            <a><span class="ic"></span>Dispatch</a>
+            <a><span class="ic"></span>Users</a>
+          </div>
+          <div class="foot"><span class="dot"></span>West-Central</div>
+        </aside>
+        <div class="main">
+          <div class="topbar"><span class="ttl">Marketing Overview</span><span class="spacer"></span><span class="search"></span><span class="av"></span></div>
+          <div class="body">
+            <div class="hd"><b>Marketing Overview</b><span>West-Central · live</span></div>
+            <div class="stats">
+              <div class="tile"><span class="lbl">Outstanding Credit</span><span class="val tabnum">₹4.82<i>Cr</i></span><span class="dlt up">▲ 3.1%</span></div>
+              <div class="tile"><span class="lbl">Active Customers</span><span class="val tabnum">1,284</span><span class="dlt up">▲ 18</span></div>
+              <div class="tile"><span class="lbl">Stock at Risk</span><span class="val tabnum">7,420<i>MT</i></span><span class="dlt dn">▼ 840</span></div>
+              <div class="tile"><span class="lbl">Dispatch MTD</span><span class="val tabnum">18.9K<i>MT</i></span><span class="dlt up">▲ 6.4%</span></div>
+            </div>
+            <div class="panel">
+              <span class="pt">Dispatch Trend</span>
+              <div class="chart"><svg viewBox="0 0 300 70" preserveAspectRatio="none" width="100%" height="100%">
+                <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#2a3f73" stop-opacity=".55"/><stop offset="1" stop-color="#2a3f73" stop-opacity="0"/></linearGradient></defs>
+                <path d="M0,52 L43,46 L86,49 L129,30 L172,36 L215,20 L258,26 L300,12 L300,70 L0,70 Z" fill="url(#ga)"/>
+                <path d="M0,52 L43,46 L86,49 L129,30 L172,36 L215,20 L258,26 L300,12" fill="none" stroke="#cda353" stroke-width="2"/>
+              </svg></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+      <div class="card-foot"><span class="chip">Navy + steel-gold</span><span class="chip">Soft depth</span><span class="chip">Tabular numerics</span></div>
+    </div>
+
+    <!-- ════ B ════ -->
+    <div class="mock-card dir-b" data-choice="b" onclick="pick(this)">
+      <div class="card-top">
+        <span class="badge">B</span>
+        <div><h3>Industrial Forge</h3><p>A steel mill, made premium · boldest</p></div>
+      </div>
+      <div class="screen"><div class="app">
+        <aside class="sb">
+          <div class="logo"><span class="chip"><span class="mk">JSW</span></span></div>
+          <div class="nav">
+            <a class="on"><span class="ic"></span>Dashboard</a>
+            <a><span class="ic"></span>Credit</a>
+            <a><span class="ic"></span>Stock</a>
+            <a><span class="ic"></span>Dispatch</a>
+            <a><span class="ic"></span>Users</a>
+          </div>
+          <div class="foot"><span class="dot"></span>West-Central</div>
+        </aside>
+        <div class="main">
+          <div class="topbar"><span class="ttl">Marketing Overview</span><span class="spacer"></span><span class="search"></span><span class="av"></span></div>
+          <div class="body">
+            <div class="hd"><b>Marketing Overview</b><span>West-Central · live</span></div>
+            <div class="stats">
+              <div class="tile"><span class="lbl">Outstanding Credit</span><span class="val hot tabnum">₹4.82<i>Cr</i></span><span class="dlt up">▲ 3.1%</span></div>
+              <div class="tile"><span class="lbl">Active Customers</span><span class="val tabnum">1,284</span><span class="dlt up">▲ 18</span></div>
+              <div class="tile"><span class="lbl">Stock at Risk</span><span class="val tabnum">7,420<i>MT</i></span><span class="dlt dn">▼ 840</span></div>
+              <div class="tile"><span class="lbl">Dispatch MTD</span><span class="val tabnum">18.9K<i>MT</i></span><span class="dlt up">▲ 6.4%</span></div>
+            </div>
+            <div class="panel">
+              <span class="pt">Dispatch by Branch</span>
+              <div class="chart"><svg viewBox="0 0 300 70" width="100%" height="100%">
+                <defs><linearGradient id="gb" x1="0" y1="1" x2="0" y2="0">
+                  <stop offset="0" stop-color="#d65a26"/><stop offset="1" stop-color="#f8b24a"/></linearGradient></defs>
+                <rect x="6"   y="22" width="40" height="48" rx="2" fill="url(#gb)"/>
+                <rect x="56"  y="34" width="40" height="36" rx="2" fill="url(#gb)" opacity=".85"/>
+                <rect x="106" y="44" width="40" height="26" rx="2" fill="url(#gb)" opacity=".7"/>
+                <rect x="156" y="50" width="40" height="20" rx="2" fill="url(#gb)" opacity=".55"/>
+                <rect x="206" y="56" width="40" height="14" rx="2" fill="url(#gb)" opacity=".42"/>
+                <rect x="256" y="60" width="40" height="10" rx="2" fill="url(#gb)" opacity=".32"/>
+              </svg></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+      <div class="card-foot"><span class="chip">Graphite + molten copper</span><span class="chip">Brushed metal</span><span class="chip">Bold display</span></div>
+    </div>
+
+    <!-- ════ C ════ -->
+    <div class="mock-card dir-c" data-choice="c" onclick="pick(this)">
+      <div class="card-top">
+        <span class="badge">C</span>
+        <div><h3>Data-Dense Pro</h3><p>Linear × Bloomberg terminal · power tool</p></div>
+      </div>
+      <div class="screen"><div class="app">
+        <aside class="sb">
+          <div class="logo"><span class="chip"><span class="mk">JSW</span></span></div>
+          <div class="nav">
+            <a class="on"><span class="ic"></span>dashboard</a>
+            <a><span class="ic"></span>credit</a>
+            <a><span class="ic"></span>stock</a>
+            <a><span class="ic"></span>dispatch</a>
+            <a><span class="ic"></span>users</a>
+          </div>
+          <div class="foot"><span class="dot"></span>west-central</div>
+        </aside>
+        <div class="main">
+          <div class="topbar"><span class="ttl">overview</span><span class="spacer"></span><span class="search"></span><span class="av"></span></div>
+          <div class="body">
+            <div class="hd"><b>Marketing Overview</b><span>west-central · 14:32 IST</span></div>
+            <div class="stats">
+              <div class="tile"><span class="lbl">Outstd. Credit</span><span class="val key">₹4.82Cr</span><span class="dlt up">+3.1%</span></div>
+              <div class="tile"><span class="lbl">Active Cust.</span><span class="val">1,284</span><span class="dlt up">+18</span></div>
+              <div class="tile"><span class="lbl">Stock@Risk</span><span class="val">7,420</span><span class="dlt dn">-840</span></div>
+              <div class="tile"><span class="lbl">Dispatch MTD</span><span class="val">18,940</span><span class="dlt up">+6.4%</span></div>
+            </div>
+            <div class="panel">
+              <span class="pt">dispatch_trend.mtd</span>
+              <div class="chart"><svg viewBox="0 0 300 64" preserveAspectRatio="none" width="100%" height="100%">
+                <line x1="0" y1="16" x2="300" y2="16" stroke="#18202e" stroke-width="1"/>
+                <line x1="0" y1="40" x2="300" y2="40" stroke="#18202e" stroke-width="1"/>
+                <defs><linearGradient id="gc" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#2bd4ee" stop-opacity=".35"/><stop offset="1" stop-color="#2bd4ee" stop-opacity="0"/></linearGradient></defs>
+                <path d="M0,46 L37,40 L75,43 L112,28 L150,32 L187,18 L225,23 L262,12 L300,15 L300,64 L0,64 Z" fill="url(#gc)"/>
+                <path d="M0,46 L37,40 L75,43 L112,28 L150,32 L187,18 L225,23 L262,12 L300,15" fill="none" stroke="#2bd4ee" stroke-width="1.5"/>
+              </svg></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+      <div class="card-foot"><span class="chip">Near-black + cyan</span><span class="chip">Mono numerics</span><span class="chip">High density</span></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function pick(el){
+    document.querySelectorAll('.mock-card').forEach(c=>c.classList.remove('selected'));
+    el.classList.add('selected');
+    try { if (window.toggleSelect) window.toggleSelect(el); } catch(e){}
+  }
+</script>
+</body>
+</html>

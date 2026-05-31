@@ -18,7 +18,10 @@ from . import __version__
 from .core.config import get_settings
 from .core.database import close_db, init_db
 from .core.exception_handlers import register_exception_handlers
+from .core.scheduler import shutdown_scheduler, start_scheduler
+from .middleware.audit import AuditMiddleware
 from .routes import api_router
+from .services.audit.events import audit_system_event
 from .services.user.seed import seed_admin
 
 logger = logging.getLogger(__name__)
@@ -34,20 +37,39 @@ SECURITY_HEADERS = {
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    """Connect to MongoDB and ensure the seed admin exists on startup.
+    """Connect to MongoDB, seed the admin, start scheduler, and emit lifecycle events.
 
     Mongo failures are logged but non-fatal so ping/health still boot for local
-    development when no database is available.
+    development when no database is available.  Audit writes NEVER raise into callers.
     """
+    settings = get_settings()
     try:
         await init_db()
         await seed_admin()
+        if settings.cron_enabled:
+            await start_scheduler()
+        await audit_system_event(
+            "system.startup",
+            "Application started",
+            extra={"version": __version__},
+        )
     except Exception:  # noqa: BLE001 — startup must tolerate a missing DB.
         logger.exception("MongoDB init/seed failed; continuing without a database.")
     try:
         yield
     finally:
-        await close_db()
+        try:
+            await audit_system_event("system.shutdown", "Application stopping")
+        except Exception:  # noqa: BLE001
+            logger.exception("audit_system_event(system.shutdown) failed")
+        try:
+            await shutdown_scheduler()
+        except Exception:  # noqa: BLE001
+            logger.exception("shutdown_scheduler failed")
+        try:
+            await close_db()
+        except Exception:  # noqa: BLE001
+            logger.exception("close_db failed")
 
 
 def create_app() -> FastAPI:
@@ -63,7 +85,7 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=list(settings.cors_origins),
         allow_credentials=True,
-        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "Authorization"],
     )
 
@@ -74,6 +96,7 @@ def create_app() -> FastAPI:
             response.headers.setdefault(header, value)
         return response
 
+    app.add_middleware(AuditMiddleware, settings=settings)
     register_exception_handlers(app)
     app.include_router(api_router)
     return app

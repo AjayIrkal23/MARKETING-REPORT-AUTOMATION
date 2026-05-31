@@ -62,6 +62,24 @@ const VARIANT_CONFIG: Record<ConfirmActionVariant, VariantConfig> = {
     confirmLabel: "Enable",
     confirmVariant: "default",
   },
+  activate: {
+    icon: "✅",
+    iconBg: "bg-emerald-500/10",
+    title: "Activate region",
+    description: (label) =>
+      `"${label}" will be marked active and included in notification dispatch.`,
+    confirmLabel: "Activate",
+    confirmVariant: "default",
+  },
+  deactivate: {
+    icon: "🚫",
+    iconBg: "bg-amber-500/10",
+    title: "Deactivate region",
+    description: (label) =>
+      `"${label}" will be excluded from notification dispatch. You can reactivate it at any time.`,
+    confirmLabel: "Deactivate",
+    confirmVariant: "destructive",
+  },
 }
 
 // ---------------------------------------------------------------------------

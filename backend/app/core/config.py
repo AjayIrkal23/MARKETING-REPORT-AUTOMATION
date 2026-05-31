@@ -68,6 +68,27 @@ class Settings(BaseSettings):
     otp_resend_interval_seconds: int = 60
     password_min_length: int = 8
 
+    # --- Audit logging ---
+    audit_enabled: bool = True
+    audit_capture_request_body: bool = True
+    audit_capture_response_body: bool = True
+    audit_max_body_bytes: int = 16384
+    audit_skip_paths: tuple[str, ...] = (
+        "/health",
+        "/ping",
+        "/docs",
+        "/openapi.json",
+        "/redoc",
+        "/favicon.ico",
+        "/ws/ping",
+        "/",
+    )
+    audit_skip_path_prefixes: tuple[str, ...] = ("/admin/audit-logs",)
+
+    # --- Scheduler / cron ---
+    cron_enabled: bool = True
+    audit_heartbeat_minutes: int = 60
+
 
 @lru_cache
 def get_settings() -> Settings:
