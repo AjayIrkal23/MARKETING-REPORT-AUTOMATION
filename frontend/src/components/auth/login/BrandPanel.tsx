@@ -35,7 +35,7 @@ export function BrandPanel() {
       {/* Headline + sub-copy */}
       <div className="relative z-10 max-w-md motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-700">
         <h2 className="text-4xl leading-tight tracking-tight">
-          <span className="block font-light text-sidebar-foreground/90">West-Central Region</span>
+          <span className="block font-light text-sidebar-foreground/90">Central Region</span>
           <span className="block font-bold">Performance Intelligence.</span>
         </h2>
         <p className="mt-4 max-w-sm text-sm leading-relaxed text-sidebar-foreground/70">

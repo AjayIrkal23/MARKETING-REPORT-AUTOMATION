@@ -66,6 +66,11 @@ export async function patchData<T>(path: string, body: unknown): Promise<T> {
   return (await request<T>(path, { method: "PATCH", body: JSON.stringify(body) })).data
 }
 
+/** PUT a JSON body and unwrap `data`. */
+export async function putData<T>(path: string, body: unknown): Promise<T> {
+  return (await request<T>(path, { method: "PUT", body: JSON.stringify(body) })).data
+}
+
 /** DELETE a resource and unwrap `data` (may be `null` for 204-style responses). */
 export async function deleteData<T>(path: string): Promise<T> {
   return (await request<T>(path, { method: "DELETE" })).data

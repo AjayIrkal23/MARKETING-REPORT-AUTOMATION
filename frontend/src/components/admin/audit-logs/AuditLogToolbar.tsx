@@ -32,7 +32,11 @@ const STATIC_CATEGORIES: AuditCategory[] = [
   "system",
   "cron",
   "security",
+  "users",
   "regions",
+  "customer_codes",
+  "jsw_stock",
+  "jvml_stock",
 ]
 const STATIC_OUTCOMES: AuditOutcome[] = ["success", "failure", "error"]
 

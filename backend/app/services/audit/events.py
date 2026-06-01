@@ -140,6 +140,37 @@ async def audit_auth_event(
     )
 
 
+async def audit_user_event(
+    action: str,
+    summary: str,
+    outcome: str = "success",
+    actor_email: str | None = None,
+    extra: dict[str, Any] | None = None,
+) -> None:
+    """Record a user-management mutation event (created, updated, deleted, etc.).
+
+    Covers admin user CRUD and lifecycle actions: create/update/delete plus
+    enable/disable and password reset.
+
+    Args:
+        action:      Dot-namespaced identifier, e.g. ``"user.created"``,
+                     ``"user.disabled"``, ``"user.password_reset"``.
+        summary:     Human-readable description, e.g. ``"Created user 'a@b.com'"``.
+        outcome:     ``"success"`` | ``"failure"`` | ``"error"``; defaults to ``"success"``.
+        actor_email: Admin actor email threaded from ``admin.emailid``; ``None`` if unavailable.
+        extra:       Arbitrary extra context (user_id, target email, changed fields).
+    """
+    await record_audit(
+        category="users",
+        action=action,
+        summary=summary,
+        outcome=outcome,
+        source="service",
+        actor_email=actor_email,
+        extra=extra,
+    )
+
+
 async def audit_region_event(
     action: str,
     summary: str,
@@ -167,6 +198,33 @@ async def audit_region_event(
     )
 
 
+async def audit_coil_config_event(
+    action: str,
+    summary: str,
+    outcome: str = "success",
+    actor_email: str | None = None,
+    extra: dict[str, Any] | None = None,
+) -> None:
+    """Record a coil-config mutation event (coil_price.created/updated/deleted).
+
+    Args:
+        action:      Dot-namespaced identifier, e.g. ``"coil_price.created"``.
+        summary:     Human-readable description, e.g. ``"Created coil price for quantity 10"``.
+        outcome:     ``"success"`` | ``"failure"`` | ``"error"``; defaults to ``"success"``.
+        actor_email: Admin actor email threaded from ``admin.emailid``; ``None`` if unavailable.
+        extra:       Arbitrary extra context (coil_price_id, quantity, price, changed fields).
+    """
+    await record_audit(
+        category="coil_config",
+        action=action,
+        summary=summary,
+        outcome=outcome,
+        source="service",
+        actor_email=actor_email,
+        extra=extra,
+    )
+
+
 async def audit_customer_code_event(
     action: str,
     summary: str,
@@ -185,6 +243,87 @@ async def audit_customer_code_event(
     """
     await record_audit(
         category="customer_codes",  # NOT "regions", NOT "customer_code" singular
+        action=action,
+        summary=summary,
+        outcome=outcome,
+        source="service",
+        actor_email=actor_email,
+        extra=extra,
+    )
+
+
+async def audit_jsw_stock_event(
+    action: str,
+    summary: str,
+    outcome: str = "success",
+    actor_email: str | None = None,
+    extra: dict[str, Any] | None = None,
+) -> None:
+    """Record a JSW stock event (ingested, failed, missing_alert, config_updated).
+
+    Args:
+        action:      Dot-namespaced identifier, e.g. ``"jsw_stock.ingested"``.
+        summary:     Human-readable description.
+        outcome:     ``"success"`` | ``"failure"`` | ``"error"``; defaults to ``"success"``.
+        actor_email: Admin actor email (config changes); ``None`` for cron-driven events.
+        extra:       Arbitrary extra context (report_date, row_count, etc.).
+    """
+    await record_audit(
+        category="jsw_stock",  # singular/underscore — see ADDENDUM BE-13
+        action=action,
+        summary=summary,
+        outcome=outcome,
+        source="service",
+        actor_email=actor_email,
+        extra=extra,
+    )
+
+
+async def audit_jvml_stock_event(
+    action: str,
+    summary: str,
+    outcome: str = "success",
+    actor_email: str | None = None,
+    extra: dict[str, Any] | None = None,
+) -> None:
+    """Record a JVML stock event (ingested, failed, missing_alert, config_updated).
+
+    Args:
+        action:      Dot-namespaced identifier, e.g. ``"jvml_stock.ingested"``.
+        summary:     Human-readable description.
+        outcome:     ``"success"`` | ``"failure"`` | ``"error"``; defaults to ``"success"``.
+        actor_email: Admin actor email (config changes); ``None`` for cron-driven events.
+        extra:       Arbitrary extra context (report_date, row_count, etc.).
+    """
+    await record_audit(
+        category="jvml_stock",  # singular/underscore — mirrors jsw_stock
+        action=action,
+        summary=summary,
+        outcome=outcome,
+        source="service",
+        actor_email=actor_email,
+        extra=extra,
+    )
+
+
+async def audit_credit_report_event(
+    action: str,
+    summary: str,
+    outcome: str = "success",
+    actor_email: str | None = None,
+    extra: dict[str, Any] | None = None,
+) -> None:
+    """Record a credit-report event (ingested, failed, missing_alert, config_updated).
+
+    Args:
+        action:      Dot-namespaced identifier, e.g. ``"credit_report.ingested"``.
+        summary:     Human-readable description.
+        outcome:     ``"success"`` | ``"failure"`` | ``"error"``; defaults to ``"success"``.
+        actor_email: Admin actor email (config changes); ``None`` for cron-driven events.
+        extra:       Arbitrary extra context (report_date, row_count, etc.).
+    """
+    await record_audit(
+        category="credit_report",  # singular/underscore — mirrors jsw_stock/jvml_stock
         action=action,
         summary=summary,
         outcome=outcome,

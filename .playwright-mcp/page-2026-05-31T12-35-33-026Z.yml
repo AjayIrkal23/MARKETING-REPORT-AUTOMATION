@@ -1,0 +1,157 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - img "JSW Steel"
+        - generic [ref=e9]:
+          - generic [ref=e10]: Marketing Reports
+          - generic [ref=e12]: Marketing Intelligence
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]: Navigation
+          - list [ref=e17]:
+            - listitem [ref=e18]:
+              - link "Dashboard" [ref=e20] [cursor=pointer]:
+                - /url: /home
+                - img [ref=e21]
+                - generic [ref=e26]: Dashboard
+            - listitem [ref=e27]:
+              - link "JVML Stock List" [ref=e28] [cursor=pointer]:
+                - /url: /jvml-stock
+                - img [ref=e29]
+                - generic [ref=e39]: JVML Stock List
+            - listitem [ref=e40]:
+              - link "JSW Stock List" [ref=e41] [cursor=pointer]:
+                - /url: /jsw-stock
+                - img [ref=e42]
+                - generic [ref=e52]: JSW Stock List
+        - generic [ref=e53]:
+          - generic [ref=e54]: Administrator Config
+          - list [ref=e56]:
+            - listitem [ref=e57]:
+              - link "User Management" [ref=e58] [cursor=pointer]:
+                - /url: /admin/users
+                - img [ref=e59]
+                - generic [ref=e63]: User Management
+            - listitem [ref=e64]:
+              - link "Audit Logs" [ref=e65] [cursor=pointer]:
+                - /url: /admin/audit-logs
+                - img [ref=e66]
+                - generic [ref=e69]: Audit Logs
+            - listitem [ref=e70]:
+              - link "Region Management" [ref=e71] [cursor=pointer]:
+                - /url: /admin/regions
+                - img [ref=e72]
+                - generic [ref=e75]: Region Management
+            - listitem [ref=e76]:
+              - link "Customer Codes" [ref=e77] [cursor=pointer]:
+                - /url: /admin/customer-codes
+                - img [ref=e78]
+                - generic [ref=e82]: Customer Codes
+            - listitem [ref=e83]:
+              - link "Settings" [ref=e84] [cursor=pointer]:
+                - /url: /admin/settings
+                - img [ref=e85]
+                - generic [ref=e88]: Settings
+      - generic [ref=e92]: Central Region
+      - button "Toggle Sidebar" [ref=e93]
+    - main [ref=e94]:
+      - generic [ref=e95]:
+        - button "Toggle Sidebar" [ref=e96] [cursor=pointer]:
+          - img
+          - generic [ref=e97]: Toggle Sidebar
+        - heading "Dashboard" [level=1] [ref=e98]
+        - generic [ref=e99]:
+          - button "Switch to light mode" [ref=e100] [cursor=pointer]:
+            - img
+          - button "Open user menu" [ref=e101] [cursor=pointer]:
+            - generic [ref=e102]: Open user menu
+            - generic [ref=e104]: A
+      - main [ref=e105]:
+        - generic [ref=e106]:
+          - generic [ref=e107]:
+            - heading "Marketing Overview" [level=2] [ref=e108]
+            - paragraph [ref=e109]: Central region · updated just now
+          - generic [ref=e110]:
+            - generic [ref=e111]:
+              - generic [ref=e113]:
+                - generic [ref=e114]: Outstanding Credit
+                - img [ref=e116]
+              - generic [ref=e118]:
+                - paragraph [ref=e119]: ₹4.82 Cr
+                - paragraph [ref=e120]:
+                  - img [ref=e121]
+                  - text: +3.1%
+            - generic [ref=e124]:
+              - generic [ref=e126]:
+                - generic [ref=e127]: Active Customers
+                - img [ref=e129]
+              - generic [ref=e134]:
+                - paragraph [ref=e135]: 1,284
+                - paragraph [ref=e136]:
+                  - img [ref=e137]
+                  - text: +18 this month
+            - generic [ref=e140]:
+              - generic [ref=e142]:
+                - generic [ref=e143]: Stock at Risk
+                - img [ref=e145]
+              - generic [ref=e155]:
+                - paragraph [ref=e156]: 7,420 MT
+                - paragraph [ref=e157]:
+                  - img [ref=e158]
+                  - text: −840 MT ageing
+            - generic [ref=e161]:
+              - generic [ref=e163]:
+                - generic [ref=e164]: Dispatch (MTD)
+                - img [ref=e166]
+              - generic [ref=e171]:
+                - paragraph [ref=e172]: 18,940 MT
+                - paragraph [ref=e173]:
+                  - img [ref=e174]
+                  - text: +6.4% vs last month
+          - generic [ref=e177]:
+            - generic [ref=e178]:
+              - generic [ref=e180]: Dispatch by Branch
+              - generic [ref=e181]:
+                - generic [ref=e182]:
+                  - generic [ref=e183]:
+                    - generic [ref=e184]: 88%
+                    - generic [ref=e185]: Mumbai
+                  - generic [ref=e186]:
+                    - generic [ref=e187]: 72%
+                    - generic [ref=e188]: Pune
+                  - generic [ref=e189]:
+                    - generic [ref=e190]: 54%
+                    - generic [ref=e191]: Nagpur
+                  - generic [ref=e192]:
+                    - generic [ref=e193]: 41%
+                    - generic [ref=e194]: Nashik
+                  - generic [ref=e195]:
+                    - generic [ref=e196]: 28%
+                    - generic [ref=e197]: Goa
+                - paragraph [ref=e198]: "% of monthly dispatch target achieved · illustrative data"
+            - generic [ref=e199]:
+              - generic [ref=e201]: Top Accounts
+              - list [ref=e203]:
+                - listitem [ref=e204]:
+                  - generic [ref=e205]:
+                    - paragraph [ref=e206]: Tata Motors Ltd
+                    - paragraph [ref=e207]: ₹1.20 Cr
+                  - generic [ref=e208]: Active
+                - listitem [ref=e209]:
+                  - generic [ref=e210]:
+                    - paragraph [ref=e211]: Bharat Forge
+                    - paragraph [ref=e212]: ₹0.86 Cr
+                  - generic [ref=e213]: Review
+                - listitem [ref=e214]:
+                  - generic [ref=e215]:
+                    - paragraph [ref=e216]: Mahindra & Mahindra
+                    - paragraph [ref=e217]: ₹0.74 Cr
+                  - generic [ref=e218]: Active
+                - listitem [ref=e219]:
+                  - generic [ref=e220]:
+                    - paragraph [ref=e221]: Kalyani Steels
+                    - paragraph [ref=e222]: ₹0.52 Cr
+                  - generic [ref=e223]: Overdue
+  - region "Notifications alt+T"

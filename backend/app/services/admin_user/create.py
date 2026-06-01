@@ -19,18 +19,25 @@ from ...core.email import render_invite_email, send_email
 from ...core.errors import ConflictError
 from ...models import User
 from ...schemas.admin_user import AdminUserPublic, CreateUserRequest, to_admin_user_public
+from ..audit.events import audit_user_event
 
 logger = logging.getLogger(__name__)
 
 
-async def create_user(payload: CreateUserRequest) -> AdminUserPublic:
+async def create_user(
+    payload: CreateUserRequest,
+    *,
+    actor_email: str | None,
+) -> AdminUserPublic:
     """Create a new user in the ``invited`` state and send an invitation email.
 
     The caller (controller) is responsible for authentication gating — this
     function performs only business and persistence logic.
 
     Args:
-        payload: Validated ``CreateUserRequest`` DTO (name, emailid, isAdmin).
+        payload:     Validated ``CreateUserRequest`` DTO (name, emailid, isAdmin).
+        actor_email: Admin actor email threaded from ``admin.emailid``; ``None`` if
+                     unavailable.
 
     Returns:
         The persisted user as an ``AdminUserPublic`` DTO.
@@ -57,6 +64,13 @@ async def create_user(payload: CreateUserRequest) -> AdminUserPublic:
 
     logger.info(
         "Admin created user %s (isAdmin=%s).", payload.emailid, payload.isAdmin
+    )
+
+    await audit_user_event(
+        "user.created",
+        f"Created user '{user.emailid}'",
+        actor_email=actor_email,
+        extra={"user_id": str(user.id), "email": user.emailid},
     )
 
     # Send invite — failure must not abort the successful creation.

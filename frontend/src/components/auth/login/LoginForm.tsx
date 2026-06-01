@@ -1,4 +1,4 @@
-import { Eye, EyeOff, TriangleAlert } from "lucide-react"
+import { Eye, EyeOff, TriangleAlert, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -20,7 +20,10 @@ export function LoginForm({ onSetupRequired }: LoginFormProps) {
     isLoading,
     showPassword,
     rememberMe,
+    needsActivation,
+    checkingEmail,
     onEmailChange,
+    onEmailBlur,
     onPasswordChange,
     onTogglePassword,
     onRememberChange,
@@ -71,68 +74,98 @@ export function LoginForm({ onSetupRequired }: LoginFormProps) {
             placeholder="you@jsw.in"
             value={email}
             onChange={onEmailChange}
+            onBlur={onEmailBlur}
             disabled={isLoading}
             aria-invalid={Boolean(error) || undefined}
+            aria-busy={checkingEmail || undefined}
             required
           />
         </Field>
 
-        <Field>
-          <div className="flex items-center justify-between">
-            <FieldLabel htmlFor="password">Password</FieldLabel>
-            <button
-              type="button"
-              onClick={onForgot}
-              className="text-xs font-medium text-primary underline-offset-4 outline-none hover:underline focus-visible:underline"
-            >
-              Forgot password?
-            </button>
+        {/* Password — hidden for invited accounts (no password exists yet). */}
+        {needsActivation ? (
+          <div
+            className="flex items-start gap-2.5 rounded-lg border border-primary/25 bg-primary/5 px-3.5 py-3 text-sm text-muted-foreground"
+            role="status"
+          >
+            <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
+            <span>
+              This account hasn't been activated yet. Continue to set your password
+              using a one-time code sent to your email.
+            </span>
           </div>
-          <div className="relative">
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              autoComplete="current-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={onPasswordChange}
-              disabled={isLoading}
-              aria-invalid={Boolean(error) || undefined}
-              required
-              className="pr-9"
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              onClick={onTogglePassword}
-              disabled={isLoading}
-              aria-label={showPassword ? "Hide password" : "Show password"}
-              className="absolute top-1/2 right-1 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              {showPassword ? <EyeOff /> : <Eye />}
-            </Button>
-          </div>
-        </Field>
+        ) : (
+          <Field>
+            <div className="flex items-center justify-between">
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <button
+                type="button"
+                onClick={onForgot}
+                className="text-xs font-medium text-primary underline-offset-4 outline-none hover:underline focus-visible:underline"
+              >
+                Forgot password?
+              </button>
+            </div>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                placeholder="••••••••"
+                value={password}
+                onChange={onPasswordChange}
+                disabled={isLoading}
+                aria-invalid={Boolean(error) || undefined}
+                required
+                className="pr-9"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={onTogglePassword}
+                disabled={isLoading}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute top-1/2 right-1 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? <EyeOff /> : <Eye />}
+              </Button>
+            </div>
+          </Field>
+        )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <Checkbox
-          id="remember"
-          checked={rememberMe}
-          onCheckedChange={(v) => onRememberChange(v === true)}
-          disabled={isLoading}
-        />
-        <Label htmlFor="remember" className="text-sm font-normal text-muted-foreground">
-          Remember my email
-        </Label>
-      </div>
+      {/* Remember email — only meaningful for the password sign-in path. */}
+      {!needsActivation && (
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="remember"
+            checked={rememberMe}
+            onCheckedChange={(v) => onRememberChange(v === true)}
+            disabled={isLoading}
+          />
+          <Label htmlFor="remember" className="text-sm font-normal text-muted-foreground">
+            Remember my email
+          </Label>
+        </div>
+      )}
 
-      <Button type="submit" size="lg" disabled={isLoading} className="h-11 w-full">
+      <Button
+        type="submit"
+        size="lg"
+        disabled={isLoading || checkingEmail}
+        className="h-11 w-full"
+      >
         {isLoading ? (
           <>
             <Spinner /> Signing in…
           </>
+        ) : checkingEmail ? (
+          <>
+            <Spinner /> Checking…
+          </>
+        ) : needsActivation ? (
+          "Activate your account"
         ) : (
           "Sign in"
         )}

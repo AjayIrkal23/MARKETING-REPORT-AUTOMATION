@@ -17,6 +17,7 @@ from beanie import PydanticObjectId
 
 from ...core.errors import ForbiddenError, NotFoundError
 from ...models import User
+from ..audit.events import audit_user_event
 
 logger = logging.getLogger(__name__)
 
@@ -63,10 +64,18 @@ async def delete_user(
         if active_admin_count <= 1:
             raise ForbiddenError(_LAST_ADMIN_MSG)
 
+    target_email = user.emailid  # capture before delete
     await user.delete()
     logger.info(
         "Admin %s deleted user %s (%s).",
         current_admin_email,
         user_id,
-        user.emailid,
+        target_email,
+    )
+
+    await audit_user_event(
+        "user.deleted",
+        f"Deleted user '{target_email}'",
+        actor_email=current_admin_email,
+        extra={"user_id": user_id, "email": target_email},
     )

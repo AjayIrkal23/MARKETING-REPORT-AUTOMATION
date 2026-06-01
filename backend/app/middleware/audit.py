@@ -46,11 +46,36 @@ def _client_ip(headers: dict[str, str], scope: MutableMapping[str, Any]) -> str 
 
 # -- Category / outcome derivation (A0) -------------------------------------
 
+# Path-prefix -> audit category, evaluated in order. Each domain's specific
+# prefix MUST precede the generic "/admin" fallback so e.g. /admin/regions maps
+# to "regions" rather than the catch-all "admin". A request matches a prefix
+# when the path equals it exactly or continues with a "/" (so "/jsw-stock" does
+# not spuriously match "/jsw-stockfoo"). Anything unmatched falls through to
+# "http". Keep the categories here within the AuditCategory literal taxonomy
+# (models/audit_log.py, schemas/audit_log.py, services/audit_log/options.py).
+_CATEGORY_PREFIXES: tuple[tuple[str, str], ...] = (
+    ("/admin/regions", "regions"),
+    ("/admin/coil-prices", "coil_config"),
+    ("/admin/customer-codes", "customer_codes"),
+    ("/admin/jsw-stock", "jsw_stock"),
+    ("/admin/jvml-stock", "jvml_stock"),
+    ("/admin/credit-report", "credit_report"),
+    ("/admin/users", "users"),
+    ("/jsw-stock", "jsw_stock"),
+    ("/jvml-stock", "jvml_stock"),
+    ("/credit-report", "credit_report"),
+    ("/report", "report"),
+    ("/users", "users"),
+    ("/auth", "auth"),
+    ("/admin", "admin"),  # generic admin fallback (e.g. /admin/audit-logs)
+)
+
+
 def _category(path: str) -> str:
-    if path.startswith("/auth"):
-        return "auth"
-    if path.startswith("/admin"):
-        return "admin"
+    """Derive an audit category from the request path (per-domain, not coarse)."""
+    for prefix, category in _CATEGORY_PREFIXES:
+        if path == prefix or path.startswith(prefix + "/"):
+            return category
     return "http"
 
 

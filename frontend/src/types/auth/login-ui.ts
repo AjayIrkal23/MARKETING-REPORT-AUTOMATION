@@ -20,10 +20,24 @@ export interface UseLoginFormResult {
   isLoading: boolean
   showPassword: boolean
   rememberMe: boolean
+  /**
+   * True when the typed email belongs to an invited (not-yet-active) account —
+   * resolved by the backend `/auth/account-status` check on email blur. The
+   * form then hides the password field and shows "Activate your account".
+   */
+  needsActivation: boolean
+  /** True while the email account-status check is in flight. */
+  checkingEmail: boolean
   onEmailChange: (e: ChangeEvent<HTMLInputElement>) => void
+  /** Runs the backend account-status check for the current email. */
+  onEmailBlur: () => void
   onPasswordChange: (e: ChangeEvent<HTMLInputElement>) => void
   onTogglePassword: () => void
   onRememberChange: (checked: boolean) => void
+  /**
+   * Submit handler. When `needsActivation` is true it starts the OTP activation
+   * flow (no password); otherwise it performs a normal email + password sign-in.
+   */
   onSubmit: (e: FormEvent) => void
 }
 

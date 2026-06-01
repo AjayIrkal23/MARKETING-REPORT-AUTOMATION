@@ -1,0 +1,49 @@
+/**
+ * `GET /jvml-stock` — backend-driven paginated JVML Stock list.
+ *
+ * All filtering, sorting, and pagination is server-driven — do NOT apply any
+ * client-side transforms to the returned rows.
+ *
+ * `buildQuery` strips `undefined` and `""` (and we never forward `null`), so
+ * every optional filter is forwarded only when truthy.
+ */
+
+import { buildQuery, getList } from "@/api/client"
+import type { PaginatedResult } from "@/types/api/envelope"
+import type { JvmlStock, JvmlStockListQuery } from "@/types/jvml-stock/stock"
+
+/**
+ * Normalise `JvmlStockListQuery` into a plain record safe for `buildQuery`.
+ * Keys are snake_case to match the backend `JvmlStockListQuery` exactly.
+ */
+function buildParams(
+  q: JvmlStockListQuery,
+): Record<string, string | number | undefined> {
+  return {
+    page: q.page,
+    limit: q.limit,
+    sortBy: q.sortBy,
+    sortOrder: q.sortOrder,
+    // single report-date filter ("dd-MM-yyyy", exact match on report_date)
+    ...(q.date             ? { date: q.date }                             : {}),
+    // 4 per-field exact-match filters — only include when non-empty
+    ...(q.sales_order_type ? { sales_order_type: q.sales_order_type }     : {}),
+    ...(q.customer_name    ? { customer_name: q.customer_name }           : {}),
+    ...(q.sales_office     ? { sales_office: q.sales_office }             : {}),
+    ...(q.nco_declared     ? { nco_declared: q.nco_declared }             : {}),
+  }
+}
+
+/**
+ * Fetch a paginated, server-filtered page of JVML Stock rows.
+ *
+ * @param query - Optional query parameters; defaults to page 1, limit 20,
+ *                sorted by `created_at` descending with no active filters.
+ * @returns A paginated result containing the matching `JvmlStock` rows
+ *          and standard `PaginationMeta` (total, page, limit, totalPages).
+ */
+export function listJvmlStock(
+  query: JvmlStockListQuery = {},
+): Promise<PaginatedResult<JvmlStock>> {
+  return getList<JvmlStock>(`/jvml-stock${buildQuery(buildParams(query))}`)
+}

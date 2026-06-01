@@ -1,9 +1,10 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import type { ChangeEvent, FormEvent } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 import { login } from "@/api/auth/login"
+import { checkAccountStatus } from "@/api/auth/accountStatus"
 import { requestSetupOtp } from "@/api/auth/setup/requestOtp"
 import { ApiError } from "@/api/client"
 import { useAppDispatch } from "@/app/hooks"
@@ -12,16 +13,19 @@ import { toSessionUser } from "@/store/auth/session-user"
 import type { LoginFormProps, UseLoginFormResult } from "@/types/auth/login-ui"
 
 const REMEMBER_KEY = "app.auth.remember_email"
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /**
- * Login form state + submit logic. Calls the real `POST /auth/login`, which
- * sets the httpOnly session cookie; on success maps the user into session state
- * and redirects. Keeps `LoginForm` a thin presentational orchestrator.
+ * Login form state + submit logic with an adaptive, backend-driven flow.
  *
- * When the backend returns `PASSWORD_SETUP_REQUIRED` (invited user, null
- * password) this hook silently fires `POST /auth/setup/request-otp` so the
- * OTP is already in-flight before the parent switches to `<OtpSetupForm>`.
- * When the backend returns `ACCOUNT_DISABLED` a visible error is set.
+ * On email blur the hook calls `POST /auth/account-status`. When that email
+ * belongs to an invited (not-yet-active) account, `needsActivation` flips true:
+ * the parent hides the password field and the submit button becomes
+ * "Activate your account". Submitting then starts the OTP setup flow (no
+ * password). Otherwise it's a normal email + password sign-in.
+ *
+ * The `PASSWORD_SETUP_REQUIRED` / `ACCOUNT_DISABLED` error branches are kept as
+ * a safety net for the password path (e.g. an account invited after the check).
  */
 export function useLoginForm(props: LoginFormProps): UseLoginFormResult {
   const { onSetupRequired } = props
@@ -37,20 +41,78 @@ export function useLoginForm(props: LoginFormProps): UseLoginFormResult {
   const [rememberMe, setRememberMe] = useState(Boolean(remembered))
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [needsActivation, setNeedsActivation] = useState(false)
+  const [checkingEmail, setCheckingEmail] = useState(false)
+
+  // Guards against stale account-status responses when the email changes fast.
+  const checkSeq = useRef(0)
 
   const from =
     (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? "/home"
 
+  /** Start the OTP activation flow for an invited account (email only). */
+  const startActivation = (emailid: string) => {
+    // Fire-and-forget: the request-otp endpoint always returns a generic 200.
+    requestSetupOtp({ emailid }).catch(() => {
+      // Swallow: the OTP endpoint never enumerates — any failure is silent.
+    })
+    onSetupRequired(emailid)
+  }
+
+  const onEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value)
+    setError(null)
+    // Editing the email invalidates the previous check — re-show the password
+    // field and discard any in-flight account-status response.
+    checkSeq.current += 1
+    setCheckingEmail(false)
+    if (needsActivation) setNeedsActivation(false)
+  }
+
+  /** Backend account-status check — flips needsActivation for invited accounts. */
+  const onEmailBlur = async () => {
+    const trimmed = email.trim()
+    if (!EMAIL_RE.test(trimmed)) {
+      setNeedsActivation(false)
+      return
+    }
+    const seq = ++checkSeq.current
+    setCheckingEmail(true)
+    try {
+      const { needsActivation: needs } = await checkAccountStatus({ emailid: trimmed })
+      if (seq === checkSeq.current) setNeedsActivation(needs)
+    } catch {
+      // On any failure, fall back to the normal password sign-in path.
+      if (seq === checkSeq.current) setNeedsActivation(false)
+    } finally {
+      if (seq === checkSeq.current) setCheckingEmail(false)
+    }
+  }
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError(null)
-    if (!email || !password) {
-      setError("Enter both your email and password.")
+
+    const trimmed = email.trim()
+    if (!trimmed) {
+      setError("Enter your email address.")
       return
     }
+
+    // Invited account → activation flow (no password to enter).
+    if (needsActivation) {
+      startActivation(trimmed)
+      return
+    }
+
+    if (!password) {
+      setError("Enter your password.")
+      return
+    }
+
     setIsLoading(true)
     try {
-      const authUser = await login({ emailid: email, password })
+      const authUser = await login({ emailid: trimmed, password })
       if (rememberMe) localStorage.setItem(REMEMBER_KEY, authUser.emailid)
       else localStorage.removeItem(REMEMBER_KEY)
       dispatch(loginSuccess({ user: toSessionUser(authUser) }))
@@ -58,13 +120,9 @@ export function useLoginForm(props: LoginFormProps): UseLoginFormResult {
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.code === "PASSWORD_SETUP_REQUIRED") {
-          // Invited user — kick off OTP delivery then hand off to the setup form.
-          // Fire-and-forget: the request-otp endpoint always returns a generic 200
-          // so there's nothing meaningful to await for error handling here.
-          requestSetupOtp({ emailid: email }).catch(() => {
-            // Swallow: the OTP endpoint never enumerates — any failure is silent.
-          })
-          onSetupRequired(email)
+          // Safety net: account became invited after the check — activate now.
+          setNeedsActivation(true)
+          startActivation(trimmed)
         } else if (err.code === "ACCOUNT_DISABLED") {
           setError("Your account has been disabled. Please contact your administrator.")
         } else if (err.status === 401) {
@@ -91,7 +149,10 @@ export function useLoginForm(props: LoginFormProps): UseLoginFormResult {
     isLoading,
     showPassword,
     rememberMe,
-    onEmailChange: (e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value),
+    needsActivation,
+    checkingEmail,
+    onEmailChange,
+    onEmailBlur,
     onPasswordChange: (e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value),
     onTogglePassword: () => setShowPassword((v) => !v),
     onRememberChange: (checked: boolean) => setRememberMe(checked),

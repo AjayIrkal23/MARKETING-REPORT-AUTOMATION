@@ -18,6 +18,7 @@ from ...core.email import render_otp_email, send_email
 from ...core.errors import RateLimitError
 from ...core.otp import generate_otp, hash_otp
 from ...models import User
+from ..audit.events import audit_auth_event
 
 
 _GENERIC_MSG = (
@@ -77,5 +78,10 @@ async def request_setup_otp(emailid: str) -> str:
     ttl_minutes = settings.otp_ttl_seconds // 60
     subject, text, html = render_otp_email(raw_otp, ttl_minutes, settings.app_name)
     await send_email(user.emailid, subject, text, html)
+    await audit_auth_event(
+        "auth.otp_requested",
+        f"Setup OTP sent to {user.emailid}",
+        actor_email=user.emailid,
+    )
 
     return _GENERIC_MSG

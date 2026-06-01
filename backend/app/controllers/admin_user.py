@@ -69,10 +69,10 @@ async def get_options_controller(
 
 async def create_user_controller(
     payload: CreateUserRequest,
-    _admin: AuthUser = Depends(get_current_admin),
+    admin: AuthUser = Depends(get_current_admin),
 ) -> SuccessEnvelope[AdminUserPublic]:
     """``POST /admin/users`` — create an invited user and send invite email."""
-    user = await create_user(payload)
+    user = await create_user(payload, actor_email=admin.emailid)
     return success(user, message="User created.")
 
 
@@ -88,10 +88,10 @@ async def get_user_controller(
 async def update_user_controller(
     user_id: str,
     payload: UpdateUserRequest,
-    _admin: AuthUser = Depends(get_current_admin),
+    admin: AuthUser = Depends(get_current_admin),
 ) -> SuccessEnvelope[AdminUserPublic]:
     """``PATCH /admin/users/{id}`` — update name and/or isAdmin flag."""
-    user = await update_user(user_id, payload)
+    user = await update_user(user_id, payload, actor_email=admin.emailid)
     return success(user, message="User updated.")
 
 
@@ -115,18 +115,18 @@ async def disable_user_controller(
 
 async def enable_user_controller(
     user_id: str,
-    _admin: AuthUser = Depends(get_current_admin),
+    admin: AuthUser = Depends(get_current_admin),
 ) -> SuccessEnvelope[AdminUserPublic]:
     """``POST /admin/users/{id}/enable`` — enable a user account."""
-    user = await enable_user(user_id)
+    user = await enable_user(user_id, actor_email=admin.emailid)
     return success(user, message="User enabled.")
 
 
 async def reset_password_controller(
     user_id: str,
     payload: ResetPasswordRequest,
-    _admin: AuthUser = Depends(get_current_admin),
+    admin: AuthUser = Depends(get_current_admin),
 ) -> SuccessEnvelope[AdminUserPublic]:
     """``POST /admin/users/{id}/reset-password`` — reset or clear a user's password."""
-    user = await reset_password(user_id, payload)
+    user = await reset_password(user_id, payload, actor_email=admin.emailid)
     return success(user, message="Password updated.")

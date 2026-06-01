@@ -17,11 +17,12 @@ from beanie import PydanticObjectId
 from ...core.errors import NotFoundError
 from ...models import User
 from ...schemas.admin_user import AdminUserPublic, to_admin_user_public
+from ..audit.events import audit_user_event
 
 logger = logging.getLogger(__name__)
 
 
-async def enable_user(user_id: str) -> AdminUserPublic:
+async def enable_user(user_id: str, *, actor_email: str | None) -> AdminUserPublic:
     """Enable a user account by setting the appropriate status.
 
     The new status depends on whether the user has a password:
@@ -29,7 +30,9 @@ async def enable_user(user_id: str) -> AdminUserPublic:
     - No password (never completed OTP setup) → ``'invited'``
 
     Args:
-        user_id: String representation of the MongoDB ObjectId.
+        user_id:     String representation of the MongoDB ObjectId.
+        actor_email: Admin actor email threaded from ``admin.emailid``; ``None`` if
+                     unavailable.
 
     Returns:
         The updated user as an ``AdminUserPublic`` DTO.
@@ -55,6 +58,13 @@ async def enable_user(user_id: str) -> AdminUserPublic:
         user_id,
         user.emailid,
         new_status,
+    )
+
+    await audit_user_event(
+        "user.enabled",
+        f"Enabled user '{user.emailid}'",
+        actor_email=actor_email,
+        extra={"user_id": user_id, "email": user.emailid},
     )
 
     return to_admin_user_public(user)

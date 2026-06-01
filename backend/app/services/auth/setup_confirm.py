@@ -22,6 +22,7 @@ from ...core.config import get_settings
 from ...models import User
 from ...schemas.auth import AuthUser
 from ...schemas.otp import ConfirmSetupRequest
+from ..audit.events import audit_auth_event
 
 
 _GENERIC_FAIL = "Invalid or expired code. Please request a new one."
@@ -92,6 +93,11 @@ async def confirm_setup(payload: ConfirmSetupRequest) -> AuthUser:
     user.lastlogined = now
     await user.save()
 
+    await audit_auth_event(
+        "auth.account_activated",
+        f"Account activated for {user.emailid}",
+        actor_email=user.emailid,
+    )
     return AuthUser(
         emailid=user.emailid,
         isAdmin=user.isAdmin,

@@ -52,12 +52,20 @@ class Settings(BaseSettings):
     # console (including OTP) so the flow is testable without a mail server.
     # Production: set all SMTP_* env vars.  OTP is NEVER returned in an API
     # response (OWASP A02, user-enumeration prevention).
+    #
+    # Mailjet relay: SMTP_HOST=in-v3.mailjet.com, SMTP_USER=<API Key>,
+    # SMTP_PASSWORD=<Secret Key>, SMTP_FROM=<validated sender>. Use port 587
+    # with SMTP_STARTTLS=true (recommended) OR port 465 with SMTP_SSL=true.
     smtp_host: str = ""
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_password: str = ""
     smtp_from: str = "no-reply@jsw-marketing.local"
     smtp_starttls: bool = True
+    # Implicit TLS (SMTPS). When true the connection opens with SSL from the
+    # start (Mailjet port 465) and smtp_starttls is ignored. Leave false for
+    # the STARTTLS path (Mailjet port 587).
+    smtp_ssl: bool = False
     app_name: str = "JSW Marketing Reports"
     app_base_url: str = "http://localhost:5173"
 

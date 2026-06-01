@@ -1,0 +1,214 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - img "JSW Steel" [ref=e9]
+        - generic [ref=e10]:
+          - generic [ref=e11]: Marketing Reports
+          - generic [ref=e13]: Marketing Intelligence
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e16]: Navigation
+          - list [ref=e18]:
+            - listitem [ref=e19]:
+              - link "Dashboard" [ref=e20] [cursor=pointer]:
+                - /url: /home
+                - img [ref=e21]
+                - generic [ref=e26]: Dashboard
+            - listitem [ref=e27]:
+              - link "JVML Stock List" [ref=e28] [cursor=pointer]:
+                - /url: /jvml-stock
+                - img [ref=e29]
+                - generic [ref=e39]: JVML Stock List
+            - listitem [ref=e40]:
+              - link "JSW Stock List" [ref=e42] [cursor=pointer]:
+                - /url: /jsw-stock
+                - img [ref=e43]
+                - generic [ref=e53]: JSW Stock List
+        - generic [ref=e54]:
+          - generic [ref=e55]: Administrator Config
+          - list [ref=e57]:
+            - listitem [ref=e58]:
+              - link "User Management" [ref=e59] [cursor=pointer]:
+                - /url: /admin/users
+                - img [ref=e60]
+                - generic [ref=e64]: User Management
+            - listitem [ref=e65]:
+              - link "Audit Logs" [ref=e66] [cursor=pointer]:
+                - /url: /admin/audit-logs
+                - img [ref=e67]
+                - generic [ref=e70]: Audit Logs
+            - listitem [ref=e71]:
+              - link "Region Management" [ref=e72] [cursor=pointer]:
+                - /url: /admin/regions
+                - img [ref=e73]
+                - generic [ref=e76]: Region Management
+            - listitem [ref=e77]:
+              - link "Customer Codes" [ref=e78] [cursor=pointer]:
+                - /url: /admin/customer-codes
+                - img [ref=e79]
+                - generic [ref=e83]: Customer Codes
+            - listitem [ref=e84]:
+              - link "Settings" [ref=e85] [cursor=pointer]:
+                - /url: /admin/settings
+                - img [ref=e86]
+                - generic [ref=e89]: Settings
+      - generic [ref=e93]: West-Central Region
+      - button "Toggle Sidebar" [ref=e94]
+    - main [ref=e95]:
+      - generic [ref=e96]:
+        - button "Toggle Sidebar" [ref=e97] [cursor=pointer]:
+          - img
+          - generic [ref=e98]: Toggle Sidebar
+        - heading "JSW Stock List" [level=1] [ref=e99]
+        - generic [ref=e100]:
+          - button "Switch to dark mode" [active] [ref=e574] [cursor=pointer]:
+            - img
+          - button "Open user menu" [ref=e102] [cursor=pointer]:
+            - generic [ref=e103]: Open user menu
+            - generic [ref=e105]: A
+      - main [ref=e106]:
+        - generic [ref=e107]:
+          - generic [ref=e108]:
+            - img [ref=e110]
+            - generic [ref=e120]:
+              - heading "JSW Stock List" [level=2] [ref=e121]
+              - paragraph [ref=e122]: Daily SAP current-stock, customer-mapped
+          - toolbar "JSW stock table filters" [ref=e123]:
+            - combobox "Search JSW stock records" [ref=e125] [cursor=pointer]:
+              - generic [ref=e126]: Search stock records…
+              - generic [ref=e127]:
+                - img
+            - button "Filter by ingestion date range" [ref=e128] [cursor=pointer]:
+              - img
+              - generic [ref=e129]: Ingestion date range
+            - combobox "Filter by SO Sales Org" [ref=e131] [cursor=pointer]:
+              - generic [ref=e132]: Any sales org…
+              - generic [ref=e133]:
+                - img
+            - combobox "Filter by Sales Order Type" [ref=e135] [cursor=pointer]:
+              - generic [ref=e136]: Any order type…
+              - generic [ref=e137]:
+                - img
+            - combobox "Filter by Distr.Chnl" [ref=e139] [cursor=pointer]:
+              - generic [ref=e140]: Any channel…
+              - generic [ref=e141]:
+                - img
+            - combobox "Filter by Sold To Party" [ref=e143] [cursor=pointer]:
+              - generic [ref=e144]: Any sold-to…
+              - generic [ref=e145]:
+                - img
+            - combobox "Filter by Party Code" [ref=e147] [cursor=pointer]:
+              - generic [ref=e148]: Any party code…
+              - generic [ref=e149]:
+                - img
+            - combobox "Filter by Ship To Party" [ref=e151] [cursor=pointer]:
+              - generic [ref=e152]: Any ship-to…
+              - generic [ref=e153]:
+                - img
+            - combobox "Filter by Customer" [ref=e155] [cursor=pointer]:
+              - generic [ref=e156]: Any customer…
+              - generic [ref=e157]:
+                - img
+            - combobox "Filter by Material" [ref=e159] [cursor=pointer]:
+              - generic [ref=e160]: Any material…
+              - generic [ref=e161]:
+                - img
+            - combobox "Filter by Sales Office" [ref=e163] [cursor=pointer]:
+              - generic [ref=e164]: Any sales office…
+              - generic [ref=e165]:
+                - img
+            - combobox "Filter by SO-Product Form" [ref=e167] [cursor=pointer]:
+              - generic [ref=e168]: Any product form…
+              - generic [ref=e169]:
+                - img
+            - combobox "Filter by JSW Grade" [ref=e171] [cursor=pointer]:
+              - generic [ref=e172]: Any JSW grade…
+              - generic [ref=e173]:
+                - img
+            - combobox "Filter by NCO Declared" [ref=e175] [cursor=pointer]:
+              - generic [ref=e176]: Any NCO value…
+              - generic [ref=e177]:
+                - img
+          - table [ref=e179]:
+            - rowgroup [ref=e180]:
+              - row "Report Date Party Code Customer Customer Name Sold To Party Material JSW Grade Sales Office Distr.Chnl Unrestr Qty Stock Qty" [ref=e181]:
+                - columnheader "Report Date" [ref=e182] [cursor=pointer]:
+                  - generic [ref=e183]:
+                    - text: Report Date
+                    - img [ref=e184]
+                - columnheader "Party Code" [ref=e187] [cursor=pointer]:
+                  - generic [ref=e188]:
+                    - text: Party Code
+                    - img [ref=e189]
+                - columnheader "Customer" [ref=e192] [cursor=pointer]:
+                  - generic [ref=e193]:
+                    - text: Customer
+                    - img [ref=e194]
+                - columnheader "Customer Name" [ref=e197] [cursor=pointer]:
+                  - generic [ref=e198]:
+                    - text: Customer Name
+                    - img [ref=e199]
+                - columnheader "Sold To Party" [ref=e202] [cursor=pointer]:
+                  - generic [ref=e203]:
+                    - text: Sold To Party
+                    - img [ref=e204]
+                - columnheader "Material" [ref=e207] [cursor=pointer]:
+                  - generic [ref=e208]:
+                    - text: Material
+                    - img [ref=e209]
+                - columnheader "JSW Grade" [ref=e212] [cursor=pointer]:
+                  - generic [ref=e213]:
+                    - text: JSW Grade
+                    - img [ref=e214]
+                - columnheader "Sales Office" [ref=e217] [cursor=pointer]:
+                  - generic [ref=e218]:
+                    - text: Sales Office
+                    - img [ref=e219]
+                - columnheader "Distr.Chnl" [ref=e222] [cursor=pointer]:
+                  - generic [ref=e223]:
+                    - text: Distr.Chnl
+                    - img [ref=e224]
+                - columnheader "Unrestr Qty" [ref=e227] [cursor=pointer]:
+                  - generic [ref=e228]:
+                    - text: Unrestr Qty
+                    - img [ref=e229]
+                - columnheader "Stock Qty" [ref=e232] [cursor=pointer]:
+                  - generic [ref=e233]:
+                    - text: Stock Qty
+                    - img [ref=e234]
+                - columnheader [ref=e237]
+            - rowgroup [ref=e238]:
+              - row "31-05-2026 0040000088 Mahindra Mahindra & Mahindra — Nashik Tata Motors Ltd CRCA 0.8x1000 JSWCR270 West-Central Domestic 184.235 196.735 View stock record for Mahindra" [ref=e239]:
+                - cell "31-05-2026" [ref=e240]
+                - cell "0040000088" [ref=e241]
+                - cell "Mahindra" [ref=e242]:
+                  - generic "Mahindra" [ref=e243]
+                - cell "Mahindra & Mahindra — Nashik" [ref=e244]:
+                  - generic "Mahindra & Mahindra — Nashik" [ref=e245]
+                - cell "Tata Motors Ltd" [ref=e246]
+                - cell "CRCA 0.8x1000" [ref=e247]
+                - cell "JSWCR270" [ref=e248]
+                - cell "West-Central" [ref=e249]
+                - cell "Domestic" [ref=e250]
+                - cell "184.235" [ref=e251]
+                - cell "196.735" [ref=e252]
+                - cell "View stock record for Mahindra" [ref=e253]:
+                  - button "View stock record for Mahindra" [ref=e254] [cursor=pointer]:
+                    - img
+          - navigation "Table pagination" [ref=e255]:
+            - generic [ref=e256]: 1 stock row
+            - generic [ref=e257]:
+              - button "Go to previous page" [disabled]:
+                - img
+                - generic: Prev
+              - generic [ref=e258]: Page 1 of 1
+              - button "Go to next page" [disabled]:
+                - generic: Next
+                - img
+            - generic [ref=e259]:
+              - generic [ref=e260]: Rows per page
+              - combobox "Rows per page" [ref=e261] [cursor=pointer]:
+                - generic: "20"
+                - img
+  - region "Notifications alt+T"

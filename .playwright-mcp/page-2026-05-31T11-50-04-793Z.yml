@@ -1,0 +1,816 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - img
+              - generic:
+                - generic: Marketing Reports
+                - generic: Marketing Intelligence
+            - generic:
+              - generic:
+                - generic: Navigation
+                - generic:
+                  - list:
+                    - listitem:
+                      - link:
+                        - /url: /home
+                        - img
+                        - generic: Dashboard
+                    - listitem:
+                      - link:
+                        - /url: /jvml-stock
+                        - img
+                        - generic: JVML Stock List
+                    - listitem:
+                      - link:
+                        - /url: /jsw-stock
+                        - img
+                        - generic: JSW Stock List
+              - generic:
+                - generic: Administrator Config
+                - generic:
+                  - list:
+                    - listitem:
+                      - link:
+                        - /url: /admin/users
+                        - img
+                        - generic: User Management
+                    - listitem:
+                      - link:
+                        - /url: /admin/audit-logs
+                        - img
+                        - generic: Audit Logs
+                    - listitem:
+                      - link:
+                        - /url: /admin/regions
+                        - img
+                        - generic: Region Management
+                    - listitem:
+                      - link:
+                        - /url: /admin/customer-codes
+                        - img
+                        - generic: Customer Codes
+                    - listitem:
+                      - link:
+                        - /url: /admin/settings
+                        - img
+                        - generic: Settings
+            - generic:
+              - generic:
+                - generic: West-Central Region
+            - button
+      - main:
+        - generic:
+          - button:
+            - img
+            - generic: Toggle Sidebar
+          - heading [level=1]: JVML Stock List
+          - generic:
+            - button:
+              - img
+            - button:
+              - generic: Open user menu
+              - generic:
+                - generic: A
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - img
+              - generic:
+                - heading [level=2]: JVML Stock List
+                - paragraph: Daily SAP current-stock, customer-mapped
+            - toolbar:
+              - generic:
+                - combobox:
+                  - generic: Search stock records…
+                  - generic:
+                    - img
+              - button:
+                - img
+                - generic: Ingestion date range
+              - generic:
+                - combobox:
+                  - generic: Any sales org…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any order type…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any channel…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any sold-to…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any customer…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any material…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any sales office…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any product form…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any JVML grade…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any NCO value…
+                  - generic:
+                    - img
+            - generic:
+              - table:
+                - rowgroup:
+                  - row:
+                    - columnheader:
+                      - generic:
+                        - text: Report Date
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Party Code
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Customer
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Customer Name
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Sold To Party
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Material
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: JSW Grade
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Sales Office
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Distr.Chnl
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Unrestr Qty
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Stock Qty
+                        - img
+                    - columnheader
+                - rowgroup:
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0040000088"
+                    - cell:
+                      - generic: Tata Motors
+                    - cell:
+                      - generic: Tata Motors Limited — Pune
+                    - cell: Tata Motors Ltd
+                    - cell: HRPO 2.5x1250
+                    - cell: JSWHSLA340
+                    - cell: West-Central
+                    - cell: Domestic
+                    - cell: "184.235"
+                    - cell: "196.735"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0000008010"
+                    - cell:
+                      - generic: "8010"
+                    - cell: —
+                    - cell: JSW-ACL Unplanned
+                    - cell: S_HRTCW
+                    - cell: JVHEMC1A00
+                    - cell: Hubli
+                    - cell: Stock Transfer
+                    - cell: "19.855"
+                    - cell: "19.855"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0040013303"
+                    - cell:
+                      - generic: "40013303"
+                    - cell: —
+                    - cell: Rajasthan Prime Steel Processing CE
+                    - cell: S_HRTCW
+                    - cell: CAU210
+                    - cell: Jaipur
+                    - cell: SBU-A
+                    - cell: "18.89"
+                    - cell: "18.89"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0000008125"
+                    - cell:
+                      - generic: "8125"
+                    - cell: —
+                    - cell: JSWMI SUBCON PALWAL
+                    - cell: S_HRTCW
+                    - cell: JVHC758N00
+                    - cell: Delhi
+                    - cell: Stock Transfer
+                    - cell: "21.605"
+                    - cell: "21.605"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0040020125"
+                    - cell:
+                      - generic: "40020125"
+                    - cell: —
+                    - cell: Hyundai Steel Pipe India Private LI
+                    - cell: S_HRTCW
+                    - cell: JVPDRB4A0S
+                    - cell: Chennai
+                    - cell: SBU-A
+                    - cell: "17.915"
+                    - cell: "17.915"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0000008108"
+                    - cell:
+                      - generic: "8108"
+                    - cell: —
+                    - cell: JSW PACKING
+                    - cell: S_HRSLCW
+                    - cell: HRB50
+                    - cell: Pune
+                    - cell: Stock Transfer
+                    - cell: "0.786"
+                    - cell: "0.786"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0000008108"
+                    - cell:
+                      - generic: "8108"
+                    - cell: —
+                    - cell: JSW PACKING
+                    - cell: S_HRSLCW
+                    - cell: HRB50
+                    - cell: Pune
+                    - cell: Stock Transfer
+                    - cell: "0.806"
+                    - cell: "0.806"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0000008108"
+                    - cell:
+                      - generic: "8108"
+                    - cell: —
+                    - cell: JSW PACKING
+                    - cell: S_HRSLCW
+                    - cell: JVHWT02A00
+                    - cell: Vijaynagar
+                    - cell: Stock Transfer
+                    - cell: "0.416"
+                    - cell: "0.416"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0000008108"
+                    - cell:
+                      - generic: "8108"
+                    - cell: —
+                    - cell: JSW PACKING
+                    - cell: S_HRSLCW
+                    - cell: JVHWT02A00
+                    - cell: Vijaynagar
+                    - cell: Stock Transfer
+                    - cell: "0.416"
+                    - cell: "0.416"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0000008108"
+                    - cell:
+                      - generic: "8108"
+                    - cell: —
+                    - cell: JSW PACKING
+                    - cell: S_HRSLCW
+                    - cell: JVHWT02A00
+                    - cell: Vijaynagar
+                    - cell: Stock Transfer
+                    - cell: "0.416"
+                    - cell: "0.416"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0000008108"
+                    - cell:
+                      - generic: "8108"
+                    - cell: —
+                    - cell: JSW PACKING
+                    - cell: S_HRSLCW
+                    - cell: JVHWT02A00
+                    - cell: Vijaynagar
+                    - cell: Stock Transfer
+                    - cell: "0.416"
+                    - cell: "0.416"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0000008108"
+                    - cell:
+                      - generic: "8108"
+                    - cell: —
+                    - cell: JSW PACKING
+                    - cell: S_HRSLCW
+                    - cell: JVHWT02A00
+                    - cell: Vijaynagar
+                    - cell: Stock Transfer
+                    - cell: "0.416"
+                    - cell: "0.416"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0000008108"
+                    - cell:
+                      - generic: "8108"
+                    - cell: —
+                    - cell: JSW PACKING
+                    - cell: S_HRSLCW
+                    - cell: JVHWT02A00
+                    - cell: Vijaynagar
+                    - cell: Stock Transfer
+                    - cell: "0.416"
+                    - cell: "0.416"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0000008108"
+                    - cell:
+                      - generic: "8108"
+                    - cell: —
+                    - cell: JSW PACKING
+                    - cell: S_HRSLCW
+                    - cell: HRB50
+                    - cell: Pune
+                    - cell: Stock Transfer
+                    - cell: "0.52"
+                    - cell: "0.52"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0040001355"
+                    - cell:
+                      - generic: "40024101"
+                    - cell: —
+                    - cell: Sharoff Steel Traders
+                    - cell: S_HRCW
+                    - cell: JVHSTA1D10
+                    - cell: Bangalore
+                    - cell: Retail
+                    - cell: "0"
+                    - cell: "27.73"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0040006484"
+                    - cell:
+                      - generic: "40108656"
+                    - cell: —
+                    - cell: Wheels India Limited
+                    - cell: S_HRCW
+                    - cell: JVHDMC9A0S
+                    - cell: Chennai
+                    - cell: SBU-A
+                    - cell: "21.25"
+                    - cell: "21.25"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0040006484"
+                    - cell:
+                      - generic: "40108656"
+                    - cell: —
+                    - cell: Wheels India Limited
+                    - cell: S_HRCW
+                    - cell: JVHDM09A0S
+                    - cell: Chennai
+                    - cell: SBU-A
+                    - cell: "22.59"
+                    - cell: "22.59"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0040006484"
+                    - cell:
+                      - generic: "40108656"
+                    - cell: —
+                    - cell: Wheels India Limited
+                    - cell: S_HRCW
+                    - cell: JVHDMC9A0S
+                    - cell: Chennai
+                    - cell: SBU-A
+                    - cell: "23.23"
+                    - cell: "23.23"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0040006484"
+                    - cell:
+                      - generic: "40108656"
+                    - cell: —
+                    - cell: Wheels India Limited
+                    - cell: S_HRCW
+                    - cell: JVHDM09A0S
+                    - cell: Chennai
+                    - cell: SBU-A
+                    - cell: "22.045"
+                    - cell: "22.045"
+                    - cell:
+                      - button:
+                        - img
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0040006484"
+                    - cell:
+                      - generic: "40108656"
+                    - cell: —
+                    - cell: Wheels India Limited
+                    - cell: S_HRCW
+                    - cell: JVHDM09A0S
+                    - cell: Chennai
+                    - cell: SBU-A
+                    - cell: "7.545"
+                    - cell: "7.545"
+                    - cell:
+                      - button:
+                        - img
+            - navigation "Table pagination":
+              - generic: 17,325 stock rows
+              - generic:
+                - button [disabled]:
+                  - img
+                  - generic: Prev
+                - generic: Page 1 of 867
+                - button:
+                  - generic: Next
+                  - img
+              - generic:
+                - generic: Rows per page
+                - combobox:
+                  - generic: "20"
+                  - img
+    - region "Notifications alt+T"
+  - dialog "Tata Motors Limited — Pune" [ref=e756]:
+    - generic [ref=e758]:
+      - img [ref=e760]
+      - generic [ref=e770]:
+        - heading "Tata Motors Limited — Pune" [level=2] [ref=e771]
+        - paragraph [ref=e772]: 0040000088 · HRPO 2.5x1250
+        - generic [ref=e773]:
+          - generic [ref=e774]:
+            - img
+            - text: 31-05-2026
+          - generic [ref=e775]: Grade JSWHSLA340
+          - generic [ref=e776]: 196.735 MT
+          - generic [ref=e777]: "NCO: YES"
+    - generic [ref=e779]:
+      - generic [ref=e780]:
+        - heading "Order & SO" [level=3] [ref=e782]
+        - generic [ref=e784]:
+          - generic [ref=e785]:
+            - term [ref=e786]: Sales Order No
+            - definition [ref=e787]: "0027451883"
+          - generic [ref=e788]:
+            - term [ref=e789]: SO Item Num
+            - definition [ref=e790]: "10"
+          - generic [ref=e791]:
+            - term [ref=e792]: SO Sales Org
+            - definition [ref=e793]: JVML
+          - generic [ref=e794]:
+            - term [ref=e795]: Sales Order Type
+            - definition [ref=e796]: ZOR
+          - generic [ref=e797]:
+            - term [ref=e798]: Order Status
+            - definition [ref=e799]: Open
+          - generic [ref=e800]:
+            - term [ref=e801]: Scheduled Status
+            - definition [ref=e802]: Confirmed
+          - generic [ref=e803]:
+            - term [ref=e804]: SO Product Form
+            - definition [ref=e805]: HR Coil
+          - generic [ref=e806]:
+            - term [ref=e807]: End Application
+            - definition [ref=e808]: Automotive
+          - generic [ref=e809]:
+            - term [ref=e810]: PO Number
+            - definition [ref=e811]: PO-AX-99213
+      - generic [ref=e812]:
+        - heading "Customer & Mapping" [level=3] [ref=e814]
+        - generic [ref=e816]:
+          - generic [ref=e817]:
+            - term [ref=e818]: Sold To Party
+            - definition [ref=e819]: Tata Motors Ltd
+          - generic [ref=e820]:
+            - term [ref=e821]: Party Code
+            - definition [ref=e822]: "0040000088"
+          - generic [ref=e823]:
+            - term [ref=e824]: Normalized Code
+            - definition [ref=e825]: "40000088"
+          - generic [ref=e826]:
+            - term [ref=e827]: Ship To Party
+            - definition [ref=e828]: Pune Plant
+          - generic [ref=e829]:
+            - term [ref=e830]: Customer
+            - definition [ref=e831]: Tata Motors
+          - generic [ref=e832]:
+            - term [ref=e833]: Customer Name
+            - definition [ref=e834]: Tata Motors Limited — Pune
+          - generic [ref=e835]:
+            - term [ref=e836]: Customer Code ID
+            - definition [ref=e837]: CC-10422
+          - generic [ref=e838]:
+            - term [ref=e839]: Distr. Channel
+            - definition [ref=e840]: Domestic
+          - generic [ref=e841]:
+            - term [ref=e842]: Sales Office
+            - definition [ref=e843]: West-Central
+      - generic [ref=e844]:
+        - heading "Material & Dimensions" [level=3] [ref=e846]
+        - generic [ref=e848]:
+          - generic [ref=e849]:
+            - term [ref=e850]: Material
+            - definition [ref=e851]: HRPO 2.5x1250
+          - generic [ref=e852]:
+            - term [ref=e853]: JSW Grade
+            - definition [ref=e854]: JSWHSLA340
+          - generic [ref=e855]:
+            - term [ref=e856]: Batch
+            - definition [ref=e857]: B-22418
+          - generic [ref=e858]:
+            - term [ref=e859]: Act. Thickness (mm)
+            - definition [ref=e860]: "2.50"
+          - generic [ref=e861]:
+            - term [ref=e862]: Width (mm)
+            - definition [ref=e863]: "1250"
+          - generic [ref=e864]:
+            - term [ref=e865]: Length (mm)
+            - definition [ref=e866]: C
+          - generic [ref=e867]:
+            - term [ref=e868]: Eq. Specification
+            - definition [ref=e869]: IS 5986
+          - generic [ref=e870]:
+            - term [ref=e871]: Eq. Sub Grade
+            - definition [ref=e872]: Fe540
+          - generic [ref=e873]:
+            - term [ref=e874]: Special Stock
+            - definition [ref=e875]: Unrestricted
+          - generic [ref=e876]:
+            - term [ref=e877]: Production Date
+            - definition [ref=e878]: 20 May 2026
+          - generic [ref=e879]:
+            - term [ref=e880]: Shift
+            - definition [ref=e881]: A
+          - generic [ref=e882]:
+            - term [ref=e883]: Aging (days)
+            - definition [ref=e884]: "11"
+      - generic [ref=e885]:
+        - heading "Quantities" [level=3] [ref=e887]
+        - generic [ref=e889]:
+          - generic [ref=e890]:
+            - term [ref=e891]: Unrestricted Qty
+            - definition [ref=e892]: "184.235"
+          - generic [ref=e893]:
+            - term [ref=e894]: In Quality Insp.
+            - definition [ref=e895]: "12.5"
+          - generic [ref=e896]:
+            - term [ref=e897]: Blocked
+            - definition [ref=e898]: "0"
+          - generic [ref=e899]:
+            - term [ref=e900]: Stock Quantity
+            - definition [ref=e901]: "196.735"
+      - generic [ref=e902]:
+        - heading "Quality / NCO" [level=3] [ref=e904]
+        - generic [ref=e906]:
+          - generic [ref=e907]:
+            - term [ref=e908]: Usage Decision
+            - definition [ref=e909]: Accepted
+          - generic [ref=e910]:
+            - term [ref=e911]: UD Remarks
+            - definition [ref=e912]: Within spec
+          - generic [ref=e913]:
+            - term [ref=e914]: NCO Declared
+            - definition [ref=e915]: "YES"
+          - generic [ref=e916]:
+            - term [ref=e917]: NCO Reason
+            - definition [ref=e918]: Edge wave observed on coil tail
+          - generic [ref=e919]:
+            - term [ref=e920]: Next Workcenter
+            - definition [ref=e921]: CRM-2
+          - generic [ref=e922]:
+            - term [ref=e923]: Prod. Workcenter
+            - definition [ref=e924]: HSM-1
+      - generic [ref=e925]:
+        - heading "Chemistry (%)" [level=3] [ref=e927]
+        - generic [ref=e929]:
+          - generic [ref=e930]:
+            - term [ref=e931]: Al %
+            - definition [ref=e932]: "0.035"
+          - generic [ref=e933]:
+            - term [ref=e934]: B %
+            - definition [ref=e935]: "0"
+          - generic [ref=e936]:
+            - term [ref=e937]: C %
+            - definition [ref=e938]: "0.075"
+          - generic [ref=e939]:
+            - term [ref=e940]: Cr %
+            - definition [ref=e941]: "0.02"
+          - generic [ref=e942]:
+            - term [ref=e943]: Cu %
+            - definition [ref=e944]: "0.01"
+          - generic [ref=e945]:
+            - term [ref=e946]: Mn %
+            - definition [ref=e947]: "0.65"
+          - generic [ref=e948]:
+            - term [ref=e949]: Mo %
+            - definition [ref=e950]: "0.003"
+          - generic [ref=e951]:
+            - term [ref=e952]: Ni %
+            - definition [ref=e953]: "0.012"
+          - generic [ref=e954]:
+            - term [ref=e955]: Nb %
+            - definition [ref=e956]: "0.025"
+          - generic [ref=e957]:
+            - term [ref=e958]: P %
+            - definition [ref=e959]: "0.011"
+          - generic [ref=e960]:
+            - term [ref=e961]: Si %
+            - definition [ref=e962]: "0.18"
+          - generic [ref=e963]:
+            - term [ref=e964]: S %
+            - definition [ref=e965]: "0.006"
+          - generic [ref=e966]:
+            - term [ref=e967]: Ti %
+            - definition [ref=e968]: "0.001"
+          - generic [ref=e969]:
+            - term [ref=e970]: V %
+            - definition [ref=e971]: "0.002"
+      - generic [ref=e972]:
+        - heading "Mechanical" [level=3] [ref=e974]
+        - generic [ref=e976]:
+          - generic [ref=e977]:
+            - term [ref=e978]: YS (MPa)
+            - definition [ref=e979]: "372"
+          - generic [ref=e980]:
+            - term [ref=e981]: Tensile (MPa)
+            - definition [ref=e982]: "458"
+          - generic [ref=e983]:
+            - term [ref=e984]: Elongation
+            - definition [ref=e985]: 28%
+          - generic [ref=e986]:
+            - term [ref=e987]: Elongation (Mic)
+            - definition [ref=e988]: "27.6"
+          - generic [ref=e989]:
+            - term [ref=e990]: Hardness
+            - definition [ref=e991]: 78 HRB
+          - generic [ref=e992]:
+            - term [ref=e993]: Yield Strength
+            - definition [ref=e994]: 372 MPa
+          - generic [ref=e995]:
+            - term [ref=e996]: UTS
+            - definition [ref=e997]: 458 MPa
+      - generic [ref=e998]:
+        - heading "Logistics / Export" [level=3] [ref=e1000]
+        - generic [ref=e1002]:
+          - generic [ref=e1003]:
+            - term [ref=e1004]: Location
+            - definition [ref=e1005]: Yard 4
+          - generic [ref=e1006]:
+            - term [ref=e1007]: Storage Location
+            - definition [ref=e1008]: SL-12
+          - generic [ref=e1009]:
+            - term [ref=e1010]: STR No
+            - definition [ref=e1011]: STR-9981
+          - generic [ref=e1012]:
+            - term [ref=e1013]: STO No
+            - definition [ref=e1014]: STO-4471
+          - generic [ref=e1015]:
+            - term [ref=e1016]: DO No
+            - definition [ref=e1017]: DO-7782
+          - generic [ref=e1018]:
+            - term [ref=e1019]: Shipment
+            - definition [ref=e1020]: SHP-33119
+          - generic [ref=e1021]:
+            - term [ref=e1022]: Port Name
+            - definition [ref=e1023]: JNPT
+          - generic [ref=e1024]:
+            - term [ref=e1025]: Unloading Point
+            - definition [ref=e1026]: Gate 3
+          - generic [ref=e1027]:
+            - term [ref=e1028]: Receiving Point
+            - definition [ref=e1029]: Dock B
+          - generic [ref=e1030]:
+            - term [ref=e1031]: Route
+            - definition [ref=e1032]: R-204
+          - generic [ref=e1033]:
+            - term [ref=e1034]: Route Desc
+            - definition [ref=e1035]: Mumbai → Pune
+          - generic [ref=e1036]:
+            - term [ref=e1037]: CP Number
+            - definition [ref=e1038]: CP-552
+          - generic [ref=e1039]:
+            - term [ref=e1040]: CP End Date
+            - definition [ref=e1041]: 30 Jun 2026
+          - generic [ref=e1042]:
+            - term [ref=e1043]: LC Exp Date
+            - definition [ref=e1044]: 30.06.2026
+      - generic [ref=e1045]:
+        - heading "Meta" [level=3] [ref=e1047]
+        - generic [ref=e1049]:
+          - generic [ref=e1050]:
+            - term [ref=e1051]: Report Date
+            - definition [ref=e1052]: 31-05-2026
+          - generic [ref=e1053]:
+            - term [ref=e1054]: Source File
+            - definition [ref=e1055]: __VERIFY_SAMPLE__.xlsx
+          - generic [ref=e1056]:
+            - term [ref=e1057]: Ingested
+            - definition [ref=e1058]: 31 May 2026, 11:49
+          - generic [ref=e1059]:
+            - term [ref=e1060]: Updated
+            - definition [ref=e1061]: 31 May 2026, 11:49
+    - generic [ref=e1062]:
+      - paragraph [ref=e1063]: Ingested 31 May 2026, 11:49
+      - button "Close" [active] [ref=e1064] [cursor=pointer]
+    - button "Close" [ref=e1065] [cursor=pointer]:
+      - img
+      - generic [ref=e1066]: Close

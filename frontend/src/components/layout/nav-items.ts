@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react"
-import { Building2, LayoutDashboard, MapPin, ScrollText, UsersRound } from "lucide-react"
+import { Boxes, Building2, CreditCard, Disc3, FileSpreadsheet, LayoutDashboard, MapPin, ScrollText, Settings, UsersRound } from "lucide-react"
 
 export interface NavItem {
   label: string
@@ -9,6 +9,10 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", to: "/home", icon: LayoutDashboard },
+  { label: "JVML Stock List", to: "/jvml-stock", icon: Boxes },
+  { label: "JSW Stock List", to: "/jsw-stock", icon: Boxes },
+  { label: "Credit Report", to: "/credit-report", icon: CreditCard },
+  { label: "Report JSW/JVML", to: "/report", icon: FileSpreadsheet },
 ]
 
 export const ADMIN_NAV_ITEMS: NavItem[] = [
@@ -16,6 +20,8 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Audit Logs", to: "/admin/audit-logs", icon: ScrollText },
   { label: "Region Management", to: "/admin/regions", icon: MapPin },
   { label: "Customer Codes", to: "/admin/customer-codes", icon: Building2 },
+  { label: "Coil Config", to: "/admin/coil-config", icon: Disc3 },
+  { label: "Settings", to: "/admin/settings", icon: Settings },
 ]
 
 /** Resolve the page title for the current pathname (exact or nested match). */

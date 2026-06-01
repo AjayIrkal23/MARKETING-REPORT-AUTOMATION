@@ -17,3 +17,17 @@ export interface AuthUser {
   /** ISO-8601 timestamp, or null if the user has never logged in. */
   lastlogined: string | null
 }
+
+/** Request body for `POST /auth/account-status`. */
+export interface AccountStatusInput {
+  emailid: string
+}
+
+/**
+ * Result of `POST /auth/account-status`. `needsActivation` is true only for
+ * invited (not-yet-active) accounts — the login form then hides the password
+ * field and offers activation instead of sign-in.
+ */
+export interface AccountStatusResult {
+  needsActivation: boolean
+}

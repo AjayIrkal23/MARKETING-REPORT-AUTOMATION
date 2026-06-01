@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends
 from ..controllers import auth as auth_ctrl
 from ..core.ratelimit import login_rate_limit
 from ..core.responses import SuccessEnvelope
-from ..schemas.auth import AuthUser
+from ..schemas.auth import AccountStatusResponse, AuthUser
 from ..schemas.otp import GenericMessage
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -22,6 +22,14 @@ router.add_api_route(
     "/login", auth_ctrl.login_controller, methods=["POST"],
     dependencies=[Depends(login_rate_limit)],
     response_model=SuccessEnvelope[AuthUser],
+)
+# Pre-login adaptive check: does this email need activation? (invited accounts
+# only). Rate-limited like /login to throttle enumeration scraping.
+router.add_api_route(
+    "/account-status", auth_ctrl.account_status_controller, methods=["POST"],
+    dependencies=[Depends(login_rate_limit)],
+    response_model=SuccessEnvelope[AccountStatusResponse],
+    summary="Check whether an email needs activation (invited accounts only)",
 )
 # /me is gated by get_current_user (declared on the controller); it restores the
 # session on app reload since the httpOnly cookie isn't JS-readable.

@@ -1,173 +1,117 @@
-/** `/home` route — dashboard landing overview for JSW Steel West-Central region. */
-import { CreditCard, Users, Boxes, Truck, TrendingUp, TrendingDown } from "lucide-react"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+/**
+ * `/home` route — dashboard landing page.
+ *
+ * Top: three live report-status cards (JSW Stock / JVML Stock / Credit Report)
+ * showing today's ingestion state — EXTRACTED / MISSING — backed by
+ * `GET /dashboard/summary`. Below: the Analytics "coming soon" placeholder.
+ *
+ * Thin orchestrator: all server state lives in `useDashboardSummary`; cards are
+ * presentational. Route: /home (ProtectedRoute, all authenticated users).
+ */
 
-// ─── Stat cards ──────────────────────────────────────────────────────────────
+import { LayoutDashboard, AlertCircle, RefreshCw } from "lucide-react"
 
-const stats = [
-  {
-    label: "Outstanding Credit",
-    value: "₹4.82 Cr",
-    delta: "+3.1%",
-    up: true,
-    icon: CreditCard,
-  },
-  {
-    label: "Active Customers",
-    value: "1,284",
-    delta: "+18 this month",
-    up: true,
-    icon: Users,
-  },
-  {
-    label: "Stock at Risk",
-    value: "7,420 MT",
-    delta: "−840 MT ageing",
-    up: false,
-    icon: Boxes,
-  },
-  {
-    label: "Dispatch (MTD)",
-    value: "18,940 MT",
-    delta: "+6.4% vs last month",
-    up: true,
-    icon: Truck,
-  },
-]
+import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardContent } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 
-// ─── Branch dispatch bars ─────────────────────────────────────────────────────
+import { useDashboardSummary } from "@/components/dashboard/hooks/useDashboardSummary"
+import { ReportStatusCard } from "@/components/dashboard/ReportStatusCard"
+import { AnalyticsComingSoon } from "@/components/dashboard/AnalyticsComingSoon"
 
-const branches = [
-  { name: "Mumbai",  pct: 88, color: "var(--chart-1)" },
-  { name: "Pune",    pct: 72, color: "var(--chart-2)" },
-  { name: "Nagpur",  pct: 54, color: "var(--chart-3)" },
-  { name: "Nashik",  pct: 41, color: "var(--chart-4)" },
-  { name: "Goa",     pct: 28, color: "var(--chart-5)" },
-]
+// ── Loading skeleton card ──────────────────────────────────────────────────────
 
-// ─── Top accounts ─────────────────────────────────────────────────────────────
+function StatusCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-start gap-2.5">
+          <Skeleton className="size-9 rounded-lg" />
+          <div className="flex flex-col gap-1.5">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        <div className="grid grid-cols-2 gap-2.5">
+          <Skeleton className="h-[58px] rounded-lg" />
+          <Skeleton className="h-[58px] rounded-lg" />
+        </div>
+        <Skeleton className="h-3 w-40" />
+      </CardContent>
+    </Card>
+  )
+}
 
-type AccountStatus = "default" | "secondary" | "destructive"
-const accounts: { name: string; code: string; credit: string; status: AccountStatus; label: string }[] = [
-  { name: "Tata Motors Ltd",       code: "40000088", credit: "₹1.20 Cr", status: "default",     label: "Active" },
-  { name: "Bharat Forge",          code: "40002341", credit: "₹0.86 Cr", status: "secondary",   label: "Review" },
-  { name: "Mahindra & Mahindra",   code: "40003102", credit: "₹0.74 Cr", status: "default",     label: "Active" },
-  { name: "Kalyani Steels",        code: "40005678", credit: "₹0.52 Cr", status: "destructive", label: "Overdue" },
-]
-
-// ─── Component ───────────────────────────────────────────────────────────────
+// ── Page ───────────────────────────────────────────────────────────────────────
 
 export function HomePage() {
+  const { data, loading, error, refetch } = useDashboardSummary()
+
   return (
     <div className="flex flex-col gap-6">
 
-      {/* Page header */}
-      <div>
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">
-          Marketing Overview
-        </h2>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          West-Central region · updated just now
-        </p>
-      </div>
-
-      {/* Stat cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((s) => {
-          const Icon = s.icon
-          const DeltaIcon = s.up ? TrendingUp : TrendingDown
-          const deltaColor = s.up ? "text-emerald-600" : "text-destructive"
-
-          return (
-            <Card key={s.label}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{s.label}</span>
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Icon size={16} />
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-semibold text-foreground tabular-nums">
-                  {s.value}
-                </p>
-                <p className={`mt-1 flex items-center gap-1 text-xs ${deltaColor}`}>
-                  <DeltaIcon size={12} />
-                  {s.delta}
-                </p>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-
-      {/* Lower section: dispatch chart + top accounts */}
-      <div className="grid gap-4 lg:grid-cols-3">
-
-        {/* Dispatch by branch — CSS bar chart */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Dispatch by Branch</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-end gap-3 h-36">
-              {branches.map((b) => (
-                <div key={b.name} className="flex flex-1 flex-col items-center gap-1.5">
-                  <span className="text-xs tabular-nums text-muted-foreground">
-                    {b.pct}%
-                  </span>
-                  <div
-                    className="w-full rounded-t-sm transition-all"
-                    style={{
-                      height: `${b.pct}%`,
-                      backgroundColor: b.color,
-                      opacity: 0.85,
-                    }}
-                  />
-                  <span className="text-xs text-muted-foreground truncate w-full text-center">
-                    {b.name}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              % of monthly dispatch target achieved · illustrative data
+      {/* ── Page header ──────────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <span
+            aria-hidden
+            className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+          >
+            <LayoutDashboard className="size-4" />
+          </span>
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">
+              Dashboard
+            </h2>
+            <p className="mt-0.5 text-sm text-muted-foreground tabular-nums">
+              Daily SAP report status{data ? ` · ${data.date}` : ""}
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Top accounts */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Accounts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="flex flex-col divide-y divide-border">
-              {accounts.map((a) => (
-                <li key={a.code} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
-                  <div className="min-w-0 flex-1 pr-3">
-                    <p className="truncate text-sm font-medium text-foreground">
-                      {a.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground tabular-nums">
-                      {a.credit}
-                    </p>
-                  </div>
-                  <Badge variant={a.status}>{a.label}</Badge>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={refetch}
+          disabled={loading}
+          className="shrink-0 gap-1.5"
+          aria-label="Refresh dashboard status"
+        >
+          <RefreshCw className={loading ? "size-3.5 animate-spin" : "size-3.5"} />
+          Refresh
+        </Button>
       </div>
+
+      <Separator />
+
+      {/* ── Report status cards ──────────────────────────────────────────── */}
+      {error ? (
+        <div
+          role="alert"
+          className="flex flex-col items-center justify-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 py-12 text-destructive"
+        >
+          <AlertCircle className="size-7 opacity-70 shrink-0" aria-hidden />
+          <p className="text-sm font-medium">Couldn't load report status</p>
+          <Button variant="outline" size="sm" onClick={refetch} className="mt-1">
+            Try again
+          </Button>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {loading || data === null
+            ? Array.from({ length: 3 }).map((_, i) => <StatusCardSkeleton key={i} />)
+            : data.reports.map((report) => (
+                <ReportStatusCard key={report.key} report={report} />
+              ))}
+        </div>
+      )}
+
+      {/* ── Analytics (placeholder) ──────────────────────────────────────── */}
+      <AnalyticsComingSoon />
+
     </div>
   )
 }

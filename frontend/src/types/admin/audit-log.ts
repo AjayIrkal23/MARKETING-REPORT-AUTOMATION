@@ -28,8 +28,14 @@ export type AuditCategory =
   | "system"
   | "cron"
   | "security"
+  | "users"
   | "regions"
   | "customer_codes"
+  | "jsw_stock"
+  | "jvml_stock"
+  | "credit_report"
+  | "coil_config"
+  | "report"
 
 /** Result outcome of an audited operation. */
 export type AuditOutcome = "success" | "failure" | "error"

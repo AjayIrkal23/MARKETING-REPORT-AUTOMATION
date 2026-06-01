@@ -17,6 +17,7 @@ from beanie import PydanticObjectId
 from ...core.errors import NotFoundError
 from ...models import User
 from ...schemas.admin_user import AdminUserPublic, UpdateUserRequest, to_admin_user_public
+from ..audit.events import audit_user_event
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,8 @@ logger = logging.getLogger(__name__)
 async def update_user(
     user_id: str,
     payload: UpdateUserRequest,
+    *,
+    actor_email: str | None,
 ) -> AdminUserPublic:
     """Update a user's ``name`` and/or ``isAdmin`` fields.
 
@@ -31,8 +34,10 @@ async def update_user(
     of the document is left unchanged (partial update semantics).
 
     Args:
-        user_id: String representation of the MongoDB ObjectId.
-        payload: Validated ``UpdateUserRequest`` DTO.
+        user_id:     String representation of the MongoDB ObjectId.
+        payload:     Validated ``UpdateUserRequest`` DTO.
+        actor_email: Admin actor email threaded from ``admin.emailid``; ``None`` if
+                     unavailable.
 
     Returns:
         The updated user as an ``AdminUserPublic`` DTO.
@@ -67,5 +72,16 @@ async def update_user(
             payload.name,
             payload.isAdmin,
         )
+
+    await audit_user_event(
+        "user.updated",
+        f"Updated user '{user.emailid}'",
+        actor_email=actor_email,
+        extra={
+            "user_id": str(user.id),
+            "email": user.emailid,
+            "changed": [f for f in ("name", "isAdmin") if getattr(payload, f) is not None],
+        },
+    )
 
     return to_admin_user_public(user)

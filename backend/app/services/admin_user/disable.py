@@ -19,6 +19,7 @@ from beanie import PydanticObjectId
 from ...core.errors import ForbiddenError, NotFoundError
 from ...models import User
 from ...schemas.admin_user import AdminUserPublic, to_admin_user_public
+from ..audit.events import audit_user_event
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,13 @@ async def disable_user(
         current_admin_email,
         user_id,
         user.emailid,
+    )
+
+    await audit_user_event(
+        "user.disabled",
+        f"Disabled user '{user.emailid}'",
+        actor_email=current_admin_email,
+        extra={"user_id": user_id, "email": user.emailid},
     )
 
     return to_admin_user_public(user)

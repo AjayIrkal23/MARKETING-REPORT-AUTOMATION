@@ -27,6 +27,7 @@ from .events import (
     audit_cron_event,
     audit_security_event,
     audit_system_event,
+    audit_user_event,
 )
 
 __all__ = [
@@ -36,4 +37,5 @@ __all__ = [
     "audit_cron_event",
     "audit_security_event",
     "audit_auth_event",
+    "audit_user_event",
 ]

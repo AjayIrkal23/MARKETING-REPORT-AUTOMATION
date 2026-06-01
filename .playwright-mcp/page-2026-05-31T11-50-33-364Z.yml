@@ -1,0 +1,522 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - img
+              - generic:
+                - generic: Marketing Reports
+                - generic: Marketing Intelligence
+            - generic:
+              - generic:
+                - generic: Navigation
+                - generic:
+                  - list:
+                    - listitem:
+                      - link:
+                        - /url: /home
+                        - img
+                        - generic: Dashboard
+                    - listitem:
+                      - link:
+                        - /url: /jvml-stock
+                        - img
+                        - generic: JVML Stock List
+                    - listitem:
+                      - link:
+                        - /url: /jsw-stock
+                        - img
+                        - generic: JSW Stock List
+              - generic:
+                - generic: Administrator Config
+                - generic:
+                  - list:
+                    - listitem:
+                      - link:
+                        - /url: /admin/users
+                        - img
+                        - generic: User Management
+                    - listitem:
+                      - link:
+                        - /url: /admin/audit-logs
+                        - img
+                        - generic: Audit Logs
+                    - listitem:
+                      - link:
+                        - /url: /admin/regions
+                        - img
+                        - generic: Region Management
+                    - listitem:
+                      - link:
+                        - /url: /admin/customer-codes
+                        - img
+                        - generic: Customer Codes
+                    - listitem:
+                      - link:
+                        - /url: /admin/settings
+                        - img
+                        - generic: Settings
+            - generic:
+              - generic:
+                - generic: West-Central Region
+            - button
+      - main:
+        - generic:
+          - button:
+            - img
+            - generic: Toggle Sidebar
+          - heading [level=1]: JSW Stock List
+          - generic:
+            - button:
+              - img
+            - button:
+              - generic: Open user menu
+              - generic:
+                - generic: A
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - img
+              - generic:
+                - heading [level=2]: JSW Stock List
+                - paragraph: Daily SAP current-stock, customer-mapped
+            - toolbar:
+              - generic:
+                - combobox:
+                  - generic: Search stock records…
+                  - generic:
+                    - img
+              - button:
+                - img
+                - generic: Ingestion date range
+              - generic:
+                - combobox:
+                  - generic: Any sales org…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any order type…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any channel…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any sold-to…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any party code…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any ship-to…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any customer…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any material…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any sales office…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any product form…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any JSW grade…
+                  - generic:
+                    - img
+              - generic:
+                - combobox:
+                  - generic: Any NCO value…
+                  - generic:
+                    - img
+            - generic:
+              - table:
+                - rowgroup:
+                  - row:
+                    - columnheader:
+                      - generic:
+                        - text: Report Date
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Party Code
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Customer
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Customer Name
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Sold To Party
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Material
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: JSW Grade
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Sales Office
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Distr.Chnl
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Unrestr Qty
+                        - img
+                    - columnheader:
+                      - generic:
+                        - text: Stock Qty
+                        - img
+                    - columnheader
+                - rowgroup:
+                  - row:
+                    - cell: 31-05-2026
+                    - cell: "0040000088"
+                    - cell:
+                      - generic: Mahindra
+                    - cell:
+                      - generic: Mahindra & Mahindra — Nashik
+                    - cell: Tata Motors Ltd
+                    - cell: CRCA 0.8x1000
+                    - cell: JSWCR270
+                    - cell: West-Central
+                    - cell: Domestic
+                    - cell: "184.235"
+                    - cell: "196.735"
+                    - cell:
+                      - button:
+                        - img
+            - navigation "Table pagination":
+              - generic: 1 stock row
+              - generic:
+                - button [disabled]:
+                  - img
+                  - generic: Prev
+                - generic: Page 1 of 1
+                - button [disabled]:
+                  - generic: Next
+                  - img
+              - generic:
+                - generic: Rows per page
+                - combobox:
+                  - generic: "20"
+                  - img
+    - region "Notifications alt+T"
+  - dialog "Mahindra & Mahindra — Nashik" [ref=e263]:
+    - generic [ref=e265]:
+      - img [ref=e267]
+      - generic [ref=e277]:
+        - heading "Mahindra & Mahindra — Nashik" [level=2] [ref=e278]
+        - paragraph [ref=e279]: 0040000088 · CRCA 0.8x1000
+        - generic [ref=e280]:
+          - generic [ref=e281]:
+            - img
+            - text: 31-05-2026
+          - generic [ref=e282]: Grade JSWCR270
+          - generic [ref=e283]: 196.735 MT
+          - generic [ref=e284]: "NCO: YES"
+    - generic [ref=e286]:
+      - generic [ref=e287]:
+        - heading "Order & SO" [level=3] [ref=e289]
+        - generic [ref=e291]:
+          - generic [ref=e292]:
+            - term [ref=e293]: SO Sales Org
+            - definition [ref=e294]: JVML
+          - generic [ref=e295]:
+            - term [ref=e296]: Sales Order Type
+            - definition [ref=e297]: ZOR
+          - generic [ref=e298]:
+            - term [ref=e299]: Distr. Channel
+            - definition [ref=e300]: Domestic
+          - generic [ref=e301]:
+            - term [ref=e302]: Sales Order No.
+            - definition [ref=e303]: "0027451883"
+          - generic [ref=e304]:
+            - term [ref=e305]: SO Item Num
+            - definition [ref=e306]: "10"
+          - generic [ref=e307]:
+            - term [ref=e308]: Order Status
+            - definition [ref=e309]: Open
+          - generic [ref=e310]:
+            - term [ref=e311]: SO Product Form
+            - definition [ref=e312]: HR Coil
+          - generic [ref=e313]:
+            - term [ref=e314]: SO End Application
+            - definition [ref=e315]: Automotive
+          - generic [ref=e316]:
+            - term [ref=e317]: Scheduled Status
+            - definition [ref=e318]: Confirmed
+          - generic [ref=e319]:
+            - term [ref=e320]: Report Date
+            - definition [ref=e321]: 31-05-2026
+      - generic [ref=e322]:
+        - heading "Customer & Mapping" [level=3] [ref=e324]
+        - generic [ref=e326]:
+          - generic [ref=e327]:
+            - term [ref=e328]: Sold To Party
+            - definition [ref=e329]: Tata Motors Ltd
+          - generic [ref=e330]:
+            - term [ref=e331]: Party Code
+            - definition [ref=e332]: "0040000088"
+          - generic [ref=e333]:
+            - term [ref=e334]: Ship To Party
+            - definition [ref=e335]: Pune Plant
+          - generic [ref=e336]:
+            - term [ref=e337]: Customer
+            - definition [ref=e338]: Mahindra
+          - generic [ref=e339]:
+            - term [ref=e340]: Sales Office
+            - definition [ref=e341]: West-Central
+          - generic [ref=e342]:
+            - term [ref=e343]: Customer Name
+            - definition [ref=e344]: Mahindra & Mahindra — Nashik
+          - generic [ref=e345]:
+            - term [ref=e346]: Normalized Code
+            - definition [ref=e347]: "40000088"
+          - generic [ref=e348]:
+            - term [ref=e349]: Customer Code ID
+            - definition [ref=e350]: CC-10422
+      - generic [ref=e351]:
+        - heading "Material & Dimensions" [level=3] [ref=e353]
+        - generic [ref=e355]:
+          - generic [ref=e356]:
+            - term [ref=e357]: Material
+            - definition [ref=e358]: CRCA 0.8x1000
+          - generic [ref=e359]:
+            - term [ref=e360]: JSW Grade
+            - definition [ref=e361]: JSWCR270
+          - generic [ref=e362]:
+            - term [ref=e363]: Batch
+            - definition [ref=e364]: B-22418
+          - generic [ref=e365]:
+            - term [ref=e366]: Act. Thickness (mm)
+            - definition [ref=e367]: "2.50"
+          - generic [ref=e368]:
+            - term [ref=e369]: Width (mm)
+            - definition [ref=e370]: "1250"
+          - generic [ref=e371]:
+            - term [ref=e372]: Length (mm)
+            - definition [ref=e373]: C
+          - generic [ref=e374]:
+            - term [ref=e375]: Special Stock
+            - definition [ref=e376]: Unrestricted
+          - generic [ref=e377]:
+            - term [ref=e378]: Eq. Specification
+            - definition [ref=e379]: IS 5986
+          - generic [ref=e380]:
+            - term [ref=e381]: Eq. Sub Grade
+            - definition [ref=e382]: Fe540
+      - generic [ref=e383]:
+        - heading "Quantities (MT)" [level=3] [ref=e385]
+        - generic [ref=e387]:
+          - generic [ref=e388]:
+            - term [ref=e389]: Unrestr. Qty
+            - definition [ref=e390]: "184.235"
+          - generic [ref=e391]:
+            - term [ref=e392]: In Quality Insp
+            - definition [ref=e393]: "12.5"
+          - generic [ref=e394]:
+            - term [ref=e395]: Blocked
+            - definition [ref=e396]: "0"
+          - generic [ref=e397]:
+            - term [ref=e398]: Stock Quantity
+            - definition [ref=e399]: "196.735"
+          - generic [ref=e400]:
+            - term [ref=e401]: Aging
+            - definition [ref=e402]: "11"
+      - generic [ref=e403]:
+        - heading "Quality / NCO" [level=3] [ref=e405]
+        - generic [ref=e407]:
+          - generic [ref=e408]:
+            - term [ref=e409]: Usage Decision
+            - definition [ref=e410]: Accepted
+          - generic [ref=e411]:
+            - term [ref=e412]: NCO Declared
+            - definition [ref=e413]: "YES"
+          - generic [ref=e414]:
+            - term [ref=e415]: NCO Reason
+            - definition [ref=e416]: Edge wave observed on coil tail
+          - generic [ref=e417]:
+            - term [ref=e418]: UD Remarks
+            - definition [ref=e419]: Within spec
+          - generic [ref=e420]:
+            - term [ref=e421]: Next Workcenter
+            - definition [ref=e422]: CRM-2
+          - generic [ref=e423]:
+            - term [ref=e424]: Production Date
+            - definition [ref=e425]: 20 May 2026, 06:30
+          - generic [ref=e426]:
+            - term [ref=e427]: Shift
+            - definition [ref=e428]: A
+          - generic [ref=e429]:
+            - term [ref=e430]: Production WC
+            - definition [ref=e431]: HSM-1
+      - generic [ref=e432]:
+        - heading "Chemistry (%)" [level=3] [ref=e434]
+        - generic [ref=e436]:
+          - generic [ref=e437]:
+            - term [ref=e438]: Al %
+            - definition [ref=e439]: "0.035"
+          - generic [ref=e440]:
+            - term [ref=e441]: B %
+            - definition [ref=e442]: "0"
+          - generic [ref=e443]:
+            - term [ref=e444]: C %
+            - definition [ref=e445]: "0.075"
+          - generic [ref=e446]:
+            - term [ref=e447]: Cr %
+            - definition [ref=e448]: "0.02"
+          - generic [ref=e449]:
+            - term [ref=e450]: Cu %
+            - definition [ref=e451]: "0.01"
+          - generic [ref=e452]:
+            - term [ref=e453]: Mn %
+            - definition [ref=e454]: "0.65"
+          - generic [ref=e455]:
+            - term [ref=e456]: Mo %
+            - definition [ref=e457]: "0.003"
+          - generic [ref=e458]:
+            - term [ref=e459]: Ni %
+            - definition [ref=e460]: "0.012"
+          - generic [ref=e461]:
+            - term [ref=e462]: Nb %
+            - definition [ref=e463]: "0.025"
+          - generic [ref=e464]:
+            - term [ref=e465]: P %
+            - definition [ref=e466]: "0.011"
+          - generic [ref=e467]:
+            - term [ref=e468]: Si %
+            - definition [ref=e469]: "0.18"
+          - generic [ref=e470]:
+            - term [ref=e471]: S %
+            - definition [ref=e472]: "0.006"
+          - generic [ref=e473]:
+            - term [ref=e474]: Ti %
+            - definition [ref=e475]: "0.001"
+          - generic [ref=e476]:
+            - term [ref=e477]: V %
+            - definition [ref=e478]: "0.002"
+      - generic [ref=e479]:
+        - heading "Mechanical" [level=3] [ref=e481]
+        - generic [ref=e483]:
+          - generic [ref=e484]:
+            - term [ref=e485]: YS (MPa)
+            - definition [ref=e486]: "372"
+          - generic [ref=e487]:
+            - term [ref=e488]: Elongation
+            - definition [ref=e489]: 28%
+          - generic [ref=e490]:
+            - term [ref=e491]: Elongation (Mic)
+            - definition [ref=e492]: "27.6"
+          - generic [ref=e493]:
+            - term [ref=e494]: Hardness
+            - definition [ref=e495]: 78 HRB
+          - generic [ref=e496]:
+            - term [ref=e497]: Tensile (MPa B)
+            - definition [ref=e498]: "458"
+          - generic [ref=e499]:
+            - term [ref=e500]: Yield Strength
+            - definition [ref=e501]: 372 MPa
+          - generic [ref=e502]:
+            - term [ref=e503]: UTS
+            - definition [ref=e504]: 458 MPa
+      - generic [ref=e505]:
+        - heading "Logistics / Export" [level=3] [ref=e507]
+        - generic [ref=e509]:
+          - generic [ref=e510]:
+            - term [ref=e511]: Location
+            - definition [ref=e512]: Yard 4
+          - generic [ref=e513]:
+            - term [ref=e514]: STR No.
+            - definition [ref=e515]: STR-9981
+          - generic [ref=e516]:
+            - term [ref=e517]: STO No.
+            - definition [ref=e518]: STO-4471
+          - generic [ref=e519]:
+            - term [ref=e520]: DO No.
+            - definition [ref=e521]: DO-7782
+          - generic [ref=e522]:
+            - term [ref=e523]: Shipment
+            - definition [ref=e524]: SHP-33119
+          - generic [ref=e525]:
+            - term [ref=e526]: Storage Location
+            - definition [ref=e527]: SL-12
+          - generic [ref=e528]:
+            - term [ref=e529]: Port Name
+            - definition [ref=e530]: JNPT
+          - generic [ref=e531]:
+            - term [ref=e532]: Unloading Point
+            - definition [ref=e533]: Gate 3
+          - generic [ref=e534]:
+            - term [ref=e535]: Receiving Point
+            - definition [ref=e536]: Dock B
+          - generic [ref=e537]:
+            - term [ref=e538]: PO Number
+            - definition [ref=e539]: PO-AX-99213
+          - generic [ref=e540]:
+            - term [ref=e541]: Route
+            - definition [ref=e542]: R-204
+          - generic [ref=e543]:
+            - term [ref=e544]: Route Desc
+            - definition [ref=e545]: Mumbai → Pune
+          - generic [ref=e546]:
+            - term [ref=e547]: CP Number
+            - definition [ref=e548]: CP-552
+          - generic [ref=e549]:
+            - term [ref=e550]: CP End Date
+            - definition [ref=e551]: 30 Jun 2026, 00:00
+          - generic [ref=e552]:
+            - term [ref=e553]: LC Exp Date
+            - definition [ref=e554]: 30.06.2026
+      - generic [ref=e555]:
+        - heading "Meta" [level=3] [ref=e557]
+        - generic [ref=e559]:
+          - generic [ref=e560]:
+            - term [ref=e561]: Source File
+            - definition [ref=e562]: __VERIFY_SAMPLE__.xlsx
+          - generic [ref=e563]:
+            - term [ref=e564]: Created
+            - definition [ref=e565]: 31 May 2026, 11:49
+          - generic [ref=e566]:
+            - term [ref=e567]: Updated
+            - definition [ref=e568]: 31 May 2026, 11:49
+    - generic [ref=e569]:
+      - paragraph [ref=e570]: Ingested 31 May 2026, 11:49
+      - button "Close" [active] [ref=e571] [cursor=pointer]
+    - button "Close" [ref=e572] [cursor=pointer]:
+      - img
+      - generic [ref=e573]: Close

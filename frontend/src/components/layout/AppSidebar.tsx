@@ -29,7 +29,7 @@ import { selectIsAdmin } from "@/store/auth/selectors"
 //     bg-sidebar-accent background + font-medium label. Clearly premium, not garish.
 //   • Hover: bg-sidebar-accent with 150 ms ease transition.
 //   • Section label: uppercase, tracked, muted at /50 opacity.
-//   • Footer: gold status dot + "West-Central Region" label above border-t.
+//   • Footer: gold status dot + "Central Region" label above border-t.
 //   • Collapsed (icon) state: text nodes carry group-data-[collapsible=icon]:hidden
 //     so only icons remain at 3rem width; the logo chip stays centered.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -228,7 +228,7 @@ export function AppSidebar() {
             className="size-1.5 shrink-0 rounded-full bg-sidebar-primary shadow-[0_0_6px_var(--sidebar-primary)]"
           />
           <span className="truncate text-[11px] font-medium tracking-wide text-sidebar-foreground/55 group-data-[collapsible=icon]:hidden">
-            West-Central Region
+            Central Region
           </span>
         </div>
       </SidebarFooter>

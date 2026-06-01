@@ -25,7 +25,7 @@ from ...schemas.audit_log import (
 # Static enum lists (must match the Literal definitions in the model/schema)
 # ---------------------------------------------------------------------------
 
-_CATEGORIES: list[str] = ["http", "auth", "admin", "data", "system", "cron", "security", "regions", "customer_codes"]
+_CATEGORIES: list[str] = ["http", "auth", "admin", "data", "system", "cron", "security", "users", "regions", "customer_codes", "jsw_stock", "jvml_stock", "credit_report", "coil_config", "report"]
 _OUTCOMES: list[str] = ["success", "failure", "error"]
 _SOURCES: list[str] = ["http", "system", "cron", "service"]
 

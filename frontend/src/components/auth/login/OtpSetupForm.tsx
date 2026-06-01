@@ -50,12 +50,12 @@ export function OtpSetupForm({ email, onBack }: OtpSetupFormProps) {
       <div className="flex flex-col gap-2">
         <img src="/logo.png" alt="JSW Steel" className="mb-2 h-9 w-auto self-start lg:hidden" />
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Set up your account
+          Activate your account
         </h1>
         <p className="text-sm text-muted-foreground">
-          We sent a 6-digit code to{" "}
+          Your account is pending activation. We sent a 6-digit code to{" "}
           <span className="font-medium text-foreground">{maskedEmail}</span>. Enter it below
-          and choose a password.
+          and choose a password to finish.
         </p>
       </div>
 

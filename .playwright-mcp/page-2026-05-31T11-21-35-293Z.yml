@@ -1,0 +1,258 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - img "JSW Steel" [ref=e9]
+        - generic [ref=e10]:
+          - generic [ref=e11]: Marketing Reports
+          - generic [ref=e13]: Marketing Intelligence
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e16]: Navigation
+          - list [ref=e18]:
+            - listitem [ref=e19]:
+              - link "Dashboard" [ref=e20] [cursor=pointer]:
+                - /url: /home
+                - img [ref=e21]
+                - generic [ref=e26]: Dashboard
+            - listitem [ref=e27]:
+              - link "JVML Stock List" [ref=e29] [cursor=pointer]:
+                - /url: /jvml-stock
+                - img [ref=e30]
+                - generic [ref=e40]: JVML Stock List
+            - listitem [ref=e41]:
+              - link "JSW Stock List" [ref=e42] [cursor=pointer]:
+                - /url: /jsw-stock
+                - img [ref=e43]
+                - generic [ref=e53]: JSW Stock List
+        - generic [ref=e54]:
+          - generic [ref=e55]: Administrator Config
+          - list [ref=e57]:
+            - listitem [ref=e58]:
+              - link "User Management" [ref=e59] [cursor=pointer]:
+                - /url: /admin/users
+                - img [ref=e60]
+                - generic [ref=e64]: User Management
+            - listitem [ref=e65]:
+              - link "Audit Logs" [ref=e66] [cursor=pointer]:
+                - /url: /admin/audit-logs
+                - img [ref=e67]
+                - generic [ref=e70]: Audit Logs
+            - listitem [ref=e71]:
+              - link "Region Management" [ref=e72] [cursor=pointer]:
+                - /url: /admin/regions
+                - img [ref=e73]
+                - generic [ref=e76]: Region Management
+            - listitem [ref=e77]:
+              - link "Customer Codes" [ref=e78] [cursor=pointer]:
+                - /url: /admin/customer-codes
+                - img [ref=e79]
+                - generic [ref=e83]: Customer Codes
+            - listitem [ref=e84]:
+              - link "Settings" [ref=e85] [cursor=pointer]:
+                - /url: /admin/settings
+                - img [ref=e86]
+                - generic [ref=e89]: Settings
+      - generic [ref=e93]: West-Central Region
+      - button "Toggle Sidebar" [ref=e94]
+    - main [ref=e95]:
+      - generic [ref=e96]:
+        - button "Toggle Sidebar" [ref=e97] [cursor=pointer]:
+          - img
+          - generic [ref=e98]: Toggle Sidebar
+        - heading "JVML Stock List" [level=1] [ref=e99]
+        - generic [ref=e100]:
+          - button "Switch to light mode" [ref=e101] [cursor=pointer]:
+            - img
+          - button "Open user menu" [ref=e102] [cursor=pointer]:
+            - generic [ref=e103]: Open user menu
+            - generic [ref=e105]: A
+      - main [ref=e106]:
+        - generic [ref=e107]:
+          - generic [ref=e108]:
+            - img [ref=e110]
+            - generic [ref=e120]:
+              - heading "JVML Stock List" [level=2] [ref=e121]
+              - paragraph [ref=e122]: Daily SAP current-stock, customer-mapped
+          - toolbar "JVML stock table filters" [ref=e123]:
+            - combobox "Search JVML stock records" [ref=e125] [cursor=pointer]:
+              - generic [ref=e126]: Search stock records…
+              - generic [ref=e127]:
+                - img
+            - button "Filter by ingestion date range" [ref=e128] [cursor=pointer]:
+              - img
+              - generic [ref=e129]: Ingestion date range
+            - combobox "Filter by SO Sales Org" [ref=e131] [cursor=pointer]:
+              - generic [ref=e132]: Any sales org…
+              - generic [ref=e133]:
+                - img
+            - combobox "Filter by Sales Order Type" [ref=e135] [cursor=pointer]:
+              - generic [ref=e136]: Any order type…
+              - generic [ref=e137]:
+                - img
+            - combobox "Filter by Distr.Chnl" [ref=e139] [cursor=pointer]:
+              - generic [ref=e140]: Any channel…
+              - generic [ref=e141]:
+                - img
+            - combobox "Filter by Sold To Party" [ref=e143] [cursor=pointer]:
+              - generic [ref=e144]: Any sold-to…
+              - generic [ref=e145]:
+                - img
+            - combobox "Filter by Customer" [ref=e147] [cursor=pointer]:
+              - generic [ref=e148]: Any customer…
+              - generic [ref=e149]:
+                - img
+            - combobox "Filter by Material" [ref=e151] [cursor=pointer]:
+              - generic [ref=e152]: Any material…
+              - generic [ref=e153]:
+                - img
+            - combobox "Filter by Sales Office" [ref=e155] [cursor=pointer]:
+              - generic [ref=e156]: Any sales office…
+              - generic [ref=e157]:
+                - img
+            - combobox "Filter by SO-Product Form" [ref=e159] [cursor=pointer]:
+              - generic [ref=e160]: Any product form…
+              - generic [ref=e161]:
+                - img
+            - combobox "Filter by JSW Grade" [ref=e163] [cursor=pointer]:
+              - generic [ref=e164]: Any JVML grade…
+              - generic [ref=e165]:
+                - img
+            - combobox "Filter by NCO Declared" [ref=e167] [cursor=pointer]:
+              - generic [ref=e168]: Any NCO value…
+              - generic [ref=e169]:
+                - img
+          - table [ref=e171]:
+            - rowgroup [ref=e172]:
+              - row "Report Date Party Code Customer Customer Name Sold To Party Material JSW Grade Sales Office Distr.Chnl Unrestr Qty Stock Qty" [ref=e173]:
+                - columnheader "Report Date" [ref=e174]
+                - columnheader "Party Code" [ref=e175]
+                - columnheader "Customer" [ref=e176]
+                - columnheader "Customer Name" [ref=e177]
+                - columnheader "Sold To Party" [ref=e178]
+                - columnheader "Material" [ref=e179]
+                - columnheader "JSW Grade" [ref=e180]
+                - columnheader "Sales Office" [ref=e181]
+                - columnheader "Distr.Chnl" [ref=e182]
+                - columnheader "Unrestr Qty" [ref=e183]
+                - columnheader "Stock Qty" [ref=e184]
+                - columnheader [ref=e185]
+            - rowgroup [ref=e186]:
+              - row [ref=e187]:
+                - cell [ref=e188]
+                - cell [ref=e190]
+                - cell [ref=e192]
+                - cell [ref=e194]
+                - cell [ref=e196]
+                - cell [ref=e198]
+                - cell [ref=e200]
+                - cell [ref=e202]
+                - cell [ref=e204]
+                - cell [ref=e206]
+                - cell [ref=e208]
+                - cell [ref=e210]
+              - row [ref=e212]:
+                - cell [ref=e213]
+                - cell [ref=e215]
+                - cell [ref=e217]
+                - cell [ref=e219]
+                - cell [ref=e221]
+                - cell [ref=e223]
+                - cell [ref=e225]
+                - cell [ref=e227]
+                - cell [ref=e229]
+                - cell [ref=e231]
+                - cell [ref=e233]
+                - cell [ref=e235]
+              - row [ref=e237]:
+                - cell [ref=e238]
+                - cell [ref=e240]
+                - cell [ref=e242]
+                - cell [ref=e244]
+                - cell [ref=e246]
+                - cell [ref=e248]
+                - cell [ref=e250]
+                - cell [ref=e252]
+                - cell [ref=e254]
+                - cell [ref=e256]
+                - cell [ref=e258]
+                - cell [ref=e260]
+              - row [ref=e262]:
+                - cell [ref=e263]
+                - cell [ref=e265]
+                - cell [ref=e267]
+                - cell [ref=e269]
+                - cell [ref=e271]
+                - cell [ref=e273]
+                - cell [ref=e275]
+                - cell [ref=e277]
+                - cell [ref=e279]
+                - cell [ref=e281]
+                - cell [ref=e283]
+                - cell [ref=e285]
+              - row [ref=e287]:
+                - cell [ref=e288]
+                - cell [ref=e290]
+                - cell [ref=e292]
+                - cell [ref=e294]
+                - cell [ref=e296]
+                - cell [ref=e298]
+                - cell [ref=e300]
+                - cell [ref=e302]
+                - cell [ref=e304]
+                - cell [ref=e306]
+                - cell [ref=e308]
+                - cell [ref=e310]
+              - row [ref=e312]:
+                - cell [ref=e313]
+                - cell [ref=e315]
+                - cell [ref=e317]
+                - cell [ref=e319]
+                - cell [ref=e321]
+                - cell [ref=e323]
+                - cell [ref=e325]
+                - cell [ref=e327]
+                - cell [ref=e329]
+                - cell [ref=e331]
+                - cell [ref=e333]
+                - cell [ref=e335]
+              - row [ref=e337]:
+                - cell [ref=e338]
+                - cell [ref=e340]
+                - cell [ref=e342]
+                - cell [ref=e344]
+                - cell [ref=e346]
+                - cell [ref=e348]
+                - cell [ref=e350]
+                - cell [ref=e352]
+                - cell [ref=e354]
+                - cell [ref=e356]
+                - cell [ref=e358]
+                - cell [ref=e360]
+              - row [ref=e362]:
+                - cell [ref=e363]
+                - cell [ref=e365]
+                - cell [ref=e367]
+                - cell [ref=e369]
+                - cell [ref=e371]
+                - cell [ref=e373]
+                - cell [ref=e375]
+                - cell [ref=e377]
+                - cell [ref=e379]
+                - cell [ref=e381]
+                - cell [ref=e383]
+                - cell [ref=e385]
+          - navigation "Table pagination" [ref=e387]:
+            - generic [ref=e390]:
+              - button "Go to previous page" [disabled]:
+                - img
+                - generic: Prev
+              - button "Go to next page" [disabled]:
+                - generic: Next
+                - img
+            - generic [ref=e393]:
+              - generic [ref=e394]: Rows per page
+              - combobox "Rows per page" [disabled] [ref=e395]:
+                - generic: "20"
+                - img
+  - region "Notifications alt+T"

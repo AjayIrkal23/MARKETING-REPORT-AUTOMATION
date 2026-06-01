@@ -1,0 +1,3 @@
+- [JSW Settings Redesign](project_jsw_settings.md) — Variant B decisions: max-w-3xl card, hero enable, gold accent, path preview, 4-tile status
+- [JSW Marketing Report Design System](project-design-system.md) — tokens (indigo primary + gold sidebar-primary), brand motifs, header/section patterns, Settings page two-pane design (Variant A)
+- [JSW Design Tokens & Settings Direction C](project-jsw-design-tokens.md) — Direction C sectioned-cards layout, SectionCard pattern, Status tiles, sticky action bar, 250-line split strategy

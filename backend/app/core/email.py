@@ -45,7 +45,9 @@ async def send_email(
     Selects transport based on ``settings.smtp_host``:
 
     - **Non-empty**: delegates to :func:`_smtp_send` inside
-      ``asyncio.to_thread`` (STARTTLS when ``settings.smtp_starttls`` is true).
+      ``asyncio.to_thread`` — implicit TLS when ``settings.smtp_ssl`` is true
+      (port 465), otherwise STARTTLS when ``settings.smtp_starttls`` is true
+      (port 587).
     - **Empty (dev)**: logs subject + plain-text body at INFO level.
 
     Transport failures are caught, logged at ERROR level, and **not re-raised**
@@ -113,9 +115,18 @@ def _smtp_send(
     msg["From"] = settings.smtp_from
     msg["To"] = to
 
-    with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as smtp:
+    # Two transports, selected by settings.smtp_ssl:
+    #   - SMTP_SSL: implicit TLS from connect (Mailjet port 465). No STARTTLS.
+    #   - SMTP + optional STARTTLS: cleartext connect upgraded in-band
+    #     (Mailjet port 587 / 25 / 2525).
+    if settings.smtp_ssl:
+        smtp_cm = smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port)
+    else:
+        smtp_cm = smtplib.SMTP(settings.smtp_host, settings.smtp_port)
+
+    with smtp_cm as smtp:
         smtp.ehlo()
-        if settings.smtp_starttls:
+        if not settings.smtp_ssl and settings.smtp_starttls:
             smtp.starttls()
             smtp.ehlo()
         if settings.smtp_user and settings.smtp_password:

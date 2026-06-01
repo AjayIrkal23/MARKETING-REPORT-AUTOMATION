@@ -8,6 +8,7 @@
  * system    → sky
  * cron      → amber
  * security  → red
+ * users     → fuchsia
  *
  * Uses only semantic Tailwind/shadcn design tokens and Tailwind color utilities
  * inside badge color triplets (no raw hex).
@@ -66,18 +67,56 @@ const CATEGORY_MAP = {
     className:
       "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-400",
   },
+  jsw_stock: {
+    label: "JSW Stock",
+    className:
+      "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-950/50 dark:text-orange-400",
+  },
+  users: {
+    label: "Users",
+    className:
+      "border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700 dark:border-fuchsia-800 dark:bg-fuchsia-950/50 dark:text-fuchsia-400",
+  },
+  jvml_stock: {
+    label: "JVML Stock",
+    className:
+      "border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-800 dark:bg-cyan-950/50 dark:text-cyan-400",
+  },
+  credit_report: {
+    label: "Credit Report",
+    className:
+      "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-400",
+  },
+  coil_config: {
+    label: "Coil Config",
+    className:
+      "border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-800 dark:bg-purple-950/50 dark:text-purple-400",
+  },
+  report: {
+    label: "Report",
+    className:
+      "border-lime-200 bg-lime-50 text-lime-700 dark:border-lime-800 dark:bg-lime-950/50 dark:text-lime-400",
+  },
 } as const satisfies Record<string, { label: string; className: string }>
 
+/** Neutral fallback for any category not present in CATEGORY_MAP. */
+const FALLBACK_CFG = {
+  className:
+    "border-slate-300 bg-slate-100 text-slate-600 dark:border-slate-600 dark:bg-slate-800/50 dark:text-slate-300",
+} as const
+
 export function AuditCategoryBadge({ category, compact = false }: AuditCategoryBadgeProps) {
-  const cfg = CATEGORY_MAP[category]
+  const mapped = CATEGORY_MAP[category as keyof typeof CATEGORY_MAP]
+  const cfg = mapped ?? FALLBACK_CFG
+  const label = mapped?.label ?? category.replace(/_/g, " ").toUpperCase()
 
   return (
     <Badge
       variant="outline"
       className={cn(cfg.className, compact && "text-[10px] px-1.5 h-4")}
-      aria-label={`Audit category: ${cfg.label}`}
+      aria-label={`Audit category: ${label}`}
     >
-      {cfg.label}
+      {label}
     </Badge>
   )
 }

@@ -10,14 +10,21 @@ OTP first-login setup controllers added per §3.8 / §3.9:
 
 from __future__ import annotations
 
-from fastapi import Depends, Response
+from fastapi import Depends, Request, Response
 
 from ..core.auth_deps import get_current_user
 from ..core.config import get_settings
 from ..core.responses import SuccessEnvelope, success
-from ..core.sessions import create_session_token
-from ..schemas.auth import AuthUser, LoginRequest
+from ..core.sessions import create_session_token, decode_session_token
+from ..schemas.auth import (
+    AccountStatusRequest,
+    AccountStatusResponse,
+    AuthUser,
+    LoginRequest,
+)
 from ..schemas.otp import ConfirmSetupRequest, GenericMessage, RequestOtpRequest
+from ..services.audit.events import audit_auth_event
+from ..services.auth.account_status import get_account_needs_activation
 from ..services.auth.login import login as login_service
 from ..services.auth.otp_request import request_setup_otp
 from ..services.auth.setup_confirm import confirm_setup
@@ -46,14 +53,38 @@ async def login_controller(
     return success(user, message="Login successful")
 
 
+async def account_status_controller(
+    payload: AccountStatusRequest,
+) -> SuccessEnvelope[AccountStatusResponse]:
+    """``POST /auth/account-status`` — does this email need activation?
+
+    Returns ``needsActivation=True`` only for invited (not-yet-active) accounts so
+    the login form can hide the password field and offer activation. Active,
+    disabled, and unknown emails all return ``False`` (no active-user enumeration).
+    """
+    needs = await get_account_needs_activation(payload.emailid)
+    return success(AccountStatusResponse(needsActivation=needs))
+
+
 async def me_controller(
     current_user: AuthUser = Depends(get_current_user),
 ) -> SuccessEnvelope[AuthUser]:
     return success(current_user, message="Session active")
 
 
-async def logout_controller(response: Response) -> SuccessEnvelope[AuthUser | None]:
+async def logout_controller(
+    request: Request,
+    response: Response,
+) -> SuccessEnvelope[AuthUser | None]:
     settings = get_settings()
+    # Resolve actor email from session cookie if present (best-effort; never raises).
+    actor_email: str | None = None
+    token = request.cookies.get(settings.session_cookie_name)
+    if token:
+        try:
+            actor_email = decode_session_token(token, settings)
+        except Exception:  # noqa: BLE001
+            pass
     response.delete_cookie(
         key=settings.session_cookie_name,
         path="/",
@@ -61,6 +92,18 @@ async def logout_controller(response: Response) -> SuccessEnvelope[AuthUser | No
         secure=settings.cookie_secure,
         samesite=settings.cookie_samesite,
     )
+    if actor_email:
+        await audit_auth_event(
+            "auth.logout",
+            f"User {actor_email} logged out",
+            actor_email=actor_email,
+        )
+    else:
+        await audit_auth_event(
+            "auth.logout",
+            "Session logged out",
+            actor_email=None,
+        )
     return success(None, message="Logged out")
 
 

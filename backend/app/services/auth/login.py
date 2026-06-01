@@ -21,6 +21,7 @@ from ...core.errors import (
 from ...core.security import verify_password
 from ...models import User
 from ...schemas.auth import AuthUser, LoginRequest
+from ..audit.events import audit_auth_event
 
 
 async def login(payload: LoginRequest) -> AuthUser:
@@ -53,8 +54,19 @@ async def login(payload: LoginRequest) -> AuthUser:
 
     # Active account: verify password (generic error on mismatch — no enumeration).
     if not verify_password(payload.password, user.password):
+        await audit_auth_event(
+            "auth.login_failed",
+            f"Failed login for {payload.emailid}",
+            outcome="failure",
+            actor_email=payload.emailid,
+        )
         raise UnauthorizedError("Invalid email or password")
 
     user.lastlogined = datetime.now(timezone.utc)
     await user.save()
+    await audit_auth_event(
+        "auth.login",
+        f"User {user.emailid} logged in",
+        actor_email=user.emailid,
+    )
     return AuthUser(emailid=user.emailid, isAdmin=user.isAdmin, lastlogined=user.lastlogined)

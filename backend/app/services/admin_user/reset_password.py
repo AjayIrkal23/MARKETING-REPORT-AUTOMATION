@@ -19,6 +19,7 @@ from ...core.errors import NotFoundError
 from ...core.security import hash_password
 from ...models import User
 from ...schemas.admin_user import AdminUserPublic, ResetPasswordRequest, to_admin_user_public
+from ..audit.events import audit_user_event
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,8 @@ logger = logging.getLogger(__name__)
 async def reset_password(
     user_id: str,
     payload: ResetPasswordRequest,
+    *,
+    actor_email: str | None,
 ) -> AdminUserPublic:
     """Reset or clear a user's password.
 
@@ -34,8 +37,10 @@ async def reset_password(
     forcing OTP re-setup.
 
     Args:
-        user_id: String representation of the MongoDB ObjectId.
-        payload: Validated ``ResetPasswordRequest`` DTO.
+        user_id:     String representation of the MongoDB ObjectId.
+        payload:     Validated ``ResetPasswordRequest`` DTO.
+        actor_email: Admin actor email threaded from ``admin.emailid``; ``None`` if
+                     unavailable.
 
     Returns:
         The updated user as an ``AdminUserPublic`` DTO.
@@ -76,6 +81,13 @@ async def reset_password(
         user_id,
         user.emailid,
         action,
+    )
+
+    await audit_user_event(
+        "user.password_reset",
+        f"Reset password for user '{user.emailid}'",
+        actor_email=actor_email,
+        extra={"user_id": user_id, "email": user.emailid},
     )
 
     return to_admin_user_public(user)

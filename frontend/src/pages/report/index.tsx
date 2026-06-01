@@ -1,0 +1,103 @@
+/**
+ * ReportPage — Report JSW/JVML ("Coil Stock" pivot + credit report).
+ *
+ * Route: /report (ProtectedRoute, all authenticated users). Thin orchestrator:
+ * ReportToolbar (inputs) → states (empty / loading / no-stock / no-credit banner)
+ * → ReportTable. All state lives in `useReport`.
+ */
+
+import { FileSpreadsheet, AlertCircle, Info, FileX2 } from "lucide-react"
+
+import { Separator } from "@/components/ui/separator"
+
+import { useReport } from "@/components/report/hooks/useReport"
+import { ReportToolbar } from "@/components/report/ReportToolbar"
+import { ReportTable } from "@/components/report/ReportTable"
+import { fmtINR } from "@/components/report/report-format"
+
+export function ReportPage() {
+  const {
+    inputs, data, loading, error, generate, canGenerate,
+    setDate, setReportType, setRegionId, setDays,
+  } = useReport()
+
+  return (
+    <div className="flex flex-col gap-5">
+
+      {/* Header */}
+      <div className="flex items-start gap-3">
+        <span
+          aria-hidden
+          className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+        >
+          <FileSpreadsheet className="size-4" />
+        </span>
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">Report JSW/JVML</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            Coil-stock pivot by channel + party, with credit-report checks
+          </p>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Inputs */}
+      <ReportToolbar
+        inputs={inputs}
+        loading={loading}
+        canGenerate={canGenerate}
+        onDate={setDate}
+        onReportType={setReportType}
+        onRegion={setRegionId}
+        onDays={setDays}
+        onGenerate={generate}
+      />
+
+      {/* Error */}
+      {error && (
+        <div role="alert" className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <AlertCircle className="size-4 shrink-0" aria-hidden />
+          {error}
+        </div>
+      )}
+
+      {/* Result */}
+      {loading ? (
+        <p className="py-12 text-center text-sm text-muted-foreground">Generating report…</p>
+      ) : !data ? (
+        <p className="py-12 text-center text-sm text-muted-foreground">
+          Choose a date, report type, region, and aging filter, then press <strong>Generate</strong>.
+        </p>
+      ) : !data.has_stock ? (
+        <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-16 text-muted-foreground">
+          <FileX2 className="size-8 opacity-50" aria-hidden />
+          <p className="text-sm font-medium text-foreground">No stock excel for this date selected</p>
+          <p className="text-xs">
+            No {data.report_type.toUpperCase()} stock report was ingested for {data.date}.
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {/* Summary line */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <span><strong className="text-foreground">{data.report_type.toUpperCase()}</strong> · {data.date}</span>
+            <span>Region: <strong className="text-foreground">{data.region_name}</strong></span>
+            <span>CCA: <strong className="text-foreground">{data.cca}</strong></span>
+            <span>Coil price/qty: <strong className="text-foreground">{fmtINR(data.coil_price_per_qty)}</strong></span>
+          </div>
+
+          {/* No-credit banner */}
+          {!data.has_credit_report && (
+            <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-400">
+              <Info className="size-4 shrink-0" aria-hidden />
+              No credit report was ingested for {data.date} — credit columns show "NO CREDIT REPORT FOUND".
+            </div>
+          )}
+
+          <ReportTable report={data} />
+        </div>
+      )}
+    </div>
+  )
+}

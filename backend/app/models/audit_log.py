@@ -14,7 +14,7 @@ from pydantic import Field
 # backend layers that need to reference the literal sets.
 # ---------------------------------------------------------------------------
 
-AuditCategory = Literal["http", "auth", "admin", "data", "system", "cron", "security", "regions", "customer_codes"]
+AuditCategory = Literal["http", "auth", "admin", "data", "system", "cron", "security", "users", "regions", "customer_codes", "jsw_stock", "jvml_stock", "credit_report", "coil_config", "report"]
 AuditOutcome = Literal["success", "failure", "error"]
 AuditSource = Literal["http", "system", "cron", "service"]
 
