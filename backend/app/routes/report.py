@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends
 from ..controllers import report as ctrl
 from ..core.auth_deps import get_current_user
 from ..core.responses import SuccessEnvelope
-from ..schemas.report import ReportResponse
+from ..schemas.report import RakeDrilldownResponse, ReportResponse
 
 router = APIRouter(
     prefix="/report",
@@ -28,6 +28,15 @@ router.add_api_route(
     methods=["GET"],
     response_model=SuccessEnvelope[ReportResponse],
     summary="Generate the Report JSW/JVML pivot + credit report",
+)
+
+# GET /rake-drilldown — individual jsw + jvml stock rows for one RAKE
+router.add_api_route(
+    "/rake-drilldown",
+    ctrl.rake_drilldown_controller,
+    methods=["GET"],
+    response_model=SuccessEnvelope[RakeDrilldownResponse],
+    summary="Drill down a RAKE total to its individual jsw + jvml stock rows",
 )
 
 # GET /export — download the generated report as .xlsx

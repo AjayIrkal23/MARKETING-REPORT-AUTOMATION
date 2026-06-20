@@ -57,6 +57,40 @@ export interface ReportResponse {
   transport_mode_totals: Record<string, number>  // transport_mode → Σ stock_quantity
 }
 
+/** One individual stock row contributing to a RAKE total (drill-down). */
+export interface RakeDrilldownRow {
+  stock_type: ReportType           // "jsw" | "jvml" — which collection it came from
+  so_sales_org: string | null      // Sales Org
+  distr_chnl: string | null        // Distr Channel
+  sold_to_party: string | null     // Sold to party
+  sales_office: string | null      // rendered as BRANCH
+  party_code: string | null        // normalized display code
+  ship_to_party: string | null     // Ship to party
+  transport_mode: string | null    // from CustomerCode.transport_mode
+  destination: string | null       // from CustomerCode.destination
+  customer_name: string | null     // mapped customer
+  stock_quantity: number           // this row's quantity
+}
+
+/** GET /report/rake-drilldown payload — individual jsw + jvml rows for one RAKE. */
+export interface RakeDrilldownResponse {
+  rake: string
+  date: string
+  region_id: string | null
+  region_name: string
+  days_filter: DaysFilter
+  rows: RakeDrilldownRow[]
+  total_quantity: number
+}
+
+/** Query params for GET /report/rake-drilldown. */
+export interface RakeDrilldownParams {
+  rake: string
+  date: string
+  region_id?: string
+  days: DaysFilter
+}
+
 /** Query params for GET /report/generate + /report/export (date is "dd-MM-yyyy"). */
 export interface ReportQueryParams {
   date: string

@@ -71,6 +71,48 @@ class ReportPivotRow(BaseModel):
     credit_note: str               # verdict label
 
 
+class RakeDrilldownQuery(BaseModel):
+    """Query params for ``GET /report/rake-drilldown`` (via FastAPI ``Depends()``).
+
+    Reverse-resolves a single RAKE to the individual jsw + jvml stock rows that
+    make up its total. Always queries BOTH stock collections (the report's
+    ``report_type`` is irrelevant here — the drill-down is union jsw + jvml).
+    """
+
+    rake: str = Field(min_length=1, max_length=64)
+    date: str = Field(pattern=r"^\d{2}-\d{2}-\d{4}$")
+    region_id: str | None = Field(default=None, max_length=64)
+    days: DaysFilter = "include"
+
+
+class RakeDrilldownRow(BaseModel):
+    """One individual stock row contributing to a RAKE total."""
+
+    stock_type: ReportType         # "jsw" | "jvml" — which collection it came from
+    so_sales_org: str | None       # Sales Org
+    distr_chnl: str | None         # Distr Channel
+    sold_to_party: str | None      # Sold to party
+    sales_office: str | None       # rendered as BRANCH
+    party_code: str | None         # normalized display code
+    ship_to_party: str | None      # Ship to party
+    transport_mode: str | None     # from CustomerCode.transport_mode
+    destination: str | None        # from CustomerCode.destination
+    customer_name: str | None      # mapped customer (for readability)
+    stock_quantity: float          # this row's quantity
+
+
+class RakeDrilldownResponse(BaseModel):
+    """RAKE drill-down payload — individual jsw + jvml rows for one RAKE."""
+
+    rake: str
+    date: str
+    region_id: str | None
+    region_name: str
+    days_filter: DaysFilter
+    rows: list[RakeDrilldownRow]
+    total_quantity: float
+
+
 class ReportResponse(BaseModel):
     """Full report payload — the ``data`` inside the success envelope."""
 

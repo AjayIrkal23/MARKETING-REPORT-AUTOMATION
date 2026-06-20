@@ -4,16 +4,21 @@ import { Download, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { exportRakeTotals } from "@/api/report/export"
 import type { ReportResponse } from "@/types/report/report"
+import { useRakeDrilldown } from "./hooks/useRakeDrilldown"
+import { RakeDrilldownTable } from "./RakeDrilldownTable"
 
 function TotalsTable({
   title,
   rows,
   grandTotal,
+  onRowClick,
 }: {
   title: string
   rows: [string, number][]
   grandTotal: number
+  onRowClick?: (label: string) => void
 }) {
+  const clickable = Boolean(onRowClick)
   return (
     <div className="flex flex-col gap-2">
       <h3 className="text-sm font-semibold text-foreground">{title}</h3>
@@ -27,8 +32,38 @@ function TotalsTable({
           </thead>
           <tbody>
             {rows.map(([label, qty]) => (
-              <tr key={label} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-                <td className="px-4 py-2.5 font-medium text-foreground">{label}</td>
+              <tr
+                key={label}
+                className={
+                  "border-b last:border-0 transition-colors " +
+                  (clickable
+                    ? "cursor-pointer hover:bg-primary/5"
+                    : "hover:bg-muted/30")
+                }
+                onClick={clickable ? () => onRowClick?.(label) : undefined}
+                role={clickable ? "button" : undefined}
+                tabIndex={clickable ? 0 : undefined}
+                onKeyDown={
+                  clickable
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault()
+                          onRowClick?.(label)
+                        }
+                      }
+                    : undefined
+                }
+              >
+                <td
+                  className={
+                    "px-4 py-2.5 font-medium " +
+                    (clickable
+                      ? "text-primary underline-offset-2 hover:underline"
+                      : "text-foreground")
+                  }
+                >
+                  {label}
+                </td>
                 <td className="px-4 py-2.5 text-right tabular-nums">{qty.toLocaleString("en-IN")}</td>
               </tr>
             ))}
@@ -58,6 +93,7 @@ function TotalsTable({
 
 export function RakeTotalsTab({ report }: { report: ReportResponse }) {
   const [exporting, setExporting] = useState(false)
+  const drill = useRakeDrilldown(report)
 
   const rakeRows = Object.entries(report.rake_totals).sort((a, b) => a[0].localeCompare(b[0]))
   const tmRows = Object.entries(report.transport_mode_totals).sort((a, b) => a[0].localeCompare(b[0]))
@@ -75,6 +111,19 @@ export function RakeTotalsTab({ report }: { report: ReportResponse }) {
       .finally(() => setExporting(false))
   }
 
+  // Drill-down view replaces the totals while a RAKE is open.
+  if (drill.rake !== null) {
+    return (
+      <RakeDrilldownTable
+        rake={drill.rake}
+        data={drill.data}
+        loading={drill.loading}
+        error={drill.error}
+        onBack={drill.close}
+      />
+    )
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-end">
@@ -87,8 +136,8 @@ export function RakeTotalsTab({ report }: { report: ReportResponse }) {
           Export
         </Button>
       </div>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <TotalsTable title="RAKE" rows={rakeRows} grandTotal={rakeGrand} />
+      <div className="flex flex-col gap-6">
+        <TotalsTable title="RAKE" rows={rakeRows} grandTotal={rakeGrand} onRowClick={drill.open} />
         <TotalsTable title="Transport Mode" rows={tmRows} grandTotal={tmGrand} />
       </div>
     </div>

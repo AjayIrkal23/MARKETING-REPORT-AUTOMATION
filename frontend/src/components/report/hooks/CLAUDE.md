@@ -5,18 +5,24 @@ Feature hooks for the Report JSW/JVML page.
 
 ## What lives here
 
-Contains `useReport`, which owns all page state: inputs, generation trigger, export, and optional column visibility.
+`useReport` owns all page state (inputs, generation trigger, export, optional
+column visibility). `useRakeDrilldown` owns the RAKE drill-down (open RAKE,
+fetched jsw+jvml rows, loading/error) — derives its query from the report
+(date/region/days) so the drill-down matches what was generated.
 
 ## Local conventions
 
 - Generation is manual — do not auto-fetch on input change.
 - Column visibility is the only client-side view config.
+- Drill-down fetches BOTH jsw + jvml regardless of the report's `report_type`
+  (the RAKE drill-down is a union view — backend `/report/rake-drilldown`).
 
 ## Key files
 
 | File | Role |
 |------|------|
 | `useReport.ts` | All Report page state + generate/export. |
+| `useRakeDrilldown.ts` | RAKE drill-down state + fetch (stale-guarded via `fetchIdRef`). |
 
 ## Gotchas / fragile spots
 

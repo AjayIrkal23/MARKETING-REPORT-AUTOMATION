@@ -16,10 +16,16 @@ from ..core.auth_deps import get_current_user
 from ..core.errors import ValidationError
 from ..core.responses import SuccessEnvelope, success
 from ..schemas.auth import AuthUser
-from ..schemas.report import ReportQuery, ReportResponse
+from ..schemas.report import (
+    RakeDrilldownQuery,
+    RakeDrilldownResponse,
+    ReportQuery,
+    ReportResponse,
+)
 from ..services.report.export import export_report
 from ..services.report.export_totals import export_rake_totals
 from ..services.report.generate import generate_report
+from ..services.report.rake_drilldown import rake_drilldown
 
 # Unknown-key rejection (backend-api-standards, OWASP A04).
 _ALLOWED_GENERATE_KEYS = frozenset({"date", "report_type", "region_id", "days"})
@@ -27,6 +33,8 @@ _ALLOWED_GENERATE_KEYS = frozenset({"date", "report_type", "region_id", "days"})
 _ALLOWED_EXPORT_KEYS = frozenset({"date", "report_type", "region_id", "days", "columns"})
 # /export-rake-totals: same base params, no `columns`.
 _ALLOWED_TOTALS_KEYS = frozenset({"date", "report_type", "region_id", "days"})
+# /rake-drilldown: a single RAKE + date + region + aging filter (no report_type).
+_ALLOWED_DRILLDOWN_KEYS = frozenset({"rake", "date", "region_id", "days"})
 
 
 async def generate_report_controller(
@@ -46,6 +54,24 @@ async def generate_report_controller(
         )
     report = await generate_report(query)
     return success(report)
+
+
+async def rake_drilldown_controller(
+    request: Request,
+    query: RakeDrilldownQuery = Depends(),
+    _user: AuthUser = Depends(get_current_user),
+) -> SuccessEnvelope[RakeDrilldownResponse]:
+    """``GET /report/rake-drilldown`` — individual jsw + jvml rows for one RAKE.
+
+    Available to all authenticated users. Unknown query parameters raise a 400.
+    """
+    unknown = set(request.query_params.keys()) - _ALLOWED_DRILLDOWN_KEYS
+    if unknown:
+        raise ValidationError(
+            f"Unknown query parameter(s): {', '.join(sorted(unknown))}"
+        )
+    result = await rake_drilldown(query)
+    return success(result)
 
 
 async def export_report_controller(

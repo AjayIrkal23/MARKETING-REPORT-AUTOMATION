@@ -48,6 +48,8 @@ no API calls live here (those are in `src/api/report/`).
 | `report-grouping.ts` | Pure `buildRenderRows(rows, groupBy)` — walks the pre-sorted rows into data rows (with group-first flags) + bottom-of-group subtotals (summing RAKE/Total/Yes+DO/Required Credit). `groupBy` = `"distr_chnl"` (default, single) or `"so_sales_org"` (Both, SO Sales Org leads the blankable chain). No Party Code subtotal — group + grand totals are enough |
 | `report-cells.tsx` | Trailing credit/total cell builders (`trailingBodyCell`, `aggTrailingCell`, `TRAILING_META`) — split out to keep the table ≤250 lines |
 | `report-format.ts` | INR/qty formatters, sign colouring, and the side-aware optional-column registry/types |
+| `RakeTotalsTab.tsx` | The "Total Rake Report" tab: RAKE totals + Transport-mode totals, each a **full-width stacked row** (`flex flex-col gap-6`, not the old side-by-side grid). **RAKE rows are clickable** → drill-down; holds `useRakeDrilldown` and swaps in `RakeDrilldownTable` while a RAKE is open (Back returns) |
+| `RakeDrilldownTable.tsx` | Drill-down sub-table for one RAKE — individual jsw + jvml stock rows (Source · Sales Org · Distr Channel · Sold To Party · BRANCH · Party Code · Ship To Party · Transport Mode · Destination · Customer · Qty) + Back button + total footer. shadcn `Table` (own scroll box via `containerClassName`) |
 
 ## Gotchas / fragile spots
 
