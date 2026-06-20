@@ -44,6 +44,9 @@ const DEFAULT_QUERY: CustomerCodeQueryState = {
   destination: "",
   cam: "",
   mob: "",
+  ship_to_city: "",
+  rake: "",
+  transport_mode: "",
   region: "",
 }
 
@@ -53,7 +56,7 @@ const DEFAULT_QUERY: CustomerCodeQueryState = {
 
 const FILTER_KEYS = [
   "segment", "code", "customer", "destination",
-  "cam", "mob", "region",
+  "cam", "mob", "ship_to_city", "rake", "transport_mode", "region",
 ] as const satisfies ReadonlyArray<keyof CustomerCodeQueryState>
 
 // ---------------------------------------------------------------------------
@@ -67,6 +70,7 @@ export function useCustomerCodeManagement(): UseCustomerCodeManagementResult {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dialog, setDialog] = useState<CustomerCodeDialogState>({ type: "none" })
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   // Race-safe: discard responses from superseded fetches.
   const fetchIdRef = useRef(0)
@@ -90,6 +94,9 @@ export function useCustomerCodeManagement(): UseCustomerCodeManagementResult {
         ...(q.destination ? { destination: q.destination } : {}),
         ...(q.cam ? { cam: q.cam } : {}),
         ...(q.mob ? { mob: q.mob } : {}),
+        ...(q.ship_to_city ? { ship_to_city: q.ship_to_city } : {}),
+        ...(q.rake ? { rake: q.rake } : {}),
+        ...(q.transport_mode ? { transport_mode: q.transport_mode } : {}),
         // Region FK: query key is "region" (NOT "region_id") per ADDENDUM Area 8 BLOCKER 3
         ...(q.region ? { region: q.region } : {}),
       }
@@ -97,6 +104,7 @@ export function useCustomerCodeManagement(): UseCustomerCodeManagementResult {
       if (id !== fetchIdRef.current) return
       setRows(result.data)
       setMeta(result.meta)
+      setSelectedIds(new Set())
     } catch {
       if (id !== fetchIdRef.current) return
       setError("Failed to load customer codes. Please try again.")
@@ -138,7 +146,7 @@ export function useCustomerCodeManagement(): UseCustomerCodeManagementResult {
 
   /**
    * Single setter for all per-field filters (segment, code, customer, destination,
-   * cam, mob, region).
+   * cam, mob, ship_to_city, rake, transport_mode, region).
    * Resets page to 1 on every call — no individual setters (ADDENDUM Area 9 BLOCKER-4).
    */
   const setFilter = useCallback(
@@ -152,6 +160,9 @@ export function useCustomerCodeManagement(): UseCustomerCodeManagementResult {
           | "destination"
           | "cam"
           | "mob"
+          | "ship_to_city"
+          | "rake"
+          | "transport_mode"
           | "region"
         >
       >,
@@ -170,6 +181,28 @@ export function useCustomerCodeManagement(): UseCustomerCodeManagementResult {
 
   // Trigger a re-fetch without changing params (object identity change → useEffect fires).
   const refetch = useCallback(() => setQuery((q) => ({ ...q })), [])
+
+  // ---------------------------------------------------------------------------
+  // Row selection — local to the current page (cleared on fetch to avoid stale ids)
+  // ---------------------------------------------------------------------------
+
+  /** Replace the selection set with the ids of every currently fetched row. */
+  const selectAll = useCallback(() => {
+    setSelectedIds(new Set(rows.map((r) => r.id)))
+  }, [rows])
+
+  /** Clear the current selection. */
+  const clearSelection = useCallback(() => setSelectedIds(new Set()), [])
+
+  /** Toggle one id in or out of the selection set. */
+  const toggleSelection = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }, [])
 
   const openDialog = useCallback((d: CustomerCodeDialogState) => setDialog(d), [])
   const closeDialog = useCallback(() => setDialog({ type: "none" }), [])
@@ -201,6 +234,10 @@ export function useCustomerCodeManagement(): UseCustomerCodeManagementResult {
     dialog,
     openDialog,
     closeDialog,
+    selectedIds,
+    selectAll,
+    clearSelection,
+    toggleSelection,
     actions: { refetch, ...mutations },
   }
 }

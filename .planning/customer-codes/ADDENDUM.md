@@ -356,7 +356,7 @@ ship_to_customer: str | None = Field(default=None, max_length=200)
 """Query helpers for the customer_code domain (filter + sort building).
 
 Applies re.escape to all user-supplied strings before $regex (ReDoS guard, OWASP A05).
-Free-text search (q) uses $or across all ten text fields.
+Free-text search (q) uses $or across all fifteen text fields.
 Per-field filters are exact-match predicates.
 """
 
@@ -368,6 +368,12 @@ from ...schemas.customer_code import CustomerCodeListQuery
 _TEXT_FIELDS = (
     "segment", "code", "customer", "destination",
     "cam", "mob", "head", "route", "ship_to", "ship_to_customer",
+    "ship_to_2", "ship_to_customer_2", "ship_to_city", "rake", "transport_mode",
+)
+
+_FILTER_FIELDS = (
+    "segment", "code", "customer", "destination",
+    "cam", "mob", "ship_to_city", "rake", "transport_mode",
 )
 
 def escape_regex(s: str) -> str:
@@ -378,7 +384,7 @@ def build_customer_code_filter(query: CustomerCodeListQuery) -> dict[str, Any]:
     if query.q:
         rx = {"$regex": escape_regex(query.q), "$options": "i"}
         filt["$or"] = [{field: rx} for field in _TEXT_FIELDS]
-    for field in _TEXT_FIELDS:
+    for field in _FILTER_FIELDS:
         value = getattr(query, field, None)
         if value is not None:
             filt[field] = value

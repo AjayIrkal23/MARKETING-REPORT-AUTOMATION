@@ -65,7 +65,7 @@ export function ReportPartyRow({ party }: { party: ReportParty }) {
       <TableCell className="text-right tabular-nums font-medium">{fmtQty(party.total)}</TableCell>
 
       <TableCell
-        className="text-right tabular-nums text-muted-foreground"
+        className="text-center tabular-nums text-muted-foreground"
         title={`${party.nco_yes_do_count} delivery(s) with NCO Yes + DO`}
       >
         {party.nco_yes_do ? fmtQty(party.nco_yes_do) : "—"}

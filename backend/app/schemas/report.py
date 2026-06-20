@@ -18,10 +18,12 @@ from typing import Literal
 #   jvml → jvml_stock + CCA "JV0H"
 ReportType = Literal["jsw", "jvml"]
 
-# Aging day-filter (complementary at boundary 2; null aging only under "include"):
-#   include → no aging filter
-#   exclude → aging <= 2
-#   only    → aging > 2
+# QA-hold aging day-filter, defined around "aged QA-hold" stock =
+# in_quality_insp > 0 AND round(aging) > 2 (aging rounded to whole days, 2.4→2,
+# 2.6→3). Normal non-QA stock is never "aged QA-hold".
+#   include → no filter (all stock)
+#   exclude → everything EXCEPT aged QA-hold (all normal data + QA-hold ≤ 2 days)
+#   only    → ONLY aged QA-hold (in_quality_insp > 0 AND round(aging) > 2)
 DaysFilter = Literal["include", "exclude", "only"]
 
 # Credit-status sentinels rendered verbatim by the frontend.

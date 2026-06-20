@@ -6,6 +6,8 @@
  */
 
 export type ReportType = "jsw" | "jvml"
+// QA-hold aging day-filter ("aged QA-hold" = in_quality_insp > 0 AND round(aging) > 2):
+//   include = all stock · exclude = all EXCEPT aged QA-hold · only = ONLY aged QA-hold
 export type DaysFilter = "include" | "exclude" | "only"
 export type CreditStatus = "" | "No Credit balance" | "NO CREDIT REPORT FOUND"
 

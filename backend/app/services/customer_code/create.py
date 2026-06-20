@@ -1,74 +1,106 @@
-"""Customer code service: create a new customer code record.
+"""Customer code service: create or update a customer code record.
 
-Business rules (contract .planning/customer-codes/SPEC.md §2.5 / ADDENDUM §create.py):
-- No uniqueness check — duplicate ``code`` values are valid (same SAP code can appear
-  across multiple ship-to rows for the same customer).
+Business rules:
 - ``region_id`` must refer to an existing Region document; raises ``ValidationError``
-  (400) for an invalid ObjectId string or a valid-hex-but-missing document.  Both cases
-  return the same 400 to prevent enumeration (ADDENDUM Area 1 BLOCKER 4).
-- ``created_at`` and ``updated_at`` are both set to the same ``_now_utc()`` timestamp
-  at insert time.
-- Emits a ``customer_codes`` audit event (``customer_code.created``) after insert; audit
-  failures MUST NOT abort the successfully-persisted record (``record_audit`` in
-  events.py never raises).
-- Returns a ``CustomerCodePublic`` DTO — never the raw Beanie document.
+  (400) for an invalid ObjectId string or a valid-hex-but-missing document.
+- Matching uses the natural key ``(code, ship_to, region_id)`` case-insensitively.
+  Blank ``ship_to`` values are normalised to ``None`` before matching.
+- If a matching document exists, all fields are overwritten and ``updated_at`` is
+  bumped; otherwise a new document is inserted.
+- Emits a ``customer_codes`` audit event after insert/update; audit failures MUST
+  NOT abort the successfully-persisted record.
+- Returns a ``CustomerCodePublic`` DTO plus a flag indicating whether an existing
+  record was updated.
 """
 
 from __future__ import annotations
 
-from ...models.customer_code import CustomerCode, _now_utc
+from datetime import datetime, timezone
+
+from ...models.customer_code import CustomerCode
 from ...schemas.customer_code import CustomerCodeCreate, CustomerCodePublic
 from ..audit.events import audit_customer_code_event
 from .region_link import region_name_for, resolve_region_or_400
 from .serialize import to_customer_code_public
 
 
+def _now_utc() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _norm_ship_to(v: str | None) -> str | None:
+    return v.strip() if v else None
+
+
+class CustomerCodeCreateResult:
+    """Lightweight wrapper so the controller can choose the correct success message."""
+
+    def __init__(self, item: CustomerCodePublic, was_updated: bool) -> None:
+        self.item = item
+        self.was_updated = was_updated
+
+
 async def create_customer_code(
     data: CustomerCodeCreate,
     *,
     actor_email: str | None,
-) -> CustomerCodePublic:
-    """Create a new customer code record and emit an audit event.
-
-    Args:
-        data:        Validated ``CustomerCodeCreate`` DTO (segment, code, customer,
-                     destination, region_id, and optional fields).
-        actor_email: Admin actor email threaded from ``admin.emailid``; ``None`` if
-                     unavailable.
-
-    Returns:
-        The persisted customer code as a ``CustomerCodePublic`` DTO, with the resolved
-        ``region_name`` populated.
-
-    Raises:
-        ValidationError: If ``region_id`` is not a valid ObjectId string or does not
-                         resolve to an existing region document (400).
-    """
-    # Validate region existence before inserting — same 400 for bad hex and missing doc
-    # to prevent ObjectId enumeration (ADDENDUM Area 1 BLOCKER 4).
+) -> CustomerCodeCreateResult:
+    """Upsert a customer code record by (code, ship_to, region_id) and emit audit."""
     region = await resolve_region_or_400(data.region_id)
 
-    now = _now_utc()
-    doc = CustomerCode(
-        segment=data.segment,
-        code=data.code,
-        customer=data.customer,
-        destination=data.destination,
-        cam=data.cam,
-        mob=data.mob,
-        head=data.head,
-        route=data.route,
-        ship_to=data.ship_to,
-        ship_to_customer=data.ship_to_customer,
-        region_id=data.region_id,
-        created_at=now,
-        updated_at=now,
+    ship_to = _norm_ship_to(data.ship_to)
+
+    existing = await CustomerCode.find_one(
+        {
+            "code": {"$regex": f"^{_escape_regex(data.code)}$", "$options": "i"},
+            "ship_to": ship_to,
+            "region_id": data.region_id,
+        }
     )
-    await doc.insert()
+
+    now = _now_utc()
+    payload = {
+        "segment": data.segment,
+        "code": data.code,
+        "customer": data.customer,
+        "destination": data.destination,
+        "cam": data.cam,
+        "mob": data.mob,
+        "head": data.head,
+        "route": data.route,
+        "ship_to": ship_to,
+        "ship_to_customer": data.ship_to_customer,
+        "ship_to_2": _norm_ship_to(data.ship_to_2),
+        "ship_to_customer_2": data.ship_to_customer_2,
+        "ship_to_city": data.ship_to_city,
+        "rake": data.rake,
+        "transport_mode": data.transport_mode,
+        "region_id": data.region_id,
+    }
+
+    if existing is not None:
+        for key, value in payload.items():
+            setattr(existing, key, value)
+        existing.updated_at = now
+        await existing.save()
+        doc = existing
+        was_updated = True
+        audit_action = "customer_code.updated"
+        audit_message = f"Updated customer code '{doc.code}' ({doc.customer}) via create upsert"
+    else:
+        doc = CustomerCode(
+            **payload,  # type: ignore[arg-type]
+            created_at=now,
+            updated_at=now,
+        )
+        await doc.insert()
+        was_updated = False
+        audit_action = "customer_code.created"
+        audit_message = f"Created customer code '{doc.code}' ({doc.customer})"
 
     await audit_customer_code_event(
-        "customer_code.created",
-        f"Created customer code '{doc.code}' ({doc.customer})",
+        audit_action,
+        audit_message,
         actor_email=actor_email,
         extra={
             "code_id": str(doc.id),
@@ -77,11 +109,16 @@ async def create_customer_code(
             "segment": doc.segment,
             "region_id": doc.region_id,
             "region_name": region.name,
+            "was_updated": was_updated,
         },
     )
 
-    # region_name_for performs a single lookup; region is already validated above, so
-    # this will always return a name — it is kept as a separate call to match the
-    # pattern used by get.py and list.py (single lookup path for consistency).
     region_name = await region_name_for(doc.region_id)
-    return to_customer_code_public(doc, region_name)
+    return CustomerCodeCreateResult(
+        item=to_customer_code_public(doc, region_name),
+        was_updated=was_updated,
+    )
+
+
+def _escape_regex(s: str) -> str:
+    return __import__("re").escape(s)

@@ -3,7 +3,8 @@
 ``openpyxl`` is imported **lazily inside each function** so ``import app.main``
 works without the package installed.  Real-file quirks handled: ``code`` as int,
 ``MOB No.`` as int or free-text, ``CAM `` trailing space, unnamed junk columns
-11–12 (None-header guard), and ``SHIP TO`` as int or str.
+(None-header guard), duplicate ``SHIP TO`` / ``SHIP TO CUSTOMER`` columns, and
+numeric cells coerced to strings.
 """
 
 from __future__ import annotations
@@ -31,7 +32,9 @@ def normalize_header(h: object) -> str:
 
 #: Maps *normalised* Excel header strings to CustomerCode model field names.
 #: Three ``mob`` aliases handle period-dropped exports and bare ``"mob"``.
-HEADER_MAP: dict[str, str] = {
+#: Duplicate ``ship to`` / ``ship to customer`` columns are resolved by
+#: occurrence order in ``_header_to_field`` below.
+_HEADER_MAP: dict[str, str] = {
     "segment":          "segment",
     "code":             "code",
     "customer":         "customer",
@@ -44,6 +47,9 @@ HEADER_MAP: dict[str, str] = {
     "route":            "route",
     "ship to":          "ship_to",
     "ship to customer": "ship_to_customer",
+    "ship to city":     "ship_to_city",
+    "rake":             "rake",
+    "transport mode":   "transport_mode",
 }
 
 #: Required model fields — a non-empty row missing any of these is an error.
@@ -51,6 +57,38 @@ REQUIRED_FIELDS: tuple[str, ...] = ("segment", "code", "customer", "destination"
 
 #: Maximum data rows accepted per import sheet (DoS guard).
 MAX_IMPORT_ROWS: int = 50_000
+
+
+# ---------------------------------------------------------------------------
+# Header resolution with duplicate handling
+# ---------------------------------------------------------------------------
+
+def _header_to_field(header_row: tuple[object, ...]) -> dict[int, str]:
+    """Build a column-index → field-name map from the header row.
+
+    Duplicate ``ship to`` / ``ship to customer`` headers are mapped by
+    occurrence: first pair → ``ship_to`` / ``ship_to_customer``, second pair
+    → ``ship_to_2`` / ``ship_to_customer_2``. Unnamed / unknown headers are
+    ignored so their stray values do not pollute parsed rows.
+    """
+    seen: dict[str, int] = {}
+    col_field_map: dict[int, str] = {}
+    for col_idx, h in enumerate(header_row):
+        if h is None:
+            continue
+        norm = normalize_header(h)
+        field = _HEADER_MAP.get(norm)
+        if not field:
+            continue
+        # Resolve duplicate ship-to headers by occurrence.
+        if norm == "ship to":
+            seen["ship to"] = seen.get("ship to", 0) + 1
+            field = "ship_to" if seen["ship to"] == 1 else "ship_to_2"
+        elif norm == "ship to customer":
+            seen["ship to customer"] = seen.get("ship to customer", 0) + 1
+            field = "ship_to_customer" if seen["ship to customer"] == 1 else "ship_to_customer_2"
+        col_field_map[col_idx] = field
+    return col_field_map
 
 
 # ---------------------------------------------------------------------------
@@ -88,7 +126,8 @@ def parse_workbook(
     Each element of ``valid_rows`` is a ``dict`` of model field → cleaned
     string (or ``None`` for optional fields).  Fully-empty rows are silently
     skipped (counted as *skipped*, not as errors in the import summary).
-    Non-empty rows missing a required field produce a ``CustomerCodeImportError``.
+    Non-empty rows missing a required field have that field filled with the
+    string ``"unknown"`` instead of being rejected.
 
     Early-return paths: (1) no rows → ``([], [])``;
     (2) required headers absent → ``([], [error])``;
@@ -114,16 +153,7 @@ def parse_workbook(
         return [], []
 
     # Build column-index → field-name map from the header row.
-    header_row = rows[0]
-    col_field_map: dict[int, str] = {}
-    for col_idx, h in enumerate(header_row):
-        if h is None:
-            # Junk/unnamed columns (e.g. cols 11–12 in the real file) are
-            # skipped so their stray cell values are safely ignored.
-            continue
-        field = HEADER_MAP.get(normalize_header(h))
-        if field:
-            col_field_map[col_idx] = field
+    col_field_map = _header_to_field(rows[0])
 
     # Validate that all required headers are present.
     mapped_fields = set(col_field_map.values())
@@ -167,16 +197,11 @@ def parse_workbook(
         if all(v is None for v in parsed.values()):
             continue
 
-        # Branch B: non-empty row missing a required field → error entry.
-        missing = [f for f in REQUIRED_FIELDS if not parsed.get(f)]
-        if missing:
-            errors.append(
-                CustomerCodeImportError(
-                    row=row_idx,
-                    message=f"Missing required fields: {', '.join(missing)}",
-                )
-            )
-            continue
+        # Branch B: non-empty row missing a required field → fill with "unknown"
+        # rather than rejecting the row. The user explicitly wants every row kept.
+        for field in REQUIRED_FIELDS:
+            if not parsed.get(field):
+                parsed[field] = "unknown"
 
         valid_rows.append(parsed)
 
@@ -192,13 +217,18 @@ def parse_workbook(
 #: the equivalence on re-import.
 TEMPLATE_HEADERS: list[str] = [
     "Segment", "code", "Customer", "Destination",
-    "CAM", "MOB No.", "Head", "ROUTE", "SHIP TO", "SHIP TO CUSTOMER",
+    "CAM", "MOB No.", "Head", "ROUTE",
+    "SHIP TO", "SHIP TO CUSTOMER",
+    "SHIP TO", "SHIP TO CUSTOMER",
+    "SHIP TO CITY", "RAKE", "TRANSPORT MODE",
 ]
 
 _TEMPLATE_EXAMPLE_ROW: list[str] = [
     "Retail", "40020365", "Example Steel Traders", "Mumbai",
     "Ravi Kumar", "9876543210", "Sales Head Name", "KAT036",
     "40047421", "Example Ship-To Pvt Ltd",
+    "40047422", "Example Second Ship-To Pvt Ltd",
+    "Mumbai", "RAKE-01", "RAKE",
 ]
 
 

@@ -23,7 +23,7 @@ const COLUMNS: { label: string; className: string }[] = [
   { label: "Sold To Party",  className: "min-w-[160px]" },
   { label: "Route Desc",     className: "min-w-[140px]" },
   { label: "Total",          className: "text-right min-w-[90px]" },
-  { label: "Yes+DO",         className: "text-right min-w-[100px]" },
+  { label: "Yes+DO",         className: "text-center min-w-[100px]" },
   { label: "Blocked",        className: "text-center min-w-[90px]" },
   { label: "Credit Balance", className: "text-right min-w-[120px]" },
   { label: "Credit Note",    className: "text-center min-w-[140px]" },

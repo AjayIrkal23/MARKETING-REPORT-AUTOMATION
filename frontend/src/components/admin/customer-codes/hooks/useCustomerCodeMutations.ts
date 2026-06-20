@@ -16,6 +16,7 @@
 import { useCallback } from "react"
 import { toast } from "sonner"
 
+import { bulkDeleteCustomerCodes } from "@/api/admin/customer-codes/bulk-delete"
 import { createCustomerCode } from "@/api/admin/customer-codes/create"
 import { updateCustomerCode } from "@/api/admin/customer-codes/update"
 import { removeCustomerCode } from "@/api/admin/customer-codes/remove"
@@ -34,6 +35,7 @@ export interface CustomerCodeMutationActions {
   create: (input: CreateCustomerCodeInput) => Promise<void>
   update: (id: string, input: UpdateCustomerCodeInput) => Promise<void>
   remove: (id: string) => Promise<void>
+  bulkRemove: (ids: string[]) => Promise<void>
 }
 
 // ---------------------------------------------------------------------------
@@ -98,5 +100,18 @@ export function useCustomerCodeMutations({
     [afterMutation, handleError],
   )
 
-  return { create, update, remove }
+  // Delete many customer code records by id.
+  const bulkRemove = useCallback(
+    async (ids: string[]) => {
+      try {
+        const count = await bulkDeleteCustomerCodes({ ids })
+        afterMutation(`${count} customer code(s) deleted.`)
+      } catch (err) {
+        handleError(err, "Failed to delete customer codes.")
+      }
+    },
+    [afterMutation, handleError],
+  )
+
+  return { create, update, remove, bulkRemove }
 }

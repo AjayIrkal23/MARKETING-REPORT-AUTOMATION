@@ -79,6 +79,8 @@ export interface ConfirmActionDialogProps extends DialogBaseProps {
   onConfirm: () => void
   /** Shows a spinner and disables buttons while the action is in-flight. */
   isLoading?: boolean
+  /** Optional override for the dialog title (defaults to the variant title). */
+  title?: string
 }
 
 // ---------------------------------------------------------------------------

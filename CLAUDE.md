@@ -1,3 +1,4 @@
+<!-- dox:root v1 -->
 # Marketing Report Automation — CLAUDE.md
 
 JSW Steel marketing tooling for the West-Central region. Ingests three SAP Excel exports (credit, customer master, current stock), exposes a FastAPI backend, and serves a Vite + React dashboard. Currently in scaffold stage — backend is a minimal ping-pong API and the frontend has auth + routing wired but no domain screens yet.
@@ -57,62 +58,19 @@ Override backend URL: `VITE_API_URL=http://...` (see `vite.config.ts` proxy conf
 
 ## Architecture at a glance
 
-### Backend — minimal FastAPI scaffold
+- **Backend** — FastAPI service on port 8000. See [`backend/CLAUDE.md`](backend/CLAUDE.md) for endpoints, models, and layering.
+- **Frontend** — Vite + React + TypeScript dashboard on port 5173. See [`frontend/CLAUDE.md`](frontend/CLAUDE.md) for routes, state, and components.
+- **Domain data** — three SAP Excel exports in [`macro_files/`](macro_files/CLAUDE.md), documented in [`macro_docs/`](macro_docs/CLAUDE.md). Key join: SAP customer code; ZSD `Party Code` is zero-padded to 10 digits — strip leading zeros. Codes `8451–8499` / `8001`-style are internal JSW yards.
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Service banner dict |
-| `/health` | GET | `HealthResponse` — status, version, uptime_seconds |
-| `/ping` | GET | `PongResponse` — message="pong", seq, timestamp |
-| `/ws/ping` | WS | Echo: "ping" → "pong"; anything else → `echo:<text>` |
+## Domain data gotchas (summary)
 
-- Models: `PongResponse`, `HealthResponse` (Pydantic v2 BaseModel). Counter via `itertools.count(1)`.
-- CORS origins: `http://localhost:5173`, `http://127.0.0.1:5173`, `http://localhost:4173`; credentials allowed.
-- Entry: `backend/app/main.py`. Version from `backend/app/__init__.py`.
-- **No DB, no services layer, no auth yet** — this is a scaffold.
+- `ZSD_CURRSTK_HR.xlsx` cannot be read with `openpyxl` (malformed numeric cell `"1.057.000"`); the backend uses a raw-zip parser.
+- Customer-codes filename has **two spaces**: `west  central customer codes.xlsx`. An updated 15-column workbook (`west  central customer codes_updated_ship_tp.xlsx`) adds a second `SHIP TO` / `SHIP TO CUSTOMER` pair plus `SHIP TO CITY`, `RAKE`, and `TRANSPORT MODE`.
+- Many ZSD numeric columns are stored as TEXT; cast before math. `LC Exp Date` is `dd.mm.yyyy` text.
+- Credit report has `#VALUE!` errors and trailing blank/footer rows.
+- Casing and header spacing are not normalized — strip and `.lower()` before joins.
 
-### Frontend — auth + routing, no domain screens yet
-
-**Redux Toolkit:**
-- Store: `src/app/store.ts` + typed hooks `src/app/hooks.ts`.
-- Only slice present: `src/features/auth/authSlice.ts` — `loginSuccess` / `logout` actions, session hydrated from `localStorage`.
-
-**React Router v7 routes:**
-
-| Path | Component | Guard |
-|------|-----------|-------|
-| `/login` | `LoginPage` | Public |
-| `/home` | `HomePage` | `ProtectedRoute` (redirects to `/login` if not authenticated) |
-| `/` | redirect → `/home` | — |
-| `*` | redirect → `/home` | — |
-
-Mock auth accepts **any non-empty credentials** and persists to `localStorage`.
-
-**Styling:**
-- Tailwind CSS v4 (`@tailwindcss/vite`). `src/index.css` defines standard shadcn/ui oklch tokens (`--primary`, `--destructive`, `--sidebar`, …) plus the Geist Variable font in `:root` + `.dark`. **JSW-specific brand tokens (`--jsw-blue` / `--jsw-red` / `--jsw-steel`) are not yet defined — add them before referencing.**
-- shadcn/ui (~55 components under `src/components/ui/`), `next-themes` `ThemeProvider`.
-- Backend client: `src/lib/api.ts`. Utility: `src/lib/utils.ts` (`cn` helper).
-
-**Frontend is still a scaffold — known gotcha:** `src/` currently has only the auth slice, routing, `theme-provider`, and the shadcn `ui/` set. There is **no** ping/data slice, dashboard-layout component, or logo component yet. The frontend changes frequently (`README.md` and `index.css` were edited mid-setup on 2026-05-29), so always verify against the live `src/` tree (`ctx_tree frontend/src 4`) before referencing a file.
-
----
-
-## Domain data
-
-Three SAP Excel exports live in `macro_files/` and are documented in `macro_docs/`. The primary join key across all three is the SAP customer code (8-digit, e.g. `40000088`). In ZSD the `Party Code` column is zero-padded to 10 digits — strip leading zeros to match. Short codes in the 8451–8499 / 8001-style range are internal JSW stock-transfer yards, not external customers. Full column-level data dictionary, field semantics, and request-routing table ("when the user asks about X, use file Y") are in `macro_docs/README.md`.
-
-### Three critical gotchas
-
-1. **`openpyxl` not installed by default.** Install before any Excel work:
-   ```bash
-   pip3 install --break-system-packages openpyxl   # add pandas if needed
-   ```
-
-2. **ZSD invalid-XML `ValueError`.** `ZSD_CURRSTK_HR.xlsx` contains a numeric cell with value `"1.057.000"` (two decimal points). `openpyxl.load_workbook()` raises `ValueError: could not convert string to float` in **both** read-only and normal mode. Fix: re-save the file in Excel or LibreOffice, OR raw-parse the zip (`xl/sharedStrings.xml` + `xl/worksheets/sheet1.xml`) and keep non-floatable numeric cells as strings.
-
-3. **Two-space filename.** The customer codes file is named `west  central customer codes.xlsx` (two spaces between "west" and "central"). Shell globs and string literals must match exactly.
-
-Additional data-quality issues (not exhaustive): many ZSD numeric columns stored as TEXT (`Act.Thickness (mm)`, `Width (mm)`, `HARDNESS`, `YIELD STRENGTH`, `UTS`); `LC Exp Date` is text in `dd.mm.yyyy` format; credit report has `#VALUE!` Excel errors and ~22 trailing blank/footer rows; casing is not normalized (`oem` vs `OEM`, `Mumbai` vs `mumbai`); some column headers have trailing spaces (e.g. `"CAM "`); last 1–2 columns of the customer-codes file are unnamed junk.
+Full dictionaries and the request-routing table are in [`macro_docs/README.md`](macro_docs/README.md).
 
 ---
 
@@ -132,13 +90,156 @@ Additional data-quality issues (not exhaustive): many ZSD numeric columns stored
 
 ---
 
+## dox maintenance
+
+After changing files in any directory: (1) update that dir's `CLAUDE.md` (files,
+conventions, gotchas, children); (2) re-sync the root index with
+`python3 ~/.claude/hooks/dox_engine.py sweep .`; (3) keep every `CLAUDE.md` ≤ 250
+lines. New dirs are auto-stubbed, but prose is manual — don't leave stubs untouched.
+
 ## Pointers
 
-| File | Purpose |
-|------|---------|
-| `CODEX.md` | Session log, decisions, known fragile areas — **read before source files** |
-| `AGENTS.md` | Agent roles, responsibilities, and delegation rules |
-| `frontend/CLAUDE.md` | Frontend-specific agent rules |
-| `backend/CLAUDE.md` | Backend-specific agent rules |
-| `macro_docs/README.md` | Domain data dictionary and request-routing table |
-| `~/.claude/rules/mandatory-skill-protocol.mdc` | Global lifecycle (phases 0–7) — canonical source |
+- `CODEX.md` — session log & known fragile areas (**read before source files**)
+- `AGENTS.md` — cross-tool pointer to this root
+- `frontend/CLAUDE.md` / `backend/CLAUDE.md` — stack-specific rules
+- `macro_docs/README.md` — domain data dictionary & request-routing table
+- `~/.claude/rules/mandatory-skill-protocol.mdc` — global lifecycle (phases 0–7)
+
+## dox index (children)
+
+<!-- dox:index:start -->
+<!-- dox auto-syncs this block from the tree on disk; edit directories, not these lines -->
+- [`backend/`](backend/CLAUDE.md)
+  - [`backend/app/`](backend/app/CLAUDE.md)
+    - [`backend/app/controllers/`](backend/app/controllers/CLAUDE.md)
+    - [`backend/app/core/`](backend/app/core/CLAUDE.md)
+    - [`backend/app/middleware/`](backend/app/middleware/CLAUDE.md)
+    - [`backend/app/models/`](backend/app/models/CLAUDE.md)
+    - [`backend/app/routes/`](backend/app/routes/CLAUDE.md)
+    - [`backend/app/schemas/`](backend/app/schemas/CLAUDE.md)
+    - [`backend/app/scripts/`](backend/app/scripts/CLAUDE.md)
+    - [`backend/app/services/`](backend/app/services/CLAUDE.md)
+      - [`backend/app/services/admin_user/`](backend/app/services/admin_user/CLAUDE.md)
+      - [`backend/app/services/audit/`](backend/app/services/audit/CLAUDE.md)
+      - [`backend/app/services/audit_log/`](backend/app/services/audit_log/CLAUDE.md)
+      - [`backend/app/services/auth/`](backend/app/services/auth/CLAUDE.md)
+      - [`backend/app/services/coil_price/`](backend/app/services/coil_price/CLAUDE.md)
+      - [`backend/app/services/credit_report/`](backend/app/services/credit_report/CLAUDE.md)
+      - [`backend/app/services/cron/`](backend/app/services/cron/CLAUDE.md)
+      - [`backend/app/services/customer_code/`](backend/app/services/customer_code/CLAUDE.md)
+      - [`backend/app/services/dashboard/`](backend/app/services/dashboard/CLAUDE.md)
+      - [`backend/app/services/jsw_stock/`](backend/app/services/jsw_stock/CLAUDE.md)
+      - [`backend/app/services/jvml_stock/`](backend/app/services/jvml_stock/CLAUDE.md)
+      - [`backend/app/services/meta/`](backend/app/services/meta/CLAUDE.md)
+      - [`backend/app/services/region/`](backend/app/services/region/CLAUDE.md)
+      - [`backend/app/services/report/`](backend/app/services/report/CLAUDE.md)
+      - [`backend/app/services/user/`](backend/app/services/user/CLAUDE.md)
+    - [`backend/app/utils/`](backend/app/utils/CLAUDE.md)
+      - [`backend/app/utils/admin_user/`](backend/app/utils/admin_user/CLAUDE.md)
+      - [`backend/app/utils/audit_log/`](backend/app/utils/audit_log/CLAUDE.md)
+      - [`backend/app/utils/coil_price/`](backend/app/utils/coil_price/CLAUDE.md)
+      - [`backend/app/utils/credit_report/`](backend/app/utils/credit_report/CLAUDE.md)
+      - [`backend/app/utils/customer_code/`](backend/app/utils/customer_code/CLAUDE.md)
+      - [`backend/app/utils/jsw_stock/`](backend/app/utils/jsw_stock/CLAUDE.md)
+      - [`backend/app/utils/jvml_stock/`](backend/app/utils/jvml_stock/CLAUDE.md)
+      - [`backend/app/utils/region/`](backend/app/utils/region/CLAUDE.md)
+      - [`backend/app/utils/report/`](backend/app/utils/report/CLAUDE.md)
+      - [`backend/app/utils/user/`](backend/app/utils/user/CLAUDE.md)
+  - [`backend/tests/`](backend/tests/CLAUDE.md)
+- [`backend_docs/`](backend_docs/CLAUDE.md)
+- [`frontend/`](frontend/CLAUDE.md)
+  - [`frontend/public/`](frontend/public/CLAUDE.md)
+  - [`frontend/src/`](frontend/src/CLAUDE.md)
+    - [`frontend/src/api/`](frontend/src/api/CLAUDE.md)
+      - [`frontend/src/api/admin/`](frontend/src/api/admin/CLAUDE.md)
+        - [`frontend/src/api/admin/audit-logs/`](frontend/src/api/admin/audit-logs/CLAUDE.md)
+        - [`frontend/src/api/admin/coil-prices/`](frontend/src/api/admin/coil-prices/CLAUDE.md)
+        - [`frontend/src/api/admin/customer-codes/`](frontend/src/api/admin/customer-codes/CLAUDE.md)
+        - [`frontend/src/api/admin/regions/`](frontend/src/api/admin/regions/CLAUDE.md)
+        - [`frontend/src/api/admin/users/`](frontend/src/api/admin/users/CLAUDE.md)
+      - [`frontend/src/api/auth/`](frontend/src/api/auth/CLAUDE.md)
+        - [`frontend/src/api/auth/setup/`](frontend/src/api/auth/setup/CLAUDE.md)
+      - [`frontend/src/api/credit-report/`](frontend/src/api/credit-report/CLAUDE.md)
+      - [`frontend/src/api/dashboard/`](frontend/src/api/dashboard/CLAUDE.md)
+      - [`frontend/src/api/jsw-stock/`](frontend/src/api/jsw-stock/CLAUDE.md)
+      - [`frontend/src/api/jvml-stock/`](frontend/src/api/jvml-stock/CLAUDE.md)
+      - [`frontend/src/api/meta/`](frontend/src/api/meta/CLAUDE.md)
+      - [`frontend/src/api/report/`](frontend/src/api/report/CLAUDE.md)
+      - [`frontend/src/api/settings/`](frontend/src/api/settings/CLAUDE.md)
+        - [`frontend/src/api/settings/credit-report-config/`](frontend/src/api/settings/credit-report-config/CLAUDE.md)
+        - [`frontend/src/api/settings/jsw-stock-config/`](frontend/src/api/settings/jsw-stock-config/CLAUDE.md)
+        - [`frontend/src/api/settings/jvml-stock-config/`](frontend/src/api/settings/jvml-stock-config/CLAUDE.md)
+      - [`frontend/src/api/user/`](frontend/src/api/user/CLAUDE.md)
+    - [`frontend/src/app/`](frontend/src/app/CLAUDE.md)
+    - [`frontend/src/components/`](frontend/src/components/CLAUDE.md)
+      - [`frontend/src/components/admin/`](frontend/src/components/admin/CLAUDE.md)
+        - [`frontend/src/components/admin/audit-logs/`](frontend/src/components/admin/audit-logs/CLAUDE.md)
+          - [`frontend/src/components/admin/audit-logs/hooks/`](frontend/src/components/admin/audit-logs/hooks/CLAUDE.md)
+        - [`frontend/src/components/admin/coil-prices/`](frontend/src/components/admin/coil-prices/CLAUDE.md)
+          - [`frontend/src/components/admin/coil-prices/hooks/`](frontend/src/components/admin/coil-prices/hooks/CLAUDE.md)
+        - [`frontend/src/components/admin/customer-codes/`](frontend/src/components/admin/customer-codes/CLAUDE.md)
+          - [`frontend/src/components/admin/customer-codes/hooks/`](frontend/src/components/admin/customer-codes/hooks/CLAUDE.md)
+        - [`frontend/src/components/admin/regions/`](frontend/src/components/admin/regions/CLAUDE.md)
+          - [`frontend/src/components/admin/regions/hooks/`](frontend/src/components/admin/regions/hooks/CLAUDE.md)
+        - [`frontend/src/components/admin/users/`](frontend/src/components/admin/users/CLAUDE.md)
+          - [`frontend/src/components/admin/users/hooks/`](frontend/src/components/admin/users/hooks/CLAUDE.md)
+      - [`frontend/src/components/auth/`](frontend/src/components/auth/CLAUDE.md)
+        - [`frontend/src/components/auth/hooks/`](frontend/src/components/auth/hooks/CLAUDE.md)
+        - [`frontend/src/components/auth/login/`](frontend/src/components/auth/login/CLAUDE.md)
+          - [`frontend/src/components/auth/login/hooks/`](frontend/src/components/auth/login/hooks/CLAUDE.md)
+      - [`frontend/src/components/common/`](frontend/src/components/common/CLAUDE.md)
+        - [`frontend/src/components/common/hooks/`](frontend/src/components/common/hooks/CLAUDE.md)
+      - [`frontend/src/components/credit-report/`](frontend/src/components/credit-report/CLAUDE.md)
+        - [`frontend/src/components/credit-report/hooks/`](frontend/src/components/credit-report/hooks/CLAUDE.md)
+      - [`frontend/src/components/dashboard/`](frontend/src/components/dashboard/CLAUDE.md)
+        - [`frontend/src/components/dashboard/hooks/`](frontend/src/components/dashboard/hooks/CLAUDE.md)
+      - [`frontend/src/components/jsw-stock/`](frontend/src/components/jsw-stock/CLAUDE.md)
+        - [`frontend/src/components/jsw-stock/hooks/`](frontend/src/components/jsw-stock/hooks/CLAUDE.md)
+      - [`frontend/src/components/jvml-stock/`](frontend/src/components/jvml-stock/CLAUDE.md)
+        - [`frontend/src/components/jvml-stock/hooks/`](frontend/src/components/jvml-stock/hooks/CLAUDE.md)
+      - [`frontend/src/components/layout/`](frontend/src/components/layout/CLAUDE.md)
+      - [`frontend/src/components/report/`](frontend/src/components/report/CLAUDE.md)
+        - [`frontend/src/components/report/hooks/`](frontend/src/components/report/hooks/CLAUDE.md)
+      - [`frontend/src/components/settings/`](frontend/src/components/settings/CLAUDE.md)
+        - [`frontend/src/components/settings/hooks/`](frontend/src/components/settings/hooks/CLAUDE.md)
+      - [`frontend/src/components/theme/`](frontend/src/components/theme/CLAUDE.md)
+      - [`frontend/src/components/ui/`](frontend/src/components/ui/CLAUDE.md)
+    - [`frontend/src/hooks/`](frontend/src/hooks/CLAUDE.md)
+    - [`frontend/src/lib/`](frontend/src/lib/CLAUDE.md)
+    - [`frontend/src/pages/`](frontend/src/pages/CLAUDE.md)
+      - [`frontend/src/pages/admin/`](frontend/src/pages/admin/CLAUDE.md)
+        - [`frontend/src/pages/admin/audit-logs/`](frontend/src/pages/admin/audit-logs/CLAUDE.md)
+        - [`frontend/src/pages/admin/coil-config/`](frontend/src/pages/admin/coil-config/CLAUDE.md)
+        - [`frontend/src/pages/admin/customer-codes/`](frontend/src/pages/admin/customer-codes/CLAUDE.md)
+        - [`frontend/src/pages/admin/regions/`](frontend/src/pages/admin/regions/CLAUDE.md)
+        - [`frontend/src/pages/admin/settings/`](frontend/src/pages/admin/settings/CLAUDE.md)
+        - [`frontend/src/pages/admin/users/`](frontend/src/pages/admin/users/CLAUDE.md)
+      - [`frontend/src/pages/auth/`](frontend/src/pages/auth/CLAUDE.md)
+        - [`frontend/src/pages/auth/login/`](frontend/src/pages/auth/login/CLAUDE.md)
+      - [`frontend/src/pages/credit-report/`](frontend/src/pages/credit-report/CLAUDE.md)
+      - [`frontend/src/pages/dashboard/`](frontend/src/pages/dashboard/CLAUDE.md)
+        - [`frontend/src/pages/dashboard/home/`](frontend/src/pages/dashboard/home/CLAUDE.md)
+      - [`frontend/src/pages/jsw-stock/`](frontend/src/pages/jsw-stock/CLAUDE.md)
+      - [`frontend/src/pages/jvml-stock/`](frontend/src/pages/jvml-stock/CLAUDE.md)
+      - [`frontend/src/pages/report/`](frontend/src/pages/report/CLAUDE.md)
+    - [`frontend/src/routes/`](frontend/src/routes/CLAUDE.md)
+    - [`frontend/src/store/`](frontend/src/store/CLAUDE.md)
+      - [`frontend/src/store/auth/`](frontend/src/store/auth/CLAUDE.md)
+    - [`frontend/src/styles/`](frontend/src/styles/CLAUDE.md)
+    - [`frontend/src/types/`](frontend/src/types/CLAUDE.md)
+      - [`frontend/src/types/admin/`](frontend/src/types/admin/CLAUDE.md)
+      - [`frontend/src/types/api/`](frontend/src/types/api/CLAUDE.md)
+      - [`frontend/src/types/auth/`](frontend/src/types/auth/CLAUDE.md)
+      - [`frontend/src/types/credit-report/`](frontend/src/types/credit-report/CLAUDE.md)
+      - [`frontend/src/types/dashboard/`](frontend/src/types/dashboard/CLAUDE.md)
+      - [`frontend/src/types/jsw-stock/`](frontend/src/types/jsw-stock/CLAUDE.md)
+      - [`frontend/src/types/jvml-stock/`](frontend/src/types/jvml-stock/CLAUDE.md)
+      - [`frontend/src/types/meta/`](frontend/src/types/meta/CLAUDE.md)
+      - [`frontend/src/types/report/`](frontend/src/types/report/CLAUDE.md)
+      - [`frontend/src/types/settings/`](frontend/src/types/settings/CLAUDE.md)
+      - [`frontend/src/types/theme/`](frontend/src/types/theme/CLAUDE.md)
+      - [`frontend/src/types/user/`](frontend/src/types/user/CLAUDE.md)
+- [`frontend_docs/`](frontend_docs/CLAUDE.md)
+- [`macro_docs/`](macro_docs/CLAUDE.md)
+- [`macro_files/`](macro_files/CLAUDE.md)
+<!-- dox:index:end -->

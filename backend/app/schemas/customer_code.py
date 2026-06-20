@@ -32,13 +32,16 @@ CustomerCodeOption = AsyncOption  # type alias — no new class defined
 
 CustomerCodeSortBy = Literal[
     "segment", "code", "customer", "destination",
-    "cam", "head", "route", "created_at", "updated_at",
+    "cam", "head", "route",
+    "ship_to_city", "rake", "transport_mode",
+    "created_at", "updated_at",
 ]
 
 # Per-field filter whitelist (used by CustomerCodeOptionsQuery)
 CustomerCodeField = Literal[
     "segment", "code", "customer", "destination",
     "cam", "mob",
+    "ship_to_city", "rake", "transport_mode",
 ]
 
 # ---------------------------------------------------------------------------
@@ -58,7 +61,7 @@ class CustomerCodeListQuery(PageQuery):
     """
 
     sortBy: CustomerCodeSortBy = "created_at"
-    # Free-text search across all ten text fields; length-capped for regex safety.
+    # Free-text search across all fifteen text fields; length-capped for regex safety.
     q: str | None = Field(default=None, max_length=200)
     # Per-field exact-match filters (None = no filter applied).
     segment: str | None = Field(default=None, max_length=200)
@@ -67,6 +70,9 @@ class CustomerCodeListQuery(PageQuery):
     destination: str | None = Field(default=None, max_length=200)
     cam: str | None = Field(default=None, max_length=200)
     mob: str | None = Field(default=None, max_length=200)
+    ship_to_city: str | None = Field(default=None, max_length=200)
+    rake: str | None = Field(default=None, max_length=200)
+    transport_mode: str | None = Field(default=None, max_length=200)
     # Region FK filter — FE sends ?region=<id>; backend maps to region_id.
     region: str | None = Field(default=None, max_length=200)
 
@@ -90,7 +96,10 @@ class CustomerCodeOptionsQuery(BaseModel):
 # Shared validator applied to both Create and Update schemas.
 _STRIP_FIELDS = (
     "segment", "code", "customer", "destination", "region_id",
-    "cam", "mob", "head", "route", "ship_to", "ship_to_customer",
+    "cam", "mob", "head", "route",
+    "ship_to", "ship_to_customer",
+    "ship_to_2", "ship_to_customer_2",
+    "ship_to_city", "rake", "transport_mode",
 )
 
 
@@ -119,6 +128,11 @@ class CustomerCodeCreate(BaseModel):
     route: str | None = Field(default=None, max_length=200)
     ship_to: str | None = Field(default=None, max_length=200)
     ship_to_customer: str | None = Field(default=None, max_length=200)
+    ship_to_2: str | None = Field(default=None, max_length=200)
+    ship_to_customer_2: str | None = Field(default=None, max_length=200)
+    ship_to_city: str | None = Field(default=None, max_length=200)
+    rake: str | None = Field(default=None, max_length=200)
+    transport_mode: str | None = Field(default=None, max_length=200)
 
     @field_validator(*_STRIP_FIELDS, mode="before")
     @classmethod
@@ -130,6 +144,17 @@ class CustomerCodeCreate(BaseModel):
             v = str(v)
         stripped = v.strip()
         return stripped if stripped else None
+
+
+class CustomerCodeBulkDeleteRequest(BaseModel):
+    """Body for ``POST /admin/customer-codes/bulk-delete``.
+
+    Deletes up to ``MAX_BULK_DELETE_COUNT`` customer codes by ObjectId hex.
+    Invalid or unknown ids are silently ignored; the response reports how
+    many documents were actually removed.
+    """
+
+    ids: list[str] = Field(min_length=1, max_length=100)
 
 
 class CustomerCodeUpdate(BaseModel):
@@ -151,6 +176,11 @@ class CustomerCodeUpdate(BaseModel):
     route: str | None = Field(default=None, max_length=200)
     ship_to: str | None = Field(default=None, max_length=200)
     ship_to_customer: str | None = Field(default=None, max_length=200)
+    ship_to_2: str | None = Field(default=None, max_length=200)
+    ship_to_customer_2: str | None = Field(default=None, max_length=200)
+    ship_to_city: str | None = Field(default=None, max_length=200)
+    rake: str | None = Field(default=None, max_length=200)
+    transport_mode: str | None = Field(default=None, max_length=200)
 
     @field_validator(*_STRIP_FIELDS, mode="before")
     @classmethod
@@ -189,6 +219,11 @@ class CustomerCodePublic(BaseModel):
     route: str | None
     ship_to: str | None
     ship_to_customer: str | None
+    ship_to_2: str | None
+    ship_to_customer_2: str | None
+    ship_to_city: str | None
+    rake: str | None
+    transport_mode: str | None
     region_id: str
     region_name: str | None  # resolved by service; None if region deleted
     created_at: datetime
@@ -215,12 +250,13 @@ class CustomerCodeImportError(BaseModel):
 class CustomerCodeImportResult(BaseModel):
     """Summary envelope returned by ``POST /admin/customer-codes/import``.
 
-    Invariant: ``total_rows == inserted + skipped + len(errors)``
-    where ``skipped`` counts fully-empty rows silently bypassed (ADDENDUM §Area 5).
+    Invariant: ``total_rows == inserted + updated + skipped + len(errors)``
+    where ``skipped`` counts fully-empty rows silently bypassed.
     """
 
     total_rows: int
     inserted: int
+    updated: int
     skipped: int
     region_id: str
     region_name: str | None

@@ -12,6 +12,7 @@ below (JSW/JVML stock ingestion rules, 2026-06):
      (ZRE1, ZRE2, … ZREn).
   5. NCO Declared — keep ``No``; keep ``Yes`` ONLY when a DO No. exists;
      drop ``Yes`` with an empty DO No.
+  6. Usage Decision — drop ``NCO`` and ``COMMERCIAL`` (case-insensitive exact).
 
 Pure / transport-free — ``customer_map`` is resolved once in ingest.py and
 passed in, so this module performs no I/O (``service-layer-standards``).
@@ -28,6 +29,9 @@ _KEEP_PRODUCT_FORM = "S_HRCF"
 # Sales Order Type denylist: exact codes + the ZRE<number> family.
 _DENY_ORDER_TYPES = frozenset({"ZAUF", "ZVSR"})
 _ZRE_NUMBERED = re.compile(r"ZRE\d+")
+
+# Usage Decision denylist (drop NCO / COMMERCIAL — non-prime / commercial stock).
+_DENY_USAGE_DECISIONS = frozenset({"NCO", "COMMERCIAL"})
 
 
 def should_keep_row(
@@ -71,5 +75,10 @@ def should_keep_row(
         do_no = coerced.get("do_no")
         if not (do_no and str(do_no).strip()):
             return False
+
+    # 6. Usage Decision denylist — drop NCO / COMMERCIAL (case-insensitive exact).
+    usage = (coerced.get("usage_decision") or "").strip().upper()
+    if usage in _DENY_USAGE_DECISIONS:
+        return False
 
     return True

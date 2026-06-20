@@ -21,6 +21,9 @@ export type CustomerCodeSortBy =
   | "cam"
   | "head"
   | "route"
+  | "ship_to_city"
+  | "rake"
+  | "transport_mode"
   | "created_at"
   | "updated_at"
 
@@ -35,6 +38,9 @@ export type CustomerCodeField =
   | "destination"
   | "cam"
   | "mob"
+  | "ship_to_city"
+  | "rake"
+  | "transport_mode"
 
 /**
  * Client-safe customer-code projection returned by all admin customer-code endpoints.
@@ -62,6 +68,16 @@ export interface CustomerCode {
   ship_to: string | null
   /** Ship-to customer name. Optional. */
   ship_to_customer: string | null
+  /** Second ship-to code. Optional. */
+  ship_to_2: string | null
+  /** Second ship-to customer name. Optional. */
+  ship_to_customer_2: string | null
+  /** Ship-to city. Optional. */
+  ship_to_city: string | null
+  /** RAKE identifier. Optional. */
+  rake: string | null
+  /** Transport mode. Optional. */
+  transport_mode: string | null
   /** ObjectId hex string referencing the `regions` collection. */
   region_id: string
   /** Resolved region name. Null if region was deleted after import. */
@@ -82,7 +98,7 @@ export interface CustomerCode {
  */
 export interface CustomerCodeListQuery extends PageQuery {
   sortBy?: CustomerCodeSortBy
-  /** Case-insensitive free-text search over all ten text fields. */
+  /** Case-insensitive free-text search over all fifteen text fields. */
   q?: string
   /** Per-field exact-match filters (each is backend query key, snake_case). */
   segment?: string
@@ -91,6 +107,9 @@ export interface CustomerCodeListQuery extends PageQuery {
   destination?: string
   cam?: string
   mob?: string
+  ship_to_city?: string
+  rake?: string
+  transport_mode?: string
   /**
    * Region FK exact-match filter.
    * Query key is `region` (NOT `region_id`) — matches backend `CustomerCodeListQuery`.
@@ -116,6 +135,11 @@ export interface CreateCustomerCodeInput {
   route?: string | null
   ship_to?: string | null
   ship_to_customer?: string | null
+  ship_to_2?: string | null
+  ship_to_customer_2?: string | null
+  ship_to_city?: string | null
+  rake?: string | null
+  transport_mode?: string | null
 }
 
 /**
@@ -135,6 +159,11 @@ export interface UpdateCustomerCodeInput {
   route?: string | null
   ship_to?: string | null
   ship_to_customer?: string | null
+  ship_to_2?: string | null
+  ship_to_customer_2?: string | null
+  ship_to_city?: string | null
+  rake?: string | null
+  transport_mode?: string | null
 }
 
 /** A single row-level error produced by the Excel importer. */
@@ -151,6 +180,7 @@ export interface CustomerCodeImportError {
 export interface CustomerCodeImportResult {
   total_rows: number
   inserted: number
+  updated: number
   skipped: number
   /** ObjectId hex string of the region all imported rows were assigned to. */
   region_id: string

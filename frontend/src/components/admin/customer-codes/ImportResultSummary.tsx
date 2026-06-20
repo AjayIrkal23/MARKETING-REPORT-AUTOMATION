@@ -16,7 +16,7 @@ export function ImportResultSummary({ result }: ImportResultSummaryProps) {
   return (
     <div aria-live="polite" className="flex flex-col gap-3">
       {/* Stats grid */}
-      <div className="grid grid-cols-3 gap-2 text-center text-sm">
+      <div className="grid grid-cols-4 gap-2 text-center text-sm">
         <div className="rounded-lg border border-border bg-muted/30 px-3 py-2">
           <p className="text-xs text-muted-foreground">Total rows</p>
           <p className="text-lg font-semibold tabular-nums">{result.total_rows}</p>
@@ -24,6 +24,10 @@ export function ImportResultSummary({ result }: ImportResultSummaryProps) {
         <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400">
           <p className="text-xs opacity-80">Inserted</p>
           <p className="text-lg font-semibold tabular-nums">{result.inserted}</p>
+        </div>
+        <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-400">
+          <p className="text-xs opacity-80">Updated</p>
+          <p className="text-lg font-semibold tabular-nums">{result.updated}</p>
         </div>
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-400">
           <p className="text-xs opacity-80">Skipped</p>

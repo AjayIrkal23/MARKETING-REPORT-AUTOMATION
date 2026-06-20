@@ -5,12 +5,13 @@ One controller per endpoint; each:
 - Calls the appropriate service function (all DB/business logic lives there).
 - Wraps the result in a ``success()`` envelope.
 
-Unknown query-param rejection on list and options endpoints mirrors the
+Unknown query-param rejection on list, options and export endpoints mirrors the
 pattern in ``controllers/region.py`` (allowed keys defined via
 ``_ALLOWED_*`` frozensets; anything extra raises ``ValidationError`` 400).
 
 Exceptions to the envelope contract:
-- ``GET /template`` returns a raw binary ``StreamingResponse`` (no envelope).
+- ``GET /template`` and ``GET /export`` return raw binary ``StreamingResponse``
+  (no envelope).
 - ``POST /import`` accepts multipart ``UploadFile`` + ``Form`` fields and
   returns a normal ``SuccessEnvelope[CustomerCodeImportResult]``.
 
@@ -29,6 +30,7 @@ from ..core.errors import ValidationError
 from ..core.responses import SuccessEnvelope, success
 from ..schemas.auth import AuthUser
 from ..schemas.customer_code import (
+    CustomerCodeBulkDeleteRequest,
     CustomerCodeCreate,
     CustomerCodeImportResult,
     CustomerCodeListQuery,
@@ -37,8 +39,10 @@ from ..schemas.customer_code import (
     CustomerCodePublic,
     CustomerCodeUpdate,
 )
+from ..services.customer_code.bulk_delete import bulk_delete_customer_codes
 from ..services.customer_code.create import create_customer_code
 from ..services.customer_code.delete import delete_customer_code
+from ..services.customer_code.export import export_customer_codes
 from ..services.customer_code.get import get_customer_code
 from ..services.customer_code.import_rows import import_customer_codes
 from ..services.customer_code.list import list_customer_codes
@@ -54,11 +58,18 @@ from ..services.customer_code.update import update_customer_code
 _ALLOWED_LIST_KEYS = frozenset({
     "page", "limit", "sortBy", "sortOrder", "q",
     "segment", "code", "customer", "destination",
-    "cam", "mob",
+    "cam", "mob", "ship_to_city", "rake", "transport_mode",
     "region",
 })
 
 _ALLOWED_OPTION_KEYS = frozenset({"field", "q", "limit"})
+
+_ALLOWED_EXPORT_KEYS = frozenset({
+    "q",
+    "segment", "code", "customer", "destination",
+    "cam", "mob", "ship_to_city", "rake", "transport_mode",
+    "region",
+})
 
 # Maximum accepted upload size for the Excel import endpoint (DoS guard).
 _MAX_UPLOAD_BYTES: int = 10 * 1024 * 1024  # 10 MB
@@ -116,9 +127,10 @@ async def create_customer_code_controller(
     body: CustomerCodeCreate,
     admin: AuthUser = Depends(get_current_admin),
 ) -> SuccessEnvelope[CustomerCodePublic]:
-    """``POST /admin/customer-codes`` — create a new customer code entry."""
-    item = await create_customer_code(body, actor_email=admin.emailid)
-    return success(item, message="Customer code created")
+    """``POST /admin/customer-codes`` — create or update a customer code entry."""
+    result = await create_customer_code(body, actor_email=admin.emailid)
+    message = "Customer code updated" if result.was_updated else "Customer code created"
+    return success(result.item, message=message)
 
 
 async def update_customer_code_controller(
@@ -140,6 +152,15 @@ async def delete_customer_code_controller(
     return success(None, message="Customer code deleted")
 
 
+async def bulk_delete_customer_codes_controller(
+    body: CustomerCodeBulkDeleteRequest,
+    admin: AuthUser = Depends(get_current_admin),
+) -> SuccessEnvelope[dict[str, int]]:
+    """``POST /admin/customer-codes/bulk-delete`` — delete many customer codes by id."""
+    count = await bulk_delete_customer_codes(body.ids, actor_email=admin.emailid)
+    return success({"deleted": count}, message=f"{count} customer code(s) deleted")
+
+
 # ---------------------------------------------------------------------------
 # Import controller (multipart — NOT an envelope input; IS an envelope output)
 # ---------------------------------------------------------------------------
@@ -154,7 +175,7 @@ async def import_customer_codes_controller(
 
     Validates file extension and content-type, enforces a 10 MB size cap
     (DoS guard), then delegates to the import service.  Returns a structured
-    ``CustomerCodeImportResult`` summarising inserted/skipped/error rows.
+    ``CustomerCodeImportResult`` summarising inserted/updated/skipped/error rows.
 
     The content-type of the *outer response* is ``application/json`` (normal
     envelope); only the *uploaded file* is binary.
@@ -197,5 +218,37 @@ async def download_template_controller(
         ),
         headers={
             "Content-Disposition": 'attachment; filename="customer_codes_template.xlsx"'
+        },
+    )
+
+
+# ---------------------------------------------------------------------------
+# Export controller (binary StreamingResponse — NOT an envelope)
+# ---------------------------------------------------------------------------
+
+
+async def export_customer_codes_controller(
+    request: Request,
+    query: CustomerCodeListQuery = Depends(),
+    _admin: AuthUser = Depends(get_current_admin),
+) -> StreamingResponse:
+    """``GET /admin/customer-codes/export`` — export matching rows as .xlsx.
+
+    Applies the same filters as the list endpoint but returns every matching
+    row without pagination. The output uses the same headers/order as the
+    import template.
+    """
+    unknown = set(request.query_params.keys()) - _ALLOWED_EXPORT_KEYS
+    if unknown:
+        raise ValidationError(
+            f"Unknown query parameter(s): {', '.join(sorted(unknown))}"
+        )
+
+    data: bytes = await export_customer_codes(query)
+    return StreamingResponse(
+        BytesIO(data),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": 'attachment; filename="customer_codes_export.xlsx"'
         },
     )

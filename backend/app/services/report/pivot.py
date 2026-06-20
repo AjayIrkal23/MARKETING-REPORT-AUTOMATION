@@ -16,13 +16,25 @@ from __future__ import annotations
 from typing import Any
 
 
-def aging_match(days: str) -> dict[str, Any]:
-    """Return the ``aging`` match clause for a day-filter.
+def qa_hold_match(days: str) -> dict[str, Any]:
+    """Return the QA-hold aging match clause for a day-filter.
 
-    MongoDB comparison operators are type-bracketed: ``{"$lte": 2}`` / ``{"$gt":
-    2}`` match only numeric ``aging`` values, so a ``null`` aging falls into
-    neither ``exclude`` nor ``only`` (it appears only under ``include``), exactly
-    as specified.
+    The filter is defined around a single predicate — "aged QA-hold stock":
+    a row with ``in_quality_insp > 0`` AND rounded ``aging > 2``. Aging is
+    rounded to a whole number of days (``$round`` to 0 decimals) before the cut,
+    so decimals never straddle the boundary — 2.4 → 2 (kept), 2.6 → 3 (aged);
+    exact halves follow Mongo's round-half-to-even. The comparisons are
+    null-safe (a missing/``null`` ``in_quality_insp`` or ``aging`` is NOT aged
+    QA-hold), so normal non-QA stock is treated correctly without a type guard.
+
+    Three modes:
+        * ``include`` → no filter (all stock).
+        * ``exclude`` → everything EXCEPT aged QA-hold (all normal data + the
+          QA-hold that is still ≤ 2 days). This is the default working view.
+        * ``only``    → ONLY aged QA-hold (in_quality_insp > 0 AND aging > 2).
+
+    ``include`` is the union of ``exclude`` and ``only`` (they partition the
+    data at the aged-QA-hold predicate).
 
     Args:
         days: ``"include"`` | ``"exclude"`` | ``"only"``.
@@ -30,10 +42,17 @@ def aging_match(days: str) -> dict[str, Any]:
     Returns:
         A partial match dict (empty for ``include``).
     """
+    # "Aged QA-hold": in QA inspection AND held more than 2 (rounded) days.
+    aged_qa_hold = {
+        "$and": [
+            {"$gt": ["$in_quality_insp", 0]},
+            {"$gt": [{"$round": ["$aging", 0]}, 2]},
+        ]
+    }
     if days == "exclude":
-        return {"aging": {"$lte": 2}}
+        return {"$expr": {"$not": [aged_qa_hold]}}
     if days == "only":
-        return {"aging": {"$gt": 2}}
+        return {"$expr": aged_qa_hold}
     return {}
 
 
@@ -50,7 +69,7 @@ async def aggregate_pivot(
         date: Report date ``dd-mm-yyyy`` (exact match on ``report_date``).
         normalized_codes: Party codes (already ``lstrip("0")``) to include —
             matched against the stored ``party_code_normalized`` field.
-        days: Aging day-filter (see :func:`aging_match`).
+        days: QA-hold aging day-filter (see :func:`qa_hold_match`).
 
     Returns:
         A list of group dicts, each shaped::
@@ -63,7 +82,7 @@ async def aggregate_pivot(
         "report_date": date,
         "party_code_normalized": {"$in": normalized_codes},
     }
-    match.update(aging_match(days))
+    match.update(qa_hold_match(days))
 
     is_nco_yes = {"$eq": ["$nco_declared", "Yes"]}
     pipeline: list[dict[str, Any]] = [

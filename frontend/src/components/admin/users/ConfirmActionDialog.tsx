@@ -38,7 +38,7 @@ const VARIANT_CONFIG: Record<ConfirmActionVariant, VariantConfig> = {
   delete: {
     icon: "🗑️",
     iconBg: "bg-destructive/10",
-    title: "Delete user",
+    title: "Delete",
     description: (label) =>
       `This will permanently delete "${label}" and all associated data. This action cannot be undone.`,
     confirmLabel: "Delete",
@@ -93,6 +93,7 @@ export function ConfirmActionDialog({
   targetLabel,
   onConfirm,
   isLoading = false,
+  title,
 }: ConfirmActionDialogProps) {
   const config = VARIANT_CONFIG[variant]
 
@@ -105,7 +106,7 @@ export function ConfirmActionDialog({
               {config.icon}
             </span>
           </AlertDialogMedia>
-          <AlertDialogTitle>{config.title}</AlertDialogTitle>
+          <AlertDialogTitle>{title ?? config.title}</AlertDialogTitle>
           <AlertDialogDescription>
             {config.description(targetLabel)}
           </AlertDialogDescription>

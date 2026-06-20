@@ -24,6 +24,8 @@ import { AsyncCombobox } from "@/components/common/AsyncCombobox"
 import { searchRegionOptions } from "@/api/admin/regions/options"
 import { searchCustomerCodeFieldOptions } from "@/api/admin/customer-codes/options"
 import { CustomerCodeFilters } from "./CustomerCodeFilters"
+import { Button } from "@/components/ui/button"
+import { Trash2 } from "lucide-react"
 import type { CustomerCodeTableToolbarProps } from "@/types/admin/customer-code-ui"
 
 // ---------------------------------------------------------------------------
@@ -49,7 +51,7 @@ const fetchCustomerOptions = searchCustomerCodeFieldOptions("customer")
  * Search combobox behaviour:
  * - Fetches `AsyncOption[]` from the `customer` field options endpoint.
  * - The selected label becomes the `q` param so the backend applies an $or
- *   search across ALL ten text fields (not just customer).
+ *   search across ALL fifteen text fields (not just customer).
  * - Clearing the combobox sends `q: undefined` to reset the full-text search.
  *
  * Region filter behaviour:
@@ -61,6 +63,9 @@ const fetchCustomerOptions = searchCustomerCodeFieldOptions("customer")
 export function CustomerCodeTableToolbar({
   query,
   onQueryChange,
+  selectedCount,
+  hasSelection,
+  onDeleteSelected,
 }: CustomerCodeTableToolbarProps) {
   // Wrap onQueryChange to reset page on every filter/search change.
   function applyFilter(patch: Parameters<typeof onQueryChange>[0]) {
@@ -77,7 +82,7 @@ export function CustomerCodeTableToolbar({
       <div className="flex flex-1 flex-wrap items-center gap-2">
         {/* Server-driven free-text search via AsyncCombobox on the customer field.
             The selected option label becomes the `q` value so the backend applies
-            an $or search across all ten text fields. Stable fetcher frozen at
+            an $or search across all fifteen text fields. Stable fetcher frozen at
             module level (ADDENDUM §Area 7 — curried factory referential stability). */}
         <div className="min-w-64 flex-[2]">
           <AsyncCombobox
@@ -115,15 +120,32 @@ export function CustomerCodeTableToolbar({
           destination={query.destination ?? ""}
           cam={query.cam ?? ""}
           mob={query.mob ?? ""}
+          ship_to_city={query.ship_to_city ?? ""}
+          rake={query.rake ?? ""}
+          transport_mode={query.transport_mode ?? ""}
           onFilterChange={(patch) => applyFilter(patch)}
           onClearAll={() =>
             applyFilter({
               segment: "", code: "", customer: "", destination: "",
-              cam: "", mob: "",
+              cam: "", mob: "", ship_to_city: "", rake: "", transport_mode: "",
             })
           }
         />
       </div>
+
+      {/* ── Right: bulk delete ───────────────────────────────────────── */}
+      <Button
+        type="button"
+        variant="destructive"
+        size="sm"
+        disabled={!hasSelection}
+        onClick={onDeleteSelected}
+        className="gap-1.5"
+        aria-label="Delete selected customer codes"
+      >
+        <Trash2 className="size-3.5" aria-hidden />
+        Delete{selectedCount > 0 ? ` (${selectedCount})` : ""}
+      </Button>
 
     </div>
   )

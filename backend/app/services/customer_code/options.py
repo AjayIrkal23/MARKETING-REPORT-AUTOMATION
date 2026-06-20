@@ -42,9 +42,10 @@ async def search_field_options(
 
     Args:
         query: ``CustomerCodeOptionsQuery`` containing:
-               - ``field``: one of the six ``CustomerCodeField`` literals
+               - ``field``: one of the nine ``CustomerCodeField`` literals
                  (``segment`` | ``code`` | ``customer`` | ``destination`` |
-                 ``cam`` | ``mob``).
+                 ``cam`` | ``mob`` | ``ship_to_city`` | ``rake`` |
+                 ``transport_mode``).
                - ``q``: optional free-text prefix matched against ``field``
                  via a case-insensitive escaped regex; absent → no filter.
                - ``limit``: maximum results to return (1–50, default 20).

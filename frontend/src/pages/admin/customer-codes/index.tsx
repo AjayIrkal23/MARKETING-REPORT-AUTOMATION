@@ -15,7 +15,8 @@
  * Route:    /admin/customer-codes  (guarded by AdminRoute)
  */
 
-import { Building2, DownloadIcon, PlusIcon, UploadIcon } from "lucide-react"
+import { useState } from "react"
+import { Building2, DownloadIcon, FileSpreadsheet, PlusIcon, UploadIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
@@ -29,6 +30,7 @@ import { ViewCustomerCodeSheet } from "@/components/admin/customer-codes/ViewCus
 import { ImportCustomerCodesDialog } from "@/components/admin/customer-codes/ImportCustomerCodesDialog"
 import { ConfirmActionDialog } from "@/components/admin/users/ConfirmActionDialog"
 import { downloadCustomerCodesTemplate } from "@/api/admin/customer-codes/template"
+import { exportCustomerCodes } from "@/api/admin/customer-codes/export"
 
 import type { CustomerCodeListQuery, CustomerCodeSortBy } from "@/types/admin/customer-code"
 
@@ -51,8 +53,31 @@ export function CustomerCodeManagementPage() {
     dialog,
     openDialog,
     closeDialog,
+    selectedIds,
+    selectAll,
+    clearSelection,
+    toggleSelection,
     actions,
   } = useCustomerCodeManagement()
+
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false)
+  const selectedCount = selectedIds.size
+
+  function openBulkDelete() { setBulkDeleteOpen(true) }
+  function closeBulkDelete() { setBulkDeleteOpen(false) }
+
+  async function handleBulkDelete() {
+    if (selectedCount === 0) return
+    setIsBulkDeleting(true)
+    try {
+      await actions.bulkRemove(Array.from(selectedIds))
+      closeBulkDelete()
+      clearSelection()
+    } finally {
+      setIsBulkDeleting(false)
+    }
+  }
 
   // ── Toolbar adapter ───────────────────────────────────────────────────────
   // CustomerCodeTableToolbar expects a single `onQueryChange` callback that
@@ -66,7 +91,7 @@ export function CustomerCodeManagementPage() {
     // ADDENDUM Area 9 BLOCKER-4: one setFilter replaces 11 individual setters.
     const filterKeys = [
       "segment", "code", "customer", "destination",
-      "cam", "mob", "region",
+      "cam", "mob", "ship_to_city", "rake", "transport_mode", "region",
     ] as const
     const filterPatch: Partial<typeof query> = {}
     let hasFilter = false
@@ -151,6 +176,16 @@ export function CustomerCodeManagementPage() {
             Download template
           </Button>
           <Button
+            variant="outline"
+            size="sm"
+            onClick={() => { void exportCustomerCodes(query) }}
+            aria-label="Export customer codes to Excel"
+            className="gap-1.5"
+          >
+            <FileSpreadsheet className="size-3.5" aria-hidden />
+            Export
+          </Button>
+          <Button
             size="sm"
             onClick={() => openDialog({ type: "create" })}
             aria-label="Create new customer code"
@@ -164,10 +199,13 @@ export function CustomerCodeManagementPage() {
 
       <Separator />
 
-      {/* ── Toolbar (search + filters + import + template + create) ───── */}
+      {/* ── Toolbar (search + filters + import + template + create + bulk delete) ───── */}
       <CustomerCodeTableToolbar
         query={query}
         onQueryChange={handleQueryChange}
+        selectedCount={selectedCount}
+        hasSelection={selectedCount > 0}
+        onDeleteSelected={openBulkDelete}
       />
 
       {/* ── Table ────────────────────────────────────────────────────── */}
@@ -181,6 +219,9 @@ export function CustomerCodeManagementPage() {
         onView={(cc)   => openDialog({ type: "view",           customerCode: cc })}
         onEdit={(cc)   => openDialog({ type: "edit",           customerCode: cc })}
         onDelete={(cc) => openDialog({ type: "confirm-delete", customerCode: cc })}
+        selectedIds={selectedIds}
+        onToggleSelection={toggleSelection}
+        onSelectAll={(checked) => { if (checked) selectAll(); else clearSelection() }}
       />
 
       {/* ── Pagination ───────────────────────────────────────────────── */}
@@ -225,7 +266,7 @@ export function CustomerCodeManagementPage() {
         onImported={() => { closeDialog(); actions.refetch() }}
       />
 
-      {/* Confirm: delete */}
+      {/* Confirm: single delete */}
       {/* ADDENDUM Area 9 BLOCKER-2: ConfirmActionDialog.delete variant is domain-neutral.
           targetLabel uses `code – customer` pattern for clear identification. */}
       <ConfirmActionDialog
@@ -241,6 +282,21 @@ export function CustomerCodeManagementPage() {
           if (!dialogCustomerCode) return
           void actions.remove(dialogCustomerCode.id)
         }}
+      />
+
+      {/* Confirm: bulk delete */}
+      <ConfirmActionDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+        variant="delete"
+        title="Delete selected customer codes"
+        targetLabel={
+          selectedCount === 0
+            ? ""
+            : `${selectedCount} customer code${selectedCount > 1 ? "s" : ""}`
+        }
+        isLoading={isBulkDeleting}
+        onConfirm={() => { void handleBulkDelete() }}
       />
 
     </div>

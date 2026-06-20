@@ -2,7 +2,7 @@
  * CustomerCodeFormFields — Reusable field grid for CreateCustomerCodeDialog and
  * EditCustomerCodeDialog.
  *
- * Renders 4 required text fields, 6 optional text fields, and the required Region
+ * Renders 4 required text fields, 11 optional text fields, and the required Region
  * AsyncCombobox. Owns no submit logic — callers control state via `patch`.
  * Contract source: .planning/customer-codes/SPEC.md §4.3, ADDENDUM §Area 8.
  */
@@ -173,12 +173,17 @@ export function CustomerCodeFormFields({
       <div className="grid grid-cols-2 gap-3">
         {(
           [
-            { key: "cam",              id: `${p}-cam`,              label: "CAM",              placeholder: "Account manager" },
-            { key: "mob",              id: `${p}-mob`,              label: "MOB No.",           placeholder: "Mobile number" },
-            { key: "head",             id: `${p}-head`,             label: "Head",              placeholder: "Sales head" },
-            { key: "route",            id: `${p}-route`,            label: "ROUTE",             placeholder: "e.g. KAT036" },
-            { key: "ship_to",          id: `${p}-ship-to`,          label: "SHIP TO",           placeholder: "Ship-to code" },
-            { key: "ship_to_customer", id: `${p}-ship-to-customer`, label: "SHIP TO CUSTOMER",  placeholder: "Ship-to customer" },
+            { key: "cam",                id: `${p}-cam`,                label: "CAM",                placeholder: "Account manager" },
+            { key: "mob",                id: `${p}-mob`,                label: "MOB No.",            placeholder: "Mobile number" },
+            { key: "head",               id: `${p}-head`,               label: "Head",               placeholder: "Sales head" },
+            { key: "route",              id: `${p}-route`,              label: "ROUTE",              placeholder: "e.g. KAT036" },
+            { key: "ship_to",            id: `${p}-ship-to`,            label: "SHIP TO",            placeholder: "Ship-to code" },
+            { key: "ship_to_customer",   id: `${p}-ship-to-customer`,   label: "SHIP TO CUSTOMER",   placeholder: "Ship-to customer" },
+            { key: "ship_to_2",          id: `${p}-ship-to-2`,          label: "SHIP TO 2",          placeholder: "Ship-to code 2" },
+            { key: "ship_to_customer_2", id: `${p}-ship-to-customer-2`, label: "SHIP TO CUSTOMER 2", placeholder: "Ship-to customer 2" },
+            { key: "ship_to_city",       id: `${p}-ship-to-city`,       label: "SHIP TO CITY",       placeholder: "City" },
+            { key: "rake",               id: `${p}-rake`,               label: "RAKE",               placeholder: "Rake" },
+            { key: "transport_mode",     id: `${p}-transport-mode`,     label: "TRANSPORT MODE",     placeholder: "Mode" },
           ] as const
         ).map(({ key, id, label, placeholder }) => (
           <Field key={key}>

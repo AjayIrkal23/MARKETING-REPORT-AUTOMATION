@@ -42,17 +42,22 @@ function deriveInitialForm(
   customerCode: EditCustomerCodeDialogProps["customerCode"],
 ): CreateCustomerCodeInput {
   return {
-    segment:          customerCode?.segment          ?? "",
-    code:             customerCode?.code             ?? "",
-    customer:         customerCode?.customer         ?? "",
-    destination:      customerCode?.destination      ?? "",
-    region_id:        customerCode?.region_id        ?? "",
-    cam:              customerCode?.cam              ?? null,
-    mob:              customerCode?.mob              ?? null,
-    head:             customerCode?.head             ?? null,
-    route:            customerCode?.route            ?? null,
-    ship_to:          customerCode?.ship_to          ?? null,
-    ship_to_customer: customerCode?.ship_to_customer ?? null,
+    segment:            customerCode?.segment            ?? "",
+    code:               customerCode?.code               ?? "",
+    customer:           customerCode?.customer           ?? "",
+    destination:        customerCode?.destination        ?? "",
+    region_id:          customerCode?.region_id          ?? "",
+    cam:                customerCode?.cam                ?? null,
+    mob:                customerCode?.mob                ?? null,
+    head:               customerCode?.head               ?? null,
+    route:              customerCode?.route              ?? null,
+    ship_to:            customerCode?.ship_to            ?? null,
+    ship_to_customer:   customerCode?.ship_to_customer   ?? null,
+    ship_to_2:          customerCode?.ship_to_2          ?? null,
+    ship_to_customer_2: customerCode?.ship_to_customer_2 ?? null,
+    ship_to_city:       customerCode?.ship_to_city       ?? null,
+    rake:               customerCode?.rake               ?? null,
+    transport_mode:     customerCode?.transport_mode     ?? null,
   }
 }
 
@@ -121,8 +126,13 @@ export function EditCustomerCodeDialog({
     if (nullIfEmpty(form.mob)            !== customerCode.mob)                 input.mob              = nullIfEmpty(form.mob)
     if (nullIfEmpty(form.head)           !== customerCode.head)                input.head             = nullIfEmpty(form.head)
     if (nullIfEmpty(form.route)          !== customerCode.route)               input.route            = nullIfEmpty(form.route)
-    if (nullIfEmpty(form.ship_to)        !== customerCode.ship_to)             input.ship_to          = nullIfEmpty(form.ship_to)
-    if (nullIfEmpty(form.ship_to_customer) !== customerCode.ship_to_customer)  input.ship_to_customer = nullIfEmpty(form.ship_to_customer)
+    if (nullIfEmpty(form.ship_to)          !== customerCode.ship_to)             input.ship_to          = nullIfEmpty(form.ship_to)
+    if (nullIfEmpty(form.ship_to_customer) !== customerCode.ship_to_customer)    input.ship_to_customer = nullIfEmpty(form.ship_to_customer)
+    if (nullIfEmpty(form.ship_to_2)        !== customerCode.ship_to_2)           input.ship_to_2        = nullIfEmpty(form.ship_to_2)
+    if (nullIfEmpty(form.ship_to_customer_2) !== customerCode.ship_to_customer_2) input.ship_to_customer_2 = nullIfEmpty(form.ship_to_customer_2)
+    if (nullIfEmpty(form.ship_to_city)     !== customerCode.ship_to_city)        input.ship_to_city     = nullIfEmpty(form.ship_to_city)
+    if (nullIfEmpty(form.rake)             !== customerCode.rake)                input.rake             = nullIfEmpty(form.rake)
+    if (nullIfEmpty(form.transport_mode)   !== customerCode.transport_mode)      input.transport_mode   = nullIfEmpty(form.transport_mode)
 
     // Nothing changed — close silently.
     if (Object.keys(input).length === 0) { onOpenChange(false); return }

@@ -52,10 +52,25 @@ class CustomerCode(Document):
     """Route code, e.g. ``KAT036``."""
 
     ship_to:          str | None = None
-    """Ship-to code (``SHIP TO`` column); numeric cells coerced to string on ingest."""
+    """Ship-to code (first ``SHIP TO`` column); numeric cells coerced to string on ingest."""
 
     ship_to_customer: str | None = None
-    """Ship-to customer name (``SHIP TO CUSTOMER`` column)."""
+    """Ship-to customer name (first ``SHIP TO CUSTOMER`` column)."""
+
+    ship_to_2:          str | None = None
+    """Second ship-to code (duplicate ``SHIP TO`` column in the updated workbook)."""
+
+    ship_to_customer_2: str | None = None
+    """Second ship-to customer name (duplicate ``SHIP TO CUSTOMER`` column)."""
+
+    ship_to_city:       str | None = None
+    """Ship-to city (``SHIP TO CITY`` column)."""
+
+    rake:               str | None = None
+    """RAKE identifier (``RAKE`` column)."""
+
+    transport_mode:     str | None = None
+    """Transport mode (``TRANSPORT MODE`` column)."""
 
     region_id:        Annotated[str, Indexed()]
     """Foreign key — ObjectId hex string of the parent :class:`~app.models.region.Region`

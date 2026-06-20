@@ -16,14 +16,15 @@ WITHOUT a ``response_model`` to prevent FastAPI from attempting Pydantic
 serialization on the raw stream (which would raise a runtime error).
 
 Registration order (SPEC §2.7 + ADDENDUM Area 3 BLOCKER-4/5):
-  1. GET  ""          → list
-  2. GET  /options    → field options
-  3. GET  /template   → download template  (NO response_model)
-  4. POST /import     → import rows
-  5. POST ""          → create (201)
-  6. GET  /{code_id}  → get
-  7. PATCH /{code_id} → update
-  8. DELETE /{code_id}→ delete
+  1. GET  ""              → list
+  2. GET  /options        → field options
+  3. GET  /template       → download template  (NO response_model)
+  4. POST /import         → import rows
+  5. POST /bulk-delete    → bulk delete by ids
+  6. POST ""              → create (201)
+  7. GET  /{code_id}      → get
+  8. PATCH /{code_id}     → update
+  9. DELETE /{code_id}    → delete
 
 Contract: .planning/customer-codes/SPEC.md §2.7 + ADDENDUM.md Area 3.
 """
@@ -36,10 +37,12 @@ from ..controllers import customer_code as ctrl
 from ..core.auth_deps import get_current_admin
 from ..core.responses import SuccessEnvelope
 from ..schemas.customer_code import (
+    CustomerCodeBulkDeleteRequest,
     CustomerCodeImportResult,
     CustomerCodeOption,
     CustomerCodePublic,
 )
+
 
 router = APIRouter(
     prefix="/admin/customer-codes",
@@ -90,6 +93,24 @@ router.add_api_route(
     methods=["POST"],
     response_model=SuccessEnvelope[CustomerCodeImportResult],
     summary="Import customer codes from .xlsx",
+)
+
+# /export MUST be registered before /{code_id} and returns a binary stream.
+# NO response_model — FastAPI must not attempt Pydantic serialization.
+
+router.add_api_route(
+    "/export",
+    ctrl.export_customer_codes_controller,
+    methods=["GET"],
+    summary="Export customer codes to .xlsx",
+)
+
+router.add_api_route(
+    "/bulk-delete",
+    ctrl.bulk_delete_customer_codes_controller,
+    methods=["POST"],
+    response_model=SuccessEnvelope[dict[str, int]],
+    summary="Bulk delete customer codes by id",
 )
 
 router.add_api_route(

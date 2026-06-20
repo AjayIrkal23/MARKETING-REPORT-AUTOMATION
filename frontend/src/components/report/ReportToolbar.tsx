@@ -20,9 +20,9 @@ import type { DaysFilter, ReportType } from "@/types/report/report"
 import type { ReportInputs } from "./hooks/useReport"
 
 const DAYS_OPTIONS: { value: DaysFilter; label: string }[] = [
-  { value: "include", label: "Include 2 days" },
-  { value: "exclude", label: "Exclude 2 days" },
-  { value: "only", label: "Only 2 days" },
+  { value: "include", label: "All stock" },
+  { value: "exclude", label: "Normal + QA-hold < 2 days" },
+  { value: "only", label: "Only QA-hold > 2 days" },
 ]
 
 const REPORT_TYPES: { value: ReportType; label: string }[] = [
@@ -98,7 +98,7 @@ export function ReportToolbar({
 
       {/* Days (aging) */}
       <Select value={inputs.days} onValueChange={(v) => onDays(v as DaysFilter)}>
-        <SelectTrigger className="w-[150px] shrink-0" aria-label="Aging day filter">
+        <SelectTrigger className="w-[210px] shrink-0" aria-label="QA-hold aging day filter">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

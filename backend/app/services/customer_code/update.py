@@ -116,6 +116,26 @@ async def update_customer_code(
         doc.ship_to_customer = update_data["ship_to_customer"]
         changed.append("ship_to_customer")
 
+    if "ship_to_2" in update_data:
+        doc.ship_to_2 = update_data["ship_to_2"]
+        changed.append("ship_to_2")
+
+    if "ship_to_customer_2" in update_data:
+        doc.ship_to_customer_2 = update_data["ship_to_customer_2"]
+        changed.append("ship_to_customer_2")
+
+    if "ship_to_city" in update_data:
+        doc.ship_to_city = update_data["ship_to_city"]
+        changed.append("ship_to_city")
+
+    if "rake" in update_data:
+        doc.rake = update_data["rake"]
+        changed.append("rake")
+
+    if "transport_mode" in update_data:
+        doc.transport_mode = update_data["transport_mode"]
+        changed.append("transport_mode")
+
     if "region_id" in update_data:
         # Validate region existence before mutating the document —
         # raises ValidationError(400) for invalid/unknown region id.

@@ -32,6 +32,9 @@ function buildParams(
     ...(q.destination ? { destination: q.destination } : {}),
     ...(q.cam ? { cam: q.cam } : {}),
     ...(q.mob ? { mob: q.mob } : {}),
+    ...(q.ship_to_city ? { ship_to_city: q.ship_to_city } : {}),
+    ...(q.rake ? { rake: q.rake } : {}),
+    ...(q.transport_mode ? { transport_mode: q.transport_mode } : {}),
     // Region FK filter — query key is "region" (NOT "region_id");
     // the backend schema maps `filt["region_id"] = query.region` internally.
     ...(q.region ? { region: q.region } : {}),

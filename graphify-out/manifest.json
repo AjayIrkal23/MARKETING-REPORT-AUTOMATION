@@ -32,8 +32,8 @@
     "hash": "97ba826cf7362794715d93a4a65403d6"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/controllers/customer_code.py": {
-    "mtime": 1780212343.1909914,
-    "hash": "c26431e4c600500b58c04fce01cbfe5c"
+    "mtime": 1781948961.087903,
+    "hash": "71eb9381be20649b6c3be6d8332d527d"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/controllers/dashboard.py": {
     "mtime": 1780305281.009405,
@@ -160,8 +160,8 @@
     "hash": "adba519ec48f0cd2e42d3ddc0c595742"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/models/customer_code.py": {
-    "mtime": 1780168806.5711985,
-    "hash": "1cd64aebc420e92f674869b0fdfe5892"
+    "mtime": 1781947638.5338812,
+    "hash": "4169a950969ef5f33172a34d7a6b0eb6"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/models/jsw_stock.py": {
     "mtime": 1780218135.5319982,
@@ -220,8 +220,8 @@
     "hash": "bc79b0659f243339cdc8d12689adbb59"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/routes/customer_code.py": {
-    "mtime": 1780169099.9126828,
-    "hash": "6ac76645363f06f1e175d38bc4afa3dd"
+    "mtime": 1781948985.8416574,
+    "hash": "6d11aee2c25a31325c1fffaef47a1db1"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/routes/dashboard.py": {
     "mtime": 1780305288.3853104,
@@ -288,8 +288,8 @@
     "hash": "0d5962df0d5ad1f57bc6a55f85d3e224"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/schemas/customer_code.py": {
-    "mtime": 1780212254.6337948,
-    "hash": "eeae7862a5eeb23a0173564a3c88368c"
+    "mtime": 1781948940.74182,
+    "hash": "7916eb1a448950fcbf83ca52d29adc02"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/schemas/dashboard.py": {
     "mtime": 1780305254.3480687,
@@ -332,8 +332,8 @@
     "hash": "8c50ca5e01ab0ff343b971c0a2dbcd42"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/schemas/report.py": {
-    "mtime": 1780312310.4884555,
-    "hash": "3350c351dd12cd12e0d9890a8f0d69c6"
+    "mtime": 1780390343.8125753,
+    "hash": "b9c5458c5822a407f6c38ecd84812abc"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/schemas/user.py": {
     "mtime": 1780124765.6451113,
@@ -539,45 +539,53 @@
     "mtime": 1780301259.1338415,
     "hash": "15b37679c6c5dee4299e6ae056318a51"
   },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/bulk_delete.py": {
+    "mtime": 1781948950.295326,
+    "hash": "4514e8c26f048ca9187adedb605f124d"
+  },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/create.py": {
-    "mtime": 1780169061.2156014,
-    "hash": "b5389755fe98c8362e24acfc8e013730"
+    "mtime": 1781947782.0108843,
+    "hash": "ab302e8d11e649f5fcb323b620ef7d6c"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/delete.py": {
     "mtime": 1780169041.208495,
     "hash": "5b3429be9c91ce4a3bb4fd9518cb3310"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/export.py": {
+    "mtime": 1781947812.7802372,
+    "hash": "4a8c9ea32df61c7fa999c32d15ba0ca6"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/get.py": {
     "mtime": 1780169037.4040308,
     "hash": "c6623c2eb2ec5364f4363e2ab9f9b8f2"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/import_rows.py": {
-    "mtime": 1780169203.574782,
-    "hash": "45528b0d6413c1ac793d3870bf9952ce"
+    "mtime": 1781949860.4943306,
+    "hash": "5f3882dbcdfc981cdd3b52721545cab8"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/list.py": {
     "mtime": 1780169055.328786,
     "hash": "3b25b23708e888e15620f194a7be37ee"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/options.py": {
-    "mtime": 1780212319.6694162,
-    "hash": "969f1c572d7364cdb5ccf09e89d2ceff"
+    "mtime": 1781948810.6701655,
+    "hash": "56df53cd35207bdbdbb88b2ae76ec0d5"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/region_link.py": {
     "mtime": 1780169064.0569916,
     "hash": "0375a7f00cadeda8abb1ac16e7afd437"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/serialize.py": {
-    "mtime": 1780169042.5944881,
-    "hash": "45e017d438482e3fa31d2086d8ea0aef"
+    "mtime": 1781947832.0335274,
+    "hash": "2ff4d05b7b5f233f4e79be7f13c87642"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/template.py": {
     "mtime": 1780169129.98842,
     "hash": "697081bf9edf772ee7eb77d9fa976eaf"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/update.py": {
-    "mtime": 1780169079.644639,
-    "hash": "f3f4ad6ef93bd872f011236b967c07ae"
+    "mtime": 1781947793.7891238,
+    "hash": "30c91a68a6a70ade9a91ead1be106be8"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/__init__.py": {
     "mtime": 1780169057.6298344,
@@ -720,8 +728,8 @@
     "hash": "e0842c8766279b1a45807b984ed44be1"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/report/pivot.py": {
-    "mtime": 1780310787.2122068,
-    "hash": "25d3ebe1a3729f7ff48d7561c6a9b2cd"
+    "mtime": 1780390317.5761223,
+    "hash": "bde97fdf98a93923b27a85f5cbe54772"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/report/__init__.py": {
     "mtime": 1780310773.9945116,
@@ -788,12 +796,12 @@
     "hash": "bd98c23f95ba4fe6ec846364ef506424"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/customer_code/excel.py": {
-    "mtime": 1780168969.183995,
-    "hash": "d96f1bdf6e554d532bf1c1ede9175477"
+    "mtime": 1781949849.6376066,
+    "hash": "912eaec0f3f239062d3375a8011c84e2"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/customer_code/query.py": {
-    "mtime": 1780212286.0546412,
-    "hash": "70b74af43f5ecd68663c279a77292f84"
+    "mtime": 1781948705.8681853,
+    "hash": "f20afe62a0a10b8514480f573de5b4cf"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/customer_code/__init__.py": {
     "mtime": 1780168829.7212784,
@@ -808,8 +816,8 @@
     "hash": "6ace5453d0a9a7d21da6ac169ba8dfff"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/jsw_stock/filters.py": {
-    "mtime": 1780299153.057832,
-    "hash": "ba79bd62d52486964dc6392eef52ea91"
+    "mtime": 1780387891.5637338,
+    "hash": "3affc6fbc423aa3a3ce705e0bbf72b30"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/jsw_stock/query.py": {
     "mtime": 1780302907.090245,
@@ -828,8 +836,8 @@
     "hash": "ed82a69ae806b0f18ef0222b2008f071"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/jvml_stock/filters.py": {
-    "mtime": 1780299162.5830116,
-    "hash": "80885363837b36b0fc09a696d571099f"
+    "mtime": 1780387893.192667,
+    "hash": "d2e0b20b10a9fd1db794f1e6aa2162aa"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/jvml_stock/query.py": {
     "mtime": 1780304280.6682389,
@@ -883,6 +891,10 @@
     "mtime": 1780124921.8287134,
     "hash": "37fe6c1b1bad63999d41befd48a9ab3e"
   },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/tests/test_report_aging.py": {
+    "mtime": 1780390356.6541116,
+    "hash": "ea639b09a272a54c4646591ceeec3548"
+  },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/tests/test_security.py": {
     "mtime": 1780124910.6689556,
     "hash": "cc185b6d5362c458abf5678a55847077"
@@ -890,6 +902,10 @@
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/tests/test_setup_schemas.py": {
     "mtime": 1780130117.7410843,
     "hash": "3272217ef883d2e8aa1f8162b2ab77b2"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/tests/test_stock_filters.py": {
+    "mtime": 1780387765.790831,
+    "hash": "f7fa86f0bf68f674047b52a65270b0b5"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/tests/test_user_query.py": {
     "mtime": 1780124916.912473,
@@ -947,9 +963,17 @@
     "mtime": 1780308770.5331936,
     "hash": "3f04f0d456e648a35dc0c50a0bcaca28"
   },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/customer-codes/bulk-delete.ts": {
+    "mtime": 1781949129.8214965,
+    "hash": "d33b7e331b29ab4672118379e4aac6a0"
+  },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/customer-codes/create.ts": {
     "mtime": 1780168801.888656,
     "hash": "528932625f841a0fdd0a7b154014a1a8"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/customer-codes/export.ts": {
+    "mtime": 1781947982.8813307,
+    "hash": "367a3db124420d81639cd2a43db7e2df"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/customer-codes/get.ts": {
     "mtime": 1780168798.2361376,
@@ -960,8 +984,8 @@
     "hash": "a9b8e863a5c797cbcc75e815c23260ff"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/customer-codes/list.ts": {
-    "mtime": 1780212496.03714,
-    "hash": "91c4e8e7ddc67aa359631ea270e4138f"
+    "mtime": 1781947994.7247066,
+    "hash": "b00056e3e7bdf187f28183d0f4ac2cfa"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/customer-codes/options.ts": {
     "mtime": 1780212461.4404497,
@@ -1076,16 +1100,16 @@
     "hash": "aca17c795b9294193acc92307e1e70e1"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/jsw-stock/list.ts": {
-    "mtime": 1780300101.9373648,
-    "hash": "2173a1d9ab97099a487b8a6b997a6a7e"
+    "mtime": 1780315540.8913307,
+    "hash": "ba2aca55888ebfef888c897d7b83c249"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/jsw-stock/options.ts": {
     "mtime": 1780304764.9761574,
     "hash": "75fc318992665f5a4099141b60c85b9f"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/jvml-stock/list.ts": {
-    "mtime": 1780300292.3684945,
-    "hash": "3d398b105f2aae94d3fafd2921e73317"
+    "mtime": 1780315542.6603081,
+    "hash": "c1922359a6a373d97342a4504c22e4a2"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/jvml-stock/options.ts": {
     "mtime": 1780304785.7224932,
@@ -1212,40 +1236,40 @@
     "hash": "3f7b5528d62c903beec6b01b91713ccf"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/CreateCustomerCodeDialog.tsx": {
-    "mtime": 1780169231.1257598,
-    "hash": "175d0215f3cf0dd669059ad0041a3cfb"
+    "mtime": 1781948298.1313012,
+    "hash": "ac85f5af07f681b32ffa207ad86cb24b"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/CustomerCodeFilters.tsx": {
-    "mtime": 1780212236.1816328,
-    "hash": "5c238c617359ef388f973e4d6acf68dd"
+    "mtime": 1781948211.3015573,
+    "hash": "b8e7a9a6440339165082e8710ea53180"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/CustomerCodeFormFields.tsx": {
-    "mtime": 1780169265.4984252,
-    "hash": "c7e444daf1fa9677bbfd678dded60801"
+    "mtime": 1781948326.6792905,
+    "hash": "f1e354437dc73ab106d1ca04339fe340"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/CustomerCodeTable.tsx": {
-    "mtime": 1780169139.155274,
-    "hash": "77bbc556de9ebe4f1e85c952b3f6059a"
+    "mtime": 1781949658.5689087,
+    "hash": "11034edb060b8afdeda495d67a068610"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/CustomerCodeTablePagination.tsx": {
     "mtime": 1780169133.5353014,
     "hash": "692bae99fd93917a5fc02a37539e0146"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/CustomerCodeTableToolbar.tsx": {
-    "mtime": 1780212219.8104594,
-    "hash": "7bfad06dc281ee4d2b6f7c99da8d5865"
+    "mtime": 1781949231.493993,
+    "hash": "ba785707fc2b8dbd4887d1359430cb30"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/EditCustomerCodeDialog.tsx": {
-    "mtime": 1780169399.4220312,
-    "hash": "7c5ed2455b4356068a5a4e2d63ded0df"
+    "mtime": 1781948309.945786,
+    "hash": "d3e52750f559c5be004ee7d4917ca708"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/ImportCustomerCodesDialog.tsx": {
     "mtime": 1780169398.4095652,
     "hash": "9b9e08c4d594e3c43a29aa5c6d0b0686"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/ImportResultSummary.tsx": {
-    "mtime": 1780169358.8848438,
-    "hash": "75ba0b0818f7223865954625543b832f"
+    "mtime": 1781948249.6452384,
+    "hash": "4727e0bc89348cf7523c9ef669c77735"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/RowActionsMenu.tsx": {
     "mtime": 1780169131.404914,
@@ -1256,16 +1280,16 @@
     "hash": "948bedc480e0f12a00d4af0706ef5dad"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/ViewCustomerCodeSheet.tsx": {
-    "mtime": 1780169219.0766532,
-    "hash": "bcab771cfb613de6c540abe2e6002103"
+    "mtime": 1781948271.1260462,
+    "hash": "e91e1607b0a8fceea4137ea5153fe9db"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/hooks/useCustomerCodeManagement.ts": {
-    "mtime": 1780212348.8612149,
-    "hash": "95614a2609b802af3b930a7a298243e2"
+    "mtime": 1781949346.3762016,
+    "hash": "93bc3d47abbb308b5f0b6d8b0c486fb2"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/hooks/useCustomerCodeMutations.ts": {
-    "mtime": 1780169209.075396,
-    "hash": "c2fec84dd8d941cb3fefadf75c418a4a"
+    "mtime": 1781949143.8337662,
+    "hash": "88828036eec644d969a8213f875f5f5d"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/regions/CreateRegionDialog.tsx": {
     "mtime": 1780164427.105073,
@@ -1316,8 +1340,8 @@
     "hash": "eedef2ec629f305bf6c49eb8581ccebc"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/users/ConfirmActionDialog.tsx": {
-    "mtime": 1780164844.5719,
-    "hash": "8480e67c141f7d81be0068f56a7e1a8c"
+    "mtime": 1781949088.6193821,
+    "hash": "5c7d2a39f1cd42f5b79f080606f8ad42"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/users/CreateUserDialog.tsx": {
     "mtime": 1780129833.603893,
@@ -1528,20 +1552,20 @@
     "hash": "fa8946ebbb01914f25c8019882383622"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/report/ReportPartyRow.tsx": {
-    "mtime": 1780312676.3397996,
-    "hash": "558f94d859f59a642bc9aea1705410dc"
+    "mtime": 1780387687.098458,
+    "hash": "777a3c7774b306bfc49f4d88e6799275"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/report/ReportSubtotalRow.tsx": {
-    "mtime": 1780312686.3396068,
-    "hash": "7aa7e9bc1013426016d96a6933227894"
+    "mtime": 1780387694.9487462,
+    "hash": "469dabcd9d9705245377357372ad25a6"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/report/ReportTable.tsx": {
-    "mtime": 1780312667.3059225,
-    "hash": "ab19831aea68a3484a17cd1543b0fc3f"
+    "mtime": 1780387681.2800443,
+    "hash": "507d89cf80c08d01053024192b8f25a1"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/report/ReportToolbar.tsx": {
-    "mtime": 1780311225.815909,
-    "hash": "5b998d1280750500cd15c7a489588607"
+    "mtime": 1780393920.1788456,
+    "hash": "58456202cbea108ef6863d17cc52e422"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/report/hooks/useReport.ts": {
     "mtime": 1780311203.0447855,
@@ -1836,8 +1860,8 @@
     "hash": "b34f2b96777976a2fc0b0f88698edbab"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/customer-codes/index.tsx": {
-    "mtime": 1780212210.409958,
-    "hash": "9cb7e2c427f5d5f6f94c6aa2cdad39a3"
+    "mtime": 1781949542.495442,
+    "hash": "acce1cdf4564bd7530a91e9c60d3d9f3"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/regions/index.tsx": {
     "mtime": 1780164468.730002,
@@ -1912,12 +1936,12 @@
     "hash": "298b3839bdb34099863e3dff00db845e"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/admin/customer-code-ui.ts": {
-    "mtime": 1780212174.0168724,
-    "hash": "18d2db9793af1c4a3e3edb2dc7730498"
+    "mtime": 1781949176.171364,
+    "hash": "4aa122a4e065430a8e1e5ae502af56c2"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/admin/customer-code.ts": {
-    "mtime": 1780212081.7069728,
-    "hash": "0bbbed2a37d7200094e33319ac0fce9f"
+    "mtime": 1781948694.3709364,
+    "hash": "26d184802ce2abad195f5c57703a1e64"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/admin/options.ts": {
     "mtime": 1780129666.0765147,
@@ -1932,8 +1956,8 @@
     "hash": "e82b87a7855c6c60e8096db8c3a0345e"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/admin/user-ui.ts": {
-    "mtime": 1780164836.0604444,
-    "hash": "2f388571003f108727bf4e44b46ef7c8"
+    "mtime": 1781949074.9295745,
+    "hash": "fbf1a5bc8e7b5d7ca3588742c1eca565"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/admin/user.ts": {
     "mtime": 1780129658.739537,
@@ -1996,8 +2020,8 @@
     "hash": "c617e6fb805c8c270df4a956cbf98c6d"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/report/report.ts": {
-    "mtime": 1780312337.7015214,
-    "hash": "9fb465091a862d3b2dda5328ba01c148"
+    "mtime": 1780390387.9674568,
+    "hash": "08c567ea6aafe7ca62aaced54b445c11"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/settings/credit-report-config-ui.ts": {
     "mtime": 1780300649.888229,
@@ -2032,28 +2056,32 @@
     "hash": "7e73cdb46c85fb164b4d81e0cd8c44ab"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/AGENTS.md": {
-    "mtime": 1780061923.8793182,
-    "hash": "860984fde8798232efc13003a9acf20a"
+    "mtime": 1781945454.4037247,
+    "hash": "04c1f673678ce6475f9f3560d27bd986"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/AUDIT-REPORT.md": {
     "mtime": 1780124442.9618452,
     "hash": "a24a3bf517841837f3fdf4fb9784e2cb"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/CLAUDE.md": {
-    "mtime": 1780061923.8783755,
-    "hash": "5ee9281cc05564fbbd7cc56d7dcdfbec"
+    "mtime": 1781948854.7884762,
+    "hash": "4e9b7c3462ef9a64ac86ef6c4d065948"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/CODEX.md": {
-    "mtime": 1780309231.6583643,
-    "hash": "8e2bf2523fc69946aa58e4dd13d73ca4"
+    "mtime": 1781949960.2181313,
+    "hash": "9707ecc303672ed624ed98ddc04dfd82"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/README.md": {
     "mtime": 1780060590.181248,
     "hash": "ecc0787dc02b6e893ea7060090c8b475"
   },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/AGENTS.md": {
+    "mtime": 1781945458.2512445,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/CLAUDE.md": {
-    "mtime": 1780312807.3222098,
-    "hash": "d6bd742e591b410d0a40683eb68056fb"
+    "mtime": 1781945839.8291736,
+    "hash": "d2ea7fa3ea8244cb19c49da4e6bce0cb"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/README.md": {
     "mtime": 1780059701.9560466,
@@ -2067,9 +2095,301 @@
     "mtime": 1780169492.494492,
     "hash": "b8daacd9b23e1bc9e0e0b0442ae4b934"
   },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/AGENTS.md": {
+    "mtime": 1781945392.2858148,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/CLAUDE.md": {
+    "mtime": 1781945528.7331405,
+    "hash": "8b454919fdbf20e6f87241975dd098cf"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/controllers/AGENTS.md": {
+    "mtime": 1781945392.2869954,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/controllers/CLAUDE.md": {
+    "mtime": 1781945392.2864923,
+    "hash": "960a8589eeeccb2755c15499606722d8"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/core/AGENTS.md": {
+    "mtime": 1781945392.2879024,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/core/CLAUDE.md": {
+    "mtime": 1781945392.2875214,
+    "hash": "3c2281348955b1810dd6d88acb94913f"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/middleware/AGENTS.md": {
+    "mtime": 1781945392.2892773,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/middleware/CLAUDE.md": {
+    "mtime": 1781945392.288731,
+    "hash": "dde92b2baf86e2cb2fef418cc9dc2e26"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/models/AGENTS.md": {
+    "mtime": 1781945392.290344,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/models/CLAUDE.md": {
+    "mtime": 1781945392.2898848,
+    "hash": "ffd0fd6381a05b3fd7cd6992c8f010de"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/routes/AGENTS.md": {
+    "mtime": 1781945392.2912922,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/routes/CLAUDE.md": {
+    "mtime": 1781945827.2682414,
+    "hash": "310d458f9187a977dcbc7e20caf10012"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/schemas/AGENTS.md": {
+    "mtime": 1781945392.2936456,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/schemas/CLAUDE.md": {
+    "mtime": 1781945392.2931676,
+    "hash": "db221086cfd59e6e773385aa10b94d4f"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/scripts/AGENTS.md": {
+    "mtime": 1781945392.2947404,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/scripts/CLAUDE.md": {
+    "mtime": 1781945392.294284,
+    "hash": "4929025a6c244eea3ac242668ca82c3c"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/AGENTS.md": {
+    "mtime": 1781945392.2960198,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/CLAUDE.md": {
+    "mtime": 1781945392.2954736,
+    "hash": "aebc643f7e7bc5d6b6d2f006ad368221"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/admin_user/AGENTS.md": {
+    "mtime": 1781945392.2977462,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/admin_user/CLAUDE.md": {
+    "mtime": 1781945392.2971323,
+    "hash": "aa9fca3a498758e9a9d12dac9bc38061"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/audit/AGENTS.md": {
+    "mtime": 1781945392.3000224,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/audit/CLAUDE.md": {
+    "mtime": 1781945392.2993038,
+    "hash": "09cf7e27378117c1d828224e31eb6d68"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/audit_log/AGENTS.md": {
+    "mtime": 1781945392.3014328,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/audit_log/CLAUDE.md": {
+    "mtime": 1781945392.3009026,
+    "hash": "517985af6724d47676cb55b48e9ead71"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/auth/AGENTS.md": {
+    "mtime": 1781945392.302706,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/auth/CLAUDE.md": {
+    "mtime": 1781945392.3021252,
+    "hash": "dbb6b867b32503a81cdaf58810c8fadf"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/coil_price/AGENTS.md": {
+    "mtime": 1781945392.3043158,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/coil_price/CLAUDE.md": {
+    "mtime": 1781945392.3035328,
+    "hash": "37838c57571f822c80a760aa6c8a894f"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/credit_report/AGENTS.md": {
+    "mtime": 1781945392.3071904,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/credit_report/CLAUDE.md": {
+    "mtime": 1781945392.306256,
+    "hash": "91dfc083b7ae350de853bccb299aae75"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/cron/AGENTS.md": {
+    "mtime": 1781945392.3090093,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/cron/CLAUDE.md": {
+    "mtime": 1781945392.3082714,
+    "hash": "ff9ff1701d0722868e99380dc905b9db"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/AGENTS.md": {
+    "mtime": 1781945392.3108158,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/customer_code/CLAUDE.md": {
+    "mtime": 1781949459.2491946,
+    "hash": "d274ef693e82466276baf442c6e7169c"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/dashboard/AGENTS.md": {
+    "mtime": 1781945392.3129404,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/dashboard/CLAUDE.md": {
+    "mtime": 1781945392.3120964,
+    "hash": "9191d8ac159db3f7bd2b8ad0776eac10"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/jsw_stock/AGENTS.md": {
+    "mtime": 1781945392.31494,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/jsw_stock/CLAUDE.md": {
+    "mtime": 1781945392.3138468,
+    "hash": "a510890b5e92846fd3d0bfb3bbbd17be"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/jvml_stock/AGENTS.md": {
+    "mtime": 1781945392.3173907,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/jvml_stock/CLAUDE.md": {
+    "mtime": 1781945392.3163235,
+    "hash": "30d927d42b7709634989dbf0534a8855"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/meta/AGENTS.md": {
+    "mtime": 1781945392.3188252,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/meta/CLAUDE.md": {
+    "mtime": 1781945392.318257,
+    "hash": "2f24ae2b5e0b21c640d79cbfd797e159"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/region/AGENTS.md": {
+    "mtime": 1781945392.320469,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/region/CLAUDE.md": {
+    "mtime": 1781945392.3197522,
+    "hash": "4c2e2751f7b49ff60ebe566cb8c400bd"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/report/AGENTS.md": {
+    "mtime": 1781945392.3243215,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/report/CLAUDE.md": {
+    "mtime": 1781945392.3237517,
+    "hash": "99a090fa47f7c993e9938b9e14706c89"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/user/AGENTS.md": {
+    "mtime": 1781945392.3257692,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/services/user/CLAUDE.md": {
+    "mtime": 1781945392.3251276,
+    "hash": "e17534fa012662165f9fd3e4165dd145"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/AGENTS.md": {
+    "mtime": 1781945392.327184,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/CLAUDE.md": {
+    "mtime": 1781945392.32657,
+    "hash": "ddf141cced99b9066241106889705964"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/admin_user/AGENTS.md": {
+    "mtime": 1781945392.3286197,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/admin_user/CLAUDE.md": {
+    "mtime": 1781945392.3279228,
+    "hash": "4582f31dbbe2f8d662704d23067a4e9a"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/audit_log/AGENTS.md": {
+    "mtime": 1781945392.3300002,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/audit_log/CLAUDE.md": {
+    "mtime": 1781945392.3294258,
+    "hash": "8d662a565087288dc28a7723ac1ab6ab"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/coil_price/AGENTS.md": {
+    "mtime": 1781945392.3331985,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/coil_price/CLAUDE.md": {
+    "mtime": 1781945392.330741,
+    "hash": "0fe8b9af652329049635f0c0c35b5326"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/credit_report/AGENTS.md": {
+    "mtime": 1781945392.3355217,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/credit_report/CLAUDE.md": {
+    "mtime": 1781945392.3346586,
+    "hash": "4d818461d109414b98c8f6bb95165be6"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/customer_code/AGENTS.md": {
+    "mtime": 1781945392.3368492,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/customer_code/CLAUDE.md": {
+    "mtime": 1781949974.681976,
+    "hash": "f7de6953e80d885331f6abbc7477c336"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/jsw_stock/AGENTS.md": {
+    "mtime": 1781945392.3389864,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/jsw_stock/CLAUDE.md": {
+    "mtime": 1781945392.3379815,
+    "hash": "bd6b8551da515e03e0f51fb9a84475ae"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/jvml_stock/AGENTS.md": {
+    "mtime": 1781945392.34101,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/jvml_stock/CLAUDE.md": {
+    "mtime": 1781945392.3403735,
+    "hash": "19df70b291c04e6cd530c6d5d14a1c81"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/region/AGENTS.md": {
+    "mtime": 1781945392.3428228,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/region/CLAUDE.md": {
+    "mtime": 1781945392.3421285,
+    "hash": "6a34dc7255ec00a7a910954290112b0a"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/report/AGENTS.md": {
+    "mtime": 1781945392.344401,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/report/CLAUDE.md": {
+    "mtime": 1781945392.3435934,
+    "hash": "2cb72a95faafdb012d9479b37584fe00"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/user/AGENTS.md": {
+    "mtime": 1781945392.3457901,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/app/utils/user/CLAUDE.md": {
+    "mtime": 1781945392.3451726,
+    "hash": "ef291cbac834c0c89b3efcfb81ec00c1"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/tests/AGENTS.md": {
+    "mtime": 1781945392.347035,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend/tests/CLAUDE.md": {
+    "mtime": 1781945392.3465269,
+    "hash": "17fe98d7c7cf1013fba4ba904009b29d"
+  },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend_docs/ADDING_A_DOMAIN.md": {
     "mtime": 1780124253.3913672,
     "hash": "f074f0277dfa89ba92888e9a8e278308"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend_docs/AGENTS.md": {
+    "mtime": 1781945392.3484397,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend_docs/API_CONTRACT.md": {
     "mtime": 1780124168.5047245,
@@ -2078,6 +2398,10 @@
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend_docs/ARCHITECTURE.md": {
     "mtime": 1780124166.992946,
     "hash": "e2d1e034872ac607adee8b85b07afa19"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend_docs/CLAUDE.md": {
+    "mtime": 1781945562.090542,
+    "hash": "88053084b7f9ce7c432150ee8f9a7d7b"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/backend_docs/CONVENTIONS.md": {
     "mtime": 1780124235.5925336,
@@ -2107,9 +2431,13 @@
     "mtime": 1780124188.831565,
     "hash": "27199e5c3756183e36fc3065a36f538f"
   },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/AGENTS.md": {
+    "mtime": 1781945459.082442,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/CLAUDE.md": {
-    "mtime": 1780312816.2245035,
-    "hash": "9ec198a3bbfff94df96e31c08ce0c83f"
+    "mtime": 1781945904.5974314,
+    "hash": "1b7835c13302f1ebbc2ee8aef5ade315"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/index.html": {
     "mtime": 1780230890.6166081,
@@ -2119,13 +2447,745 @@
     "mtime": 1780061102.250817,
     "hash": "ddc6995b0faef00f4e0b310738616c7f"
   },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/public/AGENTS.md": {
+    "mtime": 1781945392.3497329,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/public/CLAUDE.md": {
+    "mtime": 1781945392.3491247,
+    "hash": "0e863690c78b49c0652db577d5ad477d"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/AGENTS.md": {
+    "mtime": 1781945392.352364,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/CLAUDE.md": {
+    "mtime": 1781945884.7902637,
+    "hash": "7f7ef10a277e8826b23e864b8b677ea5"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/AGENTS.md": {
+    "mtime": 1781945392.353614,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/CLAUDE.md": {
+    "mtime": 1781945392.3531127,
+    "hash": "294274278aa29de9a7528415dbbd90ac"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/AGENTS.md": {
+    "mtime": 1781945392.3550742,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/CLAUDE.md": {
+    "mtime": 1781945392.3543308,
+    "hash": "7e9bc4ddefb5e4d94b2d816438ecc659"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/audit-logs/AGENTS.md": {
+    "mtime": 1781945392.3563654,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/audit-logs/CLAUDE.md": {
+    "mtime": 1781945392.3558252,
+    "hash": "a3b041a5e8e01b29cff88e4e890fff8c"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/coil-prices/AGENTS.md": {
+    "mtime": 1781945392.3583372,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/coil-prices/CLAUDE.md": {
+    "mtime": 1781945392.3575451,
+    "hash": "75b3bf09e9318cde1224e5baac7035ae"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/customer-codes/AGENTS.md": {
+    "mtime": 1781945392.359899,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/customer-codes/CLAUDE.md": {
+    "mtime": 1781945392.3592207,
+    "hash": "17af1ff76a398e31b138d22fd1dc2d10"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/regions/AGENTS.md": {
+    "mtime": 1781945392.3616564,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/regions/CLAUDE.md": {
+    "mtime": 1781945392.3609958,
+    "hash": "159b1a09d8a63e16a798520e9415bc9d"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/users/AGENTS.md": {
+    "mtime": 1781945392.3630857,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/admin/users/CLAUDE.md": {
+    "mtime": 1781945392.3624392,
+    "hash": "1c91815e4bb12d21ee2ab4a8fc82cee2"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/auth/AGENTS.md": {
+    "mtime": 1781945392.3649278,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/auth/CLAUDE.md": {
+    "mtime": 1781945392.3641047,
+    "hash": "a81a5c987b33eea9c316092b81bfdbea"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/auth/setup/AGENTS.md": {
+    "mtime": 1781945392.3678813,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/auth/setup/CLAUDE.md": {
+    "mtime": 1781945392.365843,
+    "hash": "222a0d095f052d40a4354ab82006d29e"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/credit-report/AGENTS.md": {
+    "mtime": 1781945392.369246,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/credit-report/CLAUDE.md": {
+    "mtime": 1781945392.3686867,
+    "hash": "40ac23483ce37189794dda5633640360"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/dashboard/AGENTS.md": {
+    "mtime": 1781945392.370656,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/dashboard/CLAUDE.md": {
+    "mtime": 1781945392.3700752,
+    "hash": "41a240c18d3d6e2c32cf0c4200157f19"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/jsw-stock/AGENTS.md": {
+    "mtime": 1781945392.3726416,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/jsw-stock/CLAUDE.md": {
+    "mtime": 1781945392.3714736,
+    "hash": "c6ab3d2e73004c830529221d7309f493"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/jvml-stock/AGENTS.md": {
+    "mtime": 1781945392.3776925,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/jvml-stock/CLAUDE.md": {
+    "mtime": 1781945392.3769443,
+    "hash": "85c022ebbed2d8b4475e73ff66557b50"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/meta/AGENTS.md": {
+    "mtime": 1781945392.3808465,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/meta/CLAUDE.md": {
+    "mtime": 1781945392.3802297,
+    "hash": "e688ca0fa074218f6a0683191140ed2b"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/report/AGENTS.md": {
+    "mtime": 1781945392.384277,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/report/CLAUDE.md": {
+    "mtime": 1781945392.3835864,
+    "hash": "0376c13f1d096b3982faa253ec43c9b8"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/settings/AGENTS.md": {
+    "mtime": 1781945392.3865156,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/settings/CLAUDE.md": {
+    "mtime": 1781945392.3850882,
+    "hash": "c14256deb7230b7fb856ddb16c53b398"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/settings/credit-report-config/AGENTS.md": {
+    "mtime": 1781945392.3879,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/settings/credit-report-config/CLAUDE.md": {
+    "mtime": 1781945392.3873987,
+    "hash": "3f90af1d8195c1115821fb434d8b2f80"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/settings/jsw-stock-config/AGENTS.md": {
+    "mtime": 1781945392.3898935,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/settings/jsw-stock-config/CLAUDE.md": {
+    "mtime": 1781945392.3890953,
+    "hash": "e3d2f85e75cf8ef388678c9e9cdffe3e"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/settings/jvml-stock-config/AGENTS.md": {
+    "mtime": 1781945392.391193,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/settings/jvml-stock-config/CLAUDE.md": {
+    "mtime": 1781945392.3906631,
+    "hash": "07bf6b907a1d87a12ee5caa068bad32f"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/user/AGENTS.md": {
+    "mtime": 1781945392.3923926,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/api/user/CLAUDE.md": {
+    "mtime": 1781945392.3919032,
+    "hash": "cd7be98b4d708abc67b52d10a05d15a1"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/app/AGENTS.md": {
+    "mtime": 1781945392.3934584,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/app/CLAUDE.md": {
+    "mtime": 1781945392.392972,
+    "hash": "9d50ccf2f3b01f828fffe43e2318e105"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/AGENTS.md": {
+    "mtime": 1781945392.3946383,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/CLAUDE.md": {
+    "mtime": 1781945392.394065,
+    "hash": "f1edcdde8ee4c8142df5b28e2274ffb3"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/AGENTS.md": {
+    "mtime": 1781945392.3964863,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/CLAUDE.md": {
+    "mtime": 1781945884.7908468,
+    "hash": "c6efc575afb6ea1fecd21aa8def5f7e3"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/audit-logs/AGENTS.md": {
+    "mtime": 1781945392.4007535,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/audit-logs/CLAUDE.md": {
+    "mtime": 1781945392.3978767,
+    "hash": "2e2dfb0f3077a8646bdb11f20d543c97"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/audit-logs/hooks/AGENTS.md": {
+    "mtime": 1781945392.403457,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/audit-logs/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4028277,
+    "hash": "e12c1d55317318b959cfb6c197848330"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/coil-prices/AGENTS.md": {
+    "mtime": 1781945392.4052777,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/coil-prices/CLAUDE.md": {
+    "mtime": 1781945392.4043417,
+    "hash": "a948c0c4ba922961ee1f6bb87c054ca2"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/coil-prices/hooks/AGENTS.md": {
+    "mtime": 1781945392.4072297,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/coil-prices/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4064167,
+    "hash": "c149c0f4b2a0b45a36f1b414cfb20e76"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/AGENTS.md": {
+    "mtime": 1781945392.408632,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/CLAUDE.md": {
+    "mtime": 1781949468.4088304,
+    "hash": "0edf37a67a268e172a236d0106318570"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/hooks/AGENTS.md": {
+    "mtime": 1781945392.4100065,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/customer-codes/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4094794,
+    "hash": "b77c990e0b6a1c1e787bc7889ee6c2f6"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/regions/AGENTS.md": {
+    "mtime": 1781945392.4112656,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/regions/CLAUDE.md": {
+    "mtime": 1781945392.4107072,
+    "hash": "7aa6a1c165d632b925b0b6489e5d1317"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/regions/hooks/AGENTS.md": {
+    "mtime": 1781945392.412808,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/regions/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4121273,
+    "hash": "a442a65f61a74557c685e4e97738753a"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/users/AGENTS.md": {
+    "mtime": 1781945392.414564,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/users/CLAUDE.md": {
+    "mtime": 1781945392.413879,
+    "hash": "60e8d638a5ee398656b395bccd7574b8"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/users/hooks/AGENTS.md": {
+    "mtime": 1781945392.4164727,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/admin/users/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4156764,
+    "hash": "066c7fc2c17a51513cf62992f93f880d"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/auth/AGENTS.md": {
+    "mtime": 1781945392.417747,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/auth/CLAUDE.md": {
+    "mtime": 1781945392.4172509,
+    "hash": "4d68d74444937f22ceefb9a2ba4b1d93"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/auth/hooks/AGENTS.md": {
+    "mtime": 1781945392.419358,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/auth/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4188366,
+    "hash": "bc688d835fbf72bca50e1951cf509a8c"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/auth/login/AGENTS.md": {
+    "mtime": 1781945392.4205716,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/auth/login/CLAUDE.md": {
+    "mtime": 1781945392.4200137,
+    "hash": "7965ba1c323f08a6969e52f6d29a66f9"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/auth/login/hooks/AGENTS.md": {
+    "mtime": 1781945392.4221034,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/auth/login/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4213798,
+    "hash": "3ee5a5d151fe76f68fe44fcca2ee2921"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/common/AGENTS.md": {
+    "mtime": 1781945392.4234972,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/common/CLAUDE.md": {
+    "mtime": 1781945392.422826,
+    "hash": "b69df0c1e9c5ecf2d0cf8b3be397ded7"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/common/hooks/AGENTS.md": {
+    "mtime": 1781945392.427107,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/common/hooks/CLAUDE.md": {
+    "mtime": 1781945392.426231,
+    "hash": "a3ab19c99241c60bef517eb0a3f0a2dd"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/credit-report/AGENTS.md": {
+    "mtime": 1781945392.4288616,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/credit-report/CLAUDE.md": {
+    "mtime": 1781945392.4280055,
+    "hash": "1d9391464da4f3d10ed8160c37b5b8d6"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/credit-report/hooks/AGENTS.md": {
+    "mtime": 1781945392.431058,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/credit-report/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4297903,
+    "hash": "daab39df7de0a228ae21415d952926ad"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/dashboard/AGENTS.md": {
+    "mtime": 1781945392.4329114,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/dashboard/CLAUDE.md": {
+    "mtime": 1781945392.4320843,
+    "hash": "99274e94621f60a08b0f15bdc9005ae5"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/dashboard/hooks/AGENTS.md": {
+    "mtime": 1781945392.4350605,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/dashboard/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4342244,
+    "hash": "deeacfd112d477de24c3656c06770eb3"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/jsw-stock/AGENTS.md": {
+    "mtime": 1781945392.4369583,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/jsw-stock/CLAUDE.md": {
+    "mtime": 1781945392.4360464,
+    "hash": "988040446f1c39bd2f9e28875b35c1ed"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/jsw-stock/hooks/AGENTS.md": {
+    "mtime": 1781945392.4387026,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/jsw-stock/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4378295,
+    "hash": "ca30dc737c13dee3426b23c6e7f3e101"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/jvml-stock/AGENTS.md": {
+    "mtime": 1781945392.4403179,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/jvml-stock/CLAUDE.md": {
+    "mtime": 1781945392.4396684,
+    "hash": "2b4bc0861e757f79a33a45685e1d016e"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/jvml-stock/hooks/AGENTS.md": {
+    "mtime": 1781945392.442644,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/jvml-stock/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4412496,
+    "hash": "6c053bed369af9e1f02265d05aa5fb35"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/layout/AGENTS.md": {
+    "mtime": 1781945392.4447527,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/layout/CLAUDE.md": {
+    "mtime": 1781945392.444136,
+    "hash": "df5def8ab1fb5d59417184eeb29c626a"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/report/AGENTS.md": {
+    "mtime": 1781945392.4461274,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/report/CLAUDE.md": {
+    "mtime": 1781945392.445573,
+    "hash": "a5363d8a6d85527eb64d91695f7c32db"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/report/hooks/AGENTS.md": {
+    "mtime": 1781945392.4475477,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/report/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4469657,
+    "hash": "f6c0509bb4b603a7c86829fd5444bb7d"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/settings/AGENTS.md": {
+    "mtime": 1781945392.4492822,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/settings/CLAUDE.md": {
+    "mtime": 1781945392.448528,
+    "hash": "ff2224a79e3b3e39e31d21531cf1e91c"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/settings/hooks/AGENTS.md": {
+    "mtime": 1781945392.4510899,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/settings/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4503496,
+    "hash": "a6cd508f30cc97168b706b69a4a87606"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/theme/AGENTS.md": {
+    "mtime": 1781945392.4523938,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/theme/CLAUDE.md": {
+    "mtime": 1781945392.4518695,
+    "hash": "d0c14c600ef2e5e3e423c8829639374c"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/ui/AGENTS.md": {
+    "mtime": 1781945392.4535973,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/components/ui/CLAUDE.md": {
+    "mtime": 1781945392.453072,
+    "hash": "93a52ff591760e2c5c374bec4f8e1fd1"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/hooks/AGENTS.md": {
+    "mtime": 1781945392.4546018,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/hooks/CLAUDE.md": {
+    "mtime": 1781945392.4541843,
+    "hash": "67820f4492965368cd64f2cf070cbdd6"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/lib/AGENTS.md": {
+    "mtime": 1781945392.4565928,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/lib/CLAUDE.md": {
+    "mtime": 1781945392.4553287,
+    "hash": "d781097f601f01e50c35d41ad60b75c9"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/AGENTS.md": {
+    "mtime": 1781945392.4579005,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/CLAUDE.md": {
+    "mtime": 1781945392.457426,
+    "hash": "e5a031e13f6d7e3e4ecd4478d8d9ed38"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/AGENTS.md": {
+    "mtime": 1781945392.4591818,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/CLAUDE.md": {
+    "mtime": 1781945392.4585803,
+    "hash": "deebfbc6d33b38d3a3f077d61faaed86"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/audit-logs/AGENTS.md": {
+    "mtime": 1781945392.4615526,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/audit-logs/CLAUDE.md": {
+    "mtime": 1781945392.459942,
+    "hash": "1ae8d6c08ea599305de0c234f17e4ccb"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/coil-config/AGENTS.md": {
+    "mtime": 1781945392.4636433,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/coil-config/CLAUDE.md": {
+    "mtime": 1781945392.4629312,
+    "hash": "e53805a2898a03868cf59994c22419c3"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/customer-codes/AGENTS.md": {
+    "mtime": 1781945392.4652412,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/customer-codes/CLAUDE.md": {
+    "mtime": 1781945392.464492,
+    "hash": "b9769f4be7369f890c55ae8a0ef6d177"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/regions/AGENTS.md": {
+    "mtime": 1781945392.4671044,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/regions/CLAUDE.md": {
+    "mtime": 1781945392.4663174,
+    "hash": "8aa69ab6ecf80da3978dec9a4cd25db4"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/settings/AGENTS.md": {
+    "mtime": 1781945392.468549,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/settings/CLAUDE.md": {
+    "mtime": 1781945392.4678907,
+    "hash": "79163c02aef4143444fa73969d2e853e"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/users/AGENTS.md": {
+    "mtime": 1781945392.4703598,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/admin/users/CLAUDE.md": {
+    "mtime": 1781945392.4693556,
+    "hash": "bfa7a64d7f6b5f34202d0383199b5e00"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/auth/AGENTS.md": {
+    "mtime": 1781945392.4721682,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/auth/CLAUDE.md": {
+    "mtime": 1781945392.4711885,
+    "hash": "2b164e06f8c06b3f48582fb8117eafd0"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/auth/login/AGENTS.md": {
+    "mtime": 1781945392.4734197,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/auth/login/CLAUDE.md": {
+    "mtime": 1781945392.4727962,
+    "hash": "9d0c4ee03f0395ad34e2893e5f2d35a8"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/credit-report/AGENTS.md": {
+    "mtime": 1781945392.4757252,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/credit-report/CLAUDE.md": {
+    "mtime": 1781945392.474798,
+    "hash": "68fdc7eba6e054dbaf259abb5110f933"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/dashboard/AGENTS.md": {
+    "mtime": 1781945392.477053,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/dashboard/CLAUDE.md": {
+    "mtime": 1781945392.4765246,
+    "hash": "df21d16c2945fcd968b65217f2c076bd"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/dashboard/home/AGENTS.md": {
+    "mtime": 1781945392.478281,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/dashboard/home/CLAUDE.md": {
+    "mtime": 1781945392.4778068,
+    "hash": "171e4d1db044d90ca265d3aef125cccd"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/jsw-stock/AGENTS.md": {
+    "mtime": 1781945392.479388,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/jsw-stock/CLAUDE.md": {
+    "mtime": 1781945392.478877,
+    "hash": "bd4d13f5f6a3302c491ee7f1e0bb372b"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/jvml-stock/AGENTS.md": {
+    "mtime": 1781945392.4806035,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/jvml-stock/CLAUDE.md": {
+    "mtime": 1781945392.4800944,
+    "hash": "220dfa0d9ac67b0201f9813006d3adbc"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/report/AGENTS.md": {
+    "mtime": 1781945392.4819112,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/pages/report/CLAUDE.md": {
+    "mtime": 1781945392.4813843,
+    "hash": "6c989273a7d9f9a1ad8373db8bc13aa8"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/routes/AGENTS.md": {
+    "mtime": 1781945392.4831889,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/routes/CLAUDE.md": {
+    "mtime": 1781945392.4826038,
+    "hash": "35e65173515b4f07066c55fc26292419"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/store/AGENTS.md": {
+    "mtime": 1781945392.4843678,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/store/CLAUDE.md": {
+    "mtime": 1781945392.4839036,
+    "hash": "8526be071512e2e90c74438d5860f01e"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/store/auth/AGENTS.md": {
+    "mtime": 1781945392.4855864,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/store/auth/CLAUDE.md": {
+    "mtime": 1781945392.4850698,
+    "hash": "89ab87323db415ccaab46059f019c27b"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/styles/AGENTS.md": {
+    "mtime": 1781945392.4865046,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/styles/CLAUDE.md": {
+    "mtime": 1781945392.4861178,
+    "hash": "5874711867a3b80158e54d26410411e7"
+  },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/styles/README.md": {
     "mtime": 1780123334.6852524,
     "hash": "853d2dad51c542e886b5d011c4bdede9"
   },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/AGENTS.md": {
+    "mtime": 1781945392.4874084,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/CLAUDE.md": {
+    "mtime": 1781945392.486975,
+    "hash": "ef60269625a6c68d75a065f788e31add"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/admin/AGENTS.md": {
+    "mtime": 1781945392.4885738,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/admin/CLAUDE.md": {
+    "mtime": 1781945392.4880083,
+    "hash": "ed5259b2e81113acae2a65bd515782cf"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/api/AGENTS.md": {
+    "mtime": 1781945392.4901102,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/api/CLAUDE.md": {
+    "mtime": 1781945392.4894202,
+    "hash": "d08414e616ba1c55b0af2db925e6ea02"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/auth/AGENTS.md": {
+    "mtime": 1781945392.4914548,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/auth/CLAUDE.md": {
+    "mtime": 1781945392.4909003,
+    "hash": "a58450053aa99079b49950c60c89ce47"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/credit-report/AGENTS.md": {
+    "mtime": 1781945392.49249,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/credit-report/CLAUDE.md": {
+    "mtime": 1781945392.4920993,
+    "hash": "55ab074b824c806f42fb07b7be45fe8b"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/dashboard/AGENTS.md": {
+    "mtime": 1781945392.4936912,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/dashboard/CLAUDE.md": {
+    "mtime": 1781945392.4930518,
+    "hash": "e7cca872866d2c68187bbc6c4034caa3"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/jsw-stock/AGENTS.md": {
+    "mtime": 1781945392.4948876,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/jsw-stock/CLAUDE.md": {
+    "mtime": 1781945392.4944122,
+    "hash": "f76dea376138cb5704bbc922f556fda2"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/jvml-stock/AGENTS.md": {
+    "mtime": 1781945392.4966054,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/jvml-stock/CLAUDE.md": {
+    "mtime": 1781945392.4958663,
+    "hash": "34718a85577af8b41165b10261b753aa"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/meta/AGENTS.md": {
+    "mtime": 1781945392.4978342,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/meta/CLAUDE.md": {
+    "mtime": 1781945392.4974,
+    "hash": "1fb239575e89d2a36546efc555edcff2"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/report/AGENTS.md": {
+    "mtime": 1781945392.4990835,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/report/CLAUDE.md": {
+    "mtime": 1781945392.4985156,
+    "hash": "14cfc0763f3cbb507d55564302a67b7a"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/settings/AGENTS.md": {
+    "mtime": 1781945392.5007024,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/settings/CLAUDE.md": {
+    "mtime": 1781945392.4999893,
+    "hash": "673471a8c71c5e7b1c3133ebf73d6db5"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/theme/AGENTS.md": {
+    "mtime": 1781945392.5020409,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/theme/CLAUDE.md": {
+    "mtime": 1781945392.5014567,
+    "hash": "11e705581964cc48e4345ae8fc7ea80e"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/user/AGENTS.md": {
+    "mtime": 1781945392.5032952,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend/src/types/user/CLAUDE.md": {
+    "mtime": 1781945392.502746,
+    "hash": "e54488c5c8a0b131289faa1b5539880c"
+  },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend_docs/ADDING_A_FEATURE.md": {
     "mtime": 1780124139.281454,
     "hash": "550dbd19acc3f3e806476a4e8be7f509"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend_docs/AGENTS.md": {
+    "mtime": 1781945392.5048819,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend_docs/API_LAYER.md": {
     "mtime": 1780124020.5960596,
@@ -2134,6 +3194,10 @@
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend_docs/ARCHITECTURE.md": {
     "mtime": 1780124013.330933,
     "hash": "6450d07a0bccf2236bc4c0ee10de7ed2"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend_docs/CLAUDE.md": {
+    "mtime": 1781945567.4096246,
+    "hash": "1d2bbee08fa964580af5425993ab65a4"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/frontend_docs/COMPONENTS.md": {
     "mtime": 1780124103.864918,
@@ -2171,6 +3235,14 @@
     "mtime": 1780124065.429811,
     "hash": "baea888453b7033b9fd472371d0f289e"
   },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/macro_docs/AGENTS.md": {
+    "mtime": 1781945392.5062122,
+    "hash": "549cfe34a2b112853b0d520d6bd1d984"
+  },
+  "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/macro_docs/CLAUDE.md": {
+    "mtime": 1781945550.0151527,
+    "hash": "272cdf90f15418f8602e5853e9c45d11"
+  },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/macro_docs/credit-report.md": {
     "mtime": 1780060602.526255,
     "hash": "a6f940f96b2a2adfcad7631dd6353c42"
@@ -2180,8 +3252,8 @@
     "hash": "cc6a792e1fbcf4599599fdc12fa9a74e"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/macro_docs/west-central-customer-codes.md": {
-    "mtime": 1780060602.501419,
-    "hash": "2386b14d5e9eb64e724e1625a6e252c6"
+    "mtime": 1781949933.640972,
+    "hash": "c56f85600c887fbdcf39e4642f8ecb2a"
   },
   "/DATA/CODE_FILES/MARKETING REPORT AUTOMATION/macro_docs/zsd-currstk-hr.md": {
     "mtime": 1780060602.550724,

@@ -104,6 +104,12 @@ export interface CustomerCodeTableProps {
   onView: (customerCode: CustomerCode) => void
   onEdit: (customerCode: CustomerCode) => void
   onDelete: (customerCode: CustomerCode) => void
+  /** Set of currently selected row ids. */
+  selectedIds: Set<string>
+  /** Toggle a single row id in/out of the selection. */
+  onToggleSelection: (id: string) => void
+  /** Select/deselect all rows on the current page. */
+  onSelectAll: (checked: boolean) => void
 }
 
 // ---------------------------------------------------------------------------
@@ -113,6 +119,12 @@ export interface CustomerCodeTableProps {
 export interface CustomerCodeTableToolbarProps {
   query: CustomerCodeListQuery
   onQueryChange: (patch: Partial<CustomerCodeListQuery>) => void
+  /** Number of rows currently selected. */
+  selectedCount: number
+  /** True when at least one row is selected. */
+  hasSelection: boolean
+  /** Called when the user clicks the Delete selected button. */
+  onDeleteSelected: () => void
 }
 
 // ---------------------------------------------------------------------------
@@ -127,8 +139,12 @@ export interface CustomerCodeFiltersProps {
   destination: string
   cam: string
   mob: string
+  ship_to_city: string
+  rake: string
+  transport_mode: string
   onFilterChange: (patch: Partial<Pick<CustomerCodeQueryState,
-    "segment" | "code" | "customer" | "destination" | "cam" | "mob">>) => void
+    | "segment" | "code" | "customer" | "destination"
+    | "cam" | "mob" | "ship_to_city" | "rake" | "transport_mode">>) => void
   onClearAll: () => void
 }
 
@@ -170,6 +186,9 @@ export type CustomerCodeQueryState = {
   destination: string
   cam: string
   mob: string
+  ship_to_city: string
+  rake: string
+  transport_mode: string
   /** region_id exact match — query key is "region" (NOT "region_id"). ADDENDUM Area 8 BLOCKER 3. */
   region: string
 }
@@ -210,6 +229,9 @@ export interface UseCustomerCodeManagementResult {
         | "destination"
         | "cam"
         | "mob"
+        | "ship_to_city"
+        | "rake"
+        | "transport_mode"
         | "region"
       >
     >,
@@ -224,9 +246,18 @@ export interface UseCustomerCodeManagementResult {
   dialog: CustomerCodeDialogState
   openDialog: (d: CustomerCodeDialogState) => void
   closeDialog: () => void
+  /** Set of currently selected row ids on the current page. */
+  selectedIds: Set<string>
+  /** Select every row currently visible. */
+  selectAll: () => void
+  /** Clear the current row selection. */
+  clearSelection: () => void
+  /** Toggle a single row id in/out of the selection. */
+  toggleSelection: (id: string) => void
   actions: {
     refetch: () => void
     remove: (id: string) => Promise<void>
+    bulkRemove: (ids: string[]) => Promise<void>
     // No toggleActive — customer codes have no active flag (SPEC §4.1)
   }
 }

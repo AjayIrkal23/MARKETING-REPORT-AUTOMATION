@@ -1,31 +1,36 @@
 """CustomerCode service: bulk-import rows from a parsed Excel workbook.
 
-Business rules (contract .planning/customer-codes/SPEC.md §2.5 /
-ADDENDUM §Area 2, §Area 5, Builder Notes import_rows.py):
+Business rules:
 
 - ``region_id`` is validated via ``resolve_region_or_400`` before any rows are
   touched; an invalid or unknown region raises ``ValidationError`` (400).
 - Raw ``.xlsx`` bytes are parsed by
   :func:`utils.customer_code.excel.parse_workbook`, which handles header
-  normalisation, cell coercion, fully-empty-row skipping (Branch A → silent
-  skip) and required-field validation (Branch B → error entry).
-- Valid rows are bulk-inserted with ``CustomerCode.insert_many`` (Beanie 2.1.0).
-  ``insert_many`` returns an ``InsertManyResult``; the inserted count is derived
-  from ``len(docs)``, **not** the return value (ADDENDUM Area 2 §insert_many).
-- Skipped-count formula (ADDENDUM Area 5 BLOCKER 3):
-  ``skipped = total_rows - inserted - len(errors)``
+  normalisation, duplicate ship-to columns, cell coercion, fully-empty-row
+  skipping and required-field validation.
+- Valid rows are **upserted** by natural key ``(code, ship_to, region_id)``
+  case-insensitively. Blank ``ship_to`` values are normalised to ``None``
+  before matching. Existing documents are updated and ``updated_at`` bumped;
+  missing documents are inserted.
+- Rows missing a required field (``segment``, ``code``, ``customer``,
+  ``destination``) are **not rejected** — the missing value is replaced with
+  the string ``"unknown"`` so the row can still be imported.
+- Skipped-count formula:
+  ``skipped = total_rows - inserted - updated - len(errors)``
   where ``total_rows`` = total data rows (header excluded), ``inserted`` =
-  ``len(docs)``, ``len(errors)`` = rejected non-empty rows.  Applied after both
-  branches; never double-counted.
+  new docs, ``updated`` = matched docs, ``len(errors)`` = rejected rows
+  (currently only the ``MAX_IMPORT_ROWS`` overflow error).
 - Emits ``customer_code.imported`` audit event; audit failure is swallowed
   inside ``record_audit`` and must never abort persisted records.
 - Returns ``CustomerCodeImportResult`` DTO; never raw Beanie documents.
-- No uniqueness constraint on ``code`` — duplicates are valid and expected.
+- No uniqueness constraint on ``code`` — duplicates across different ship-to
+  rows are valid and expected.
 """
 
 from __future__ import annotations
 
 import io
+from datetime import datetime, timezone
 from typing import Any
 
 from ...models.customer_code import CustomerCode
@@ -35,100 +40,87 @@ from ..audit.events import audit_customer_code_event
 from .region_link import resolve_region_or_400
 
 
+def _now_utc() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _norm_ship_to(v: str | None) -> str | None:
+    """Normalise blank ship-to values to ``None`` for consistent matching."""
+    return v.strip() if v else None
+
+
 async def import_customer_codes(
     file_bytes: bytes,
     region_id: str,
     *,
     actor_email: str | None,
 ) -> CustomerCodeImportResult:
-    """Validate region, parse workbook bytes, bulk-insert valid rows, emit audit.
-
-    Mirrors the layering discipline of other services in this domain: all
-    DB/business logic lives here; the controller only validates the upload
-    and delegates.
-
-    Args:
-        file_bytes:  Raw binary content of the uploaded ``.xlsx`` file.
-        region_id:   String-encoded ObjectId of the target region; validated via
-                     ``resolve_region_or_400`` before any row data is touched.
-        actor_email: Admin actor email threaded from ``admin.emailid``; ``None``
-                     if unavailable (mirrors region ``create.py`` pattern).
-
-    Returns:
-        ``CustomerCodeImportResult`` DTO containing row counts, the resolved
-        region name, and any per-row validation errors from parsing.
-
-    Raises:
-        ValidationError: If ``region_id`` is not a valid ObjectId string or
-            refers to a non-existent region (same error type for both cases —
-            no enumeration, ``owasp-security``).
-    """
-    # Step 1: Validate region BEFORE processing any row data.
-    # resolve_region_or_400 raises ValidationError(400) for both invalid-hex
-    # ids and valid-hex-but-missing documents (ADDENDUM Area 1 BLOCKER 4).
+    """Validate region, parse workbook bytes, upsert valid rows, emit audit."""
     region = await resolve_region_or_400(region_id)
 
-    # Step 2: Count total data rows for the summary (header row excluded).
-    # parse_workbook does not expose total_rows directly; we count cheaply
-    # before parsing so the formula skipped = total_rows - inserted - errors
-    # remains correct without a second full parse (ADDENDUM Area 5 BLOCKER 3).
     total_rows = _count_data_rows(file_bytes)
-
-    # Step 3: Parse the workbook.  parse_workbook handles:
-    #   • Header normalisation and column-index mapping.
-    #   • DoS guard (MAX_IMPORT_ROWS) — returns a single-entry errors list.
-    #   • Branch A: fully-empty rows → silently skipped (not in errors list).
-    #   • Branch B: non-empty rows missing required fields → CustomerCodeImportError.
     valid_rows, errors = parse_workbook(file_bytes)
 
-    # Step 4: Hydrate CustomerCode documents from valid parsed rows.
-    # region_id is a plain str on the model (validated upstream).
-    # Optional fields default to None when the key is absent from parsed dict.
-    docs: list[CustomerCode] = [
-        CustomerCode(
-            segment=row["segment"],
-            code=row["code"],
-            customer=row["customer"],
-            destination=row["destination"],
-            cam=row.get("cam"),
-            mob=row.get("mob"),
-            head=row.get("head"),
-            route=row.get("route"),
-            ship_to=row.get("ship_to"),
-            ship_to_customer=row.get("ship_to_customer"),
-            region_id=region_id,
+    inserted = 0
+    updated = 0
+
+    for row in valid_rows:
+        ship_to = _norm_ship_to(row.get("ship_to"))
+
+        existing = await CustomerCode.find_one(
+            {
+                "code": {"$regex": f"^{_escape_regex(row['code'])}$", "$options": "i"},
+                "ship_to": ship_to,
+                "region_id": region_id,
+            }
         )
-        for row in valid_rows
-    ]
 
-    # Step 5: Bulk insert.
-    # insert_many IS available in Beanie 2.1.0 (ADDENDUM Area 2 §insert_many).
-    # Returns InsertManyResult (pymongo) — do NOT rely on the return value;
-    # use len(docs) for the inserted count.
-    if docs:
-        await CustomerCode.insert_many(docs)
-    inserted: int = len(docs)
+        payload = {
+            "segment": row["segment"],
+            "code": row["code"],
+            "customer": row["customer"],
+            "destination": row["destination"],
+            "cam": row.get("cam"),
+            "mob": row.get("mob"),
+            "head": row.get("head"),
+            "route": row.get("route"),
+            "ship_to": ship_to,
+            "ship_to_customer": row.get("ship_to_customer"),
+            "ship_to_2": _norm_ship_to(row.get("ship_to_2")),
+            "ship_to_customer_2": row.get("ship_to_customer_2"),
+            "ship_to_city": row.get("ship_to_city"),
+            "rake": row.get("rake"),
+            "transport_mode": row.get("transport_mode"),
+            "region_id": region_id,
+        }
 
-    # Step 6: Compute skipped count.
-    # skipped = rows that were fully empty (Branch A in parse_workbook).
-    # Formula is valid only after both branches complete; total_rows was counted
-    # in Step 2 so it reflects actual data rows regardless of DoS early-return.
-    # Guard against negative values in case of edge-case row-count discrepancy.
-    skipped: int = max(total_rows - inserted - len(errors), 0)
+        if existing is not None:
+            for key, value in payload.items():
+                setattr(existing, key, value)
+            existing.updated_at = _now_utc()
+            await existing.save()
+            updated += 1
+        else:
+            doc = CustomerCode(
+                **payload,  # type: ignore[arg-type]
+                created_at=_now_utc(),
+                updated_at=_now_utc(),
+            )
+            await doc.insert()
+            inserted += 1
 
-    # Step 7: Emit domain audit event.
-    # category="customer_codes" — NOT "regions", NOT "customer_code" singular
-    # (ADDENDUM Area 3 BLOCKER-2, Area 4 §category string asymmetry).
-    # Audit failure is swallowed inside record_audit; never aborts persisted rows.
+    skipped: int = max(total_rows - inserted - updated - len(errors), 0)
+
     await audit_customer_code_event(
         "customer_code.imported",
-        f"Imported {inserted} rows into region '{region.name}'",
+        f"Imported {inserted} and updated {updated} rows in region '{region.name}'",
         actor_email=actor_email,
         extra=_build_audit_extra(
             region_id=region_id,
             region_name=region.name,
             total_rows=total_rows,
             inserted=inserted,
+            updated=updated,
             skipped=skipped,
             error_count=len(errors),
         ),
@@ -137,6 +129,7 @@ async def import_customer_codes(
     return CustomerCodeImportResult(
         total_rows=total_rows,
         inserted=inserted,
+        updated=updated,
         skipped=skipped,
         region_id=region_id,
         region_name=region.name,
@@ -144,35 +137,24 @@ async def import_customer_codes(
     )
 
 
-# ---------------------------------------------------------------------------
-# Private helpers
-# ---------------------------------------------------------------------------
+def _escape_regex(s: str) -> str:
+    """Escape a string for safe inclusion in a regex anchor."""
+    return __import__("re").escape(s)
+
 
 def _count_data_rows(file_bytes: bytes) -> int:
-    """Return the number of data rows in the active sheet (header excluded).
-
-    Uses a lightweight openpyxl read (``read_only=True``, no ``data_only``)
-    to count rows without loading cell values.  This is called before
-    ``parse_workbook`` so ``total_rows`` is always accurate — even when
-    ``parse_workbook`` returns early (e.g. DoS guard, missing headers).
-    ``openpyxl`` is imported lazily, consistent with the excel-utils pattern.
-
-    Returns 0 on any read failure so the caller's formula degrades gracefully
-    (all rows appear as inserted + errors, skipped = 0).
-    """
+    """Return the number of data rows in the active sheet (header excluded)."""
     try:
-        import openpyxl  # lazy — consistent with parse_workbook / template pattern
+        import openpyxl
 
         wb = openpyxl.load_workbook(
             io.BytesIO(file_bytes), read_only=True, data_only=False
         )
         ws = wb.active
-        # iter_rows is memory-efficient in read_only mode; subtract 1 for the header.
         row_count = sum(1 for _ in ws.iter_rows()) - 1
         wb.close()
         return max(row_count, 0)
     except Exception:
-        # Non-fatal: return 0 so the summary formula stays self-consistent.
         return 0
 
 
@@ -182,19 +164,16 @@ def _build_audit_extra(
     region_name: str | None,
     total_rows: int,
     inserted: int,
+    updated: int,
     skipped: int,
     error_count: int,
 ) -> dict[str, Any]:
-    """Construct the structured ``extra`` payload for the import audit event.
-
-    Mirrors the inline ``extra`` dict style used in ``region/create.py``;
-    extracted here to keep ``import_customer_codes`` within the 250-line limit.
-    """
     return {
         "region_id": region_id,
         "region_name": region_name,
         "total_rows": total_rows,
         "inserted": inserted,
+        "updated": updated,
         "skipped": skipped,
         "error_count": error_count,
     }

@@ -30,7 +30,7 @@ export function ReportSubtotalRow({
         {label}
       </TableCell>
       <TableCell className="text-right tabular-nums">{fmtQty(total)}</TableCell>
-      <TableCell className="text-right tabular-nums text-muted-foreground">
+      <TableCell className="text-center tabular-nums text-muted-foreground">
         {ncoYesDo ? fmtQty(ncoYesDo) : "—"}
       </TableCell>
       {/* Amount columns (Blocked / Credit Balance / Credit Note) are

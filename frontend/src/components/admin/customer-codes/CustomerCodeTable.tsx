@@ -10,6 +10,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Checkbox } from "@/components/ui/checkbox"
 import { SegmentBadge } from "./SegmentBadge"
 import { RowActionsMenu } from "./RowActionsMenu"
 import { cn } from "@/lib/utils"
@@ -65,6 +66,7 @@ function SortableHead({ label, col, current, order, onSort, className }: Sortabl
 export function CustomerCodeTable({
   rows, loading, error, sortBy, sortOrder,
   onSort, onView, onEdit, onDelete,
+  selectedIds, onToggleSelection, onSelectAll,
 }: CustomerCodeTableProps) {
 
   // ── Loading skeleton ──────────────────────────────────────────────────────
@@ -74,14 +76,25 @@ export function CustomerCodeTable({
       <Table>
         <TableHeader>
           <TableRow>
-            {["Segment", "Code", "Customer", "Destination", "Region", "CAM", "ROUTE", ""].map((h) => (
-              <TableHead key={h} className="text-muted-foreground">{h}</TableHead>
-            ))}
+            <TableHead className="w-10">
+              <Checkbox aria-label="Select all" checked={false} disabled />
+            </TableHead>
+            <TableHead className="text-muted-foreground">Segment</TableHead>
+            <TableHead className="text-muted-foreground">Code</TableHead>
+            <TableHead className="text-muted-foreground">Customer</TableHead>
+            <TableHead className="text-muted-foreground">Destination</TableHead>
+            <TableHead className="text-muted-foreground">Region</TableHead>
+            <TableHead className="text-muted-foreground">CAM</TableHead>
+            <TableHead className="text-muted-foreground">ROUTE</TableHead>
+            <TableHead className="text-muted-foreground">Ship-To City</TableHead>
+            <TableHead className="text-muted-foreground">Transport Mode</TableHead>
+            <TableHead className="w-10" />
           </TableRow>
         </TableHeader>
         <TableBody>
           {Array.from({ length: SKELETON_ROWS }).map((_, i) => (
             <TableRow key={i}>
+              <TableCell><Skeleton className="size-4 rounded-[4px]" /></TableCell>
               <TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
               <TableCell><Skeleton className="h-3.5 w-24" /></TableCell>
               <TableCell><Skeleton className="h-3.5 w-40" /></TableCell>
@@ -89,6 +102,8 @@ export function CustomerCodeTable({
               <TableCell><Skeleton className="h-3.5 w-24" /></TableCell>
               <TableCell><Skeleton className="h-3.5 w-24" /></TableCell>
               <TableCell><Skeleton className="h-3.5 w-16" /></TableCell>
+              <TableCell><Skeleton className="h-3.5 w-24" /></TableCell>
+              <TableCell><Skeleton className="h-3.5 w-20" /></TableCell>
               <TableCell><Skeleton className="size-7 rounded-md" /></TableCell>
             </TableRow>
           ))}
@@ -132,6 +147,14 @@ export function CustomerCodeTable({
     <Table>
       <TableHeader>
         <TableRow>
+          {/* Select all — checkbox column */}
+          <TableHead className="w-10">
+            <Checkbox
+              aria-label="Select all customer codes on this page"
+              checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
+              onCheckedChange={(checked) => onSelectAll(checked === true)}
+            />
+          </TableHead>
           {/* Segment sortable — in backend CustomerCodeSortBy whitelist */}
           <SortableHead label="Segment"     col="segment"     {...sortProps} className="min-w-[110px]" />
           {/* Code sortable */}
@@ -146,6 +169,10 @@ export function CustomerCodeTable({
           <SortableHead label="CAM"         col="cam"         {...sortProps} />
           {/* ROUTE sortable */}
           <SortableHead label="ROUTE"       col="route"       {...sortProps} />
+          {/* Ship-To City sortable */}
+          <SortableHead label="Ship-To City" col="ship_to_city" {...sortProps} />
+          {/* Transport Mode sortable */}
+          <SortableHead label="Transport Mode" col="transport_mode" {...sortProps} />
           {/* Actions column — no label, fixed narrow width */}
           <TableHead className="w-10" />
         </TableRow>
@@ -153,6 +180,15 @@ export function CustomerCodeTable({
       <TableBody>
         {rows.map((cc) => (
           <TableRow key={cc.id}>
+
+            {/* Row selection checkbox */}
+            <TableCell>
+              <Checkbox
+                aria-label={`Select customer code ${cc.code}`}
+                checked={selectedIds.has(cc.id)}
+                onCheckedChange={() => onToggleSelection(cc.id)}
+              />
+            </TableCell>
 
             {/* Segment — SegmentBadge handles case-insensitive color mapping */}
             <TableCell>
@@ -194,6 +230,16 @@ export function CustomerCodeTable({
             {/* ROUTE — optional; dash when absent */}
             <TableCell className="text-sm text-muted-foreground">
               {cc.route ?? <span className="text-muted-foreground">—</span>}
+            </TableCell>
+
+            {/* Ship-To City */}
+            <TableCell className="text-sm text-muted-foreground">
+              {cc.ship_to_city ?? <span className="text-muted-foreground">—</span>}
+            </TableCell>
+
+            {/* Transport Mode */}
+            <TableCell className="text-sm text-muted-foreground">
+              {cc.transport_mode ?? <span className="text-muted-foreground">—</span>}
             </TableCell>
 
             {/* Actions */}

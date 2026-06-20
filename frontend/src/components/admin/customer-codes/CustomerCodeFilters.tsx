@@ -41,12 +41,15 @@ interface FieldFilterConfig {
 }
 
 const FIELD_FILTERS: FieldFilterConfig[] = [
-  { field: "segment",     label: "Segment",     placeholder: "Any segment…"     },
-  { field: "code",        label: "Code",        placeholder: "Any code…"        },
-  { field: "customer",    label: "Customer",    placeholder: "Any customer…"    },
-  { field: "destination", label: "Destination", placeholder: "Any destination…" },
-  { field: "cam",         label: "CAM",         placeholder: "Any CAM…"         },
-  { field: "mob",         label: "MOB No.",     placeholder: "Any mobile…"      },
+  { field: "segment",        label: "Segment",         placeholder: "Any segment…"         },
+  { field: "code",           label: "Code",            placeholder: "Any code…"            },
+  { field: "customer",       label: "Customer",        placeholder: "Any customer…"        },
+  { field: "destination",    label: "Destination",     placeholder: "Any destination…"     },
+  { field: "cam",            label: "CAM",             placeholder: "Any CAM…"             },
+  { field: "mob",            label: "MOB No.",         placeholder: "Any mobile…"          },
+  { field: "ship_to_city",   label: "Ship-to City",    placeholder: "Any ship-to city…"    },
+  { field: "rake",           label: "Rake",            placeholder: "Any rake…"            },
+  { field: "transport_mode", label: "Transport Mode",  placeholder: "Any transport mode…"  },
 ]
 
 // ---------------------------------------------------------------------------
@@ -75,7 +78,10 @@ function hasActiveFilters(props: CustomerCodeFiltersProps): boolean {
     !!props.customer ||
     !!props.destination ||
     !!props.cam ||
-    !!props.mob
+    !!props.mob ||
+    !!props.ship_to_city ||
+    !!props.rake ||
+    !!props.transport_mode
   )
 }
 

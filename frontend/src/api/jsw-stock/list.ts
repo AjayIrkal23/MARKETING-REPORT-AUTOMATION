@@ -26,7 +26,8 @@ function buildParams(
     sortOrder: q.sortOrder,
     // single report-date filter ("dd-MM-yyyy", exact match on report_date)
     ...(q.date             ? { date: q.date }                             : {}),
-    // 4 per-field exact-match filters — only include when non-empty
+    // 5 per-field exact-match filters — only include when non-empty
+    ...(q.party_code       ? { party_code: q.party_code }                 : {}),
     ...(q.sales_order_type ? { sales_order_type: q.sales_order_type }     : {}),
     ...(q.customer_name    ? { customer_name: q.customer_name }           : {}),
     ...(q.sales_office     ? { sales_office: q.sales_office }             : {}),
