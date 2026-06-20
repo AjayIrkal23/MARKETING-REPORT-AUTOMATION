@@ -117,6 +117,12 @@ class CreditReport(Document):
     """Hierarchy Customer (col 33). SAP customer hierarchy node. text."""
 
     # ------------------------------------------------------------------
+    # Internal duplicate-detection hash
+    # ------------------------------------------------------------------
+    row_hash:               Annotated[str | None, Indexed()] = None
+    """Deterministic hash of the source row — used for same-date deduplication."""
+
+    # ------------------------------------------------------------------
     # Meta fields (4 total — no party_code_normalized / customer_code_id)
     # ------------------------------------------------------------------
     report_date:  Annotated[str, Indexed()]

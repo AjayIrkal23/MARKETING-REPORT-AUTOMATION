@@ -6,26 +6,37 @@
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+JVML Stock ingestion, listing, options, config and status services. Mirrors
+`jsw_stock` with the same 72-column raw workbook shape.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- `ingest.py` is the only writer for the `jvml_stock` collection. It deletes all
+  rows for the target `report_date` before inserting, then runs a defensive
+  duplicate-cleanup pass.
+- Use the shared `services.shared.ingest_cleanup._row_hash` helper; do not invent
+  a domain-specific hashing scheme.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `ingest.py` | Parse `JVML Stock (99).xlsx`, map party codes, bulk insert, dedupe |
+| `poller.py` | Scheduled daily poll + missing-file alert |
+| `customer_map.py` | Batch `CustomerCode` lookup at ingest time |
+| `list.py` / `options.py` / `query.py` | Server-driven list + filter options |
+| `config_service.py` / `status.py` | Admin config singleton + ingestion status |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `row_hash` is stored on every document for same-date duplicate cleanup. It is
+  computed from the coerced source fields only (no metadata).
+- `cleanup_duplicates` is called automatically after every ingest; the admin
+  endpoint `POST /admin/jvml-stock/cleanup-duplicates` is available for manual
+  repair.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`CODEX.md`](../../../../../CODEX.md) §Architecture Decisions

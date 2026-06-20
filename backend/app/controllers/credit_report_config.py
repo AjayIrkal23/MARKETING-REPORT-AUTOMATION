@@ -17,11 +17,13 @@ Mirrors controllers/jvml_stock_config.py layering and envelope pattern.
 
 from __future__ import annotations
 
-from fastapi import Depends
+from fastapi import Depends, Query
 
 from ..core.auth_deps import get_current_admin
 from ..core.responses import SuccessEnvelope, success
+from ..models.credit_report import CreditReport
 from ..schemas.auth import AuthUser
+from ..schemas.cleanup import CleanupDuplicatesResponse
 from ..schemas.credit_report_config import (
     CreditReportConfigPublic,
     CreditReportConfigUpdate,
@@ -29,6 +31,7 @@ from ..schemas.credit_report_config import (
 )
 from ..services.credit_report.config_service import get_config, upsert_config
 from ..services.credit_report.status import get_status
+from ..services.shared.ingest_cleanup import cleanup_duplicates
 
 # ---------------------------------------------------------------------------
 # Controllers
@@ -84,3 +87,15 @@ async def run_now_controller(
 
     await run_poll()
     return success(await get_status(), message="Poll triggered")
+
+
+async def cleanup_duplicates_controller(
+    report_date: str = Query(..., pattern=r"^\d{2}-\d{2}-\d{4}$"),
+    _admin: AuthUser = Depends(get_current_admin),
+) -> SuccessEnvelope[CleanupDuplicatesResponse]:
+    """``POST /admin/credit-report/cleanup-duplicates`` — remove older same-date duplicates."""
+    deleted = await cleanup_duplicates(CreditReport, report_date)
+    return success(
+        CleanupDuplicatesResponse(deleted=deleted),
+        message=f"Deleted {deleted} duplicate row(s) for {report_date}",
+    )

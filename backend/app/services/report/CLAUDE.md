@@ -6,26 +6,36 @@
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+JSW/JVML "Coil Stock" pivot + credit-report orchestration. Files build the
+`GET /report/generate` payload: aggregation, credit augmentation, and final
+channel assembly.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Keep all MongoDB aggregation logic in `pivot.py`; business decisions about
+  credit status/blocked belong in `generate.py`.
+- `ReportParty` columns that come from the stock row (`sold_to_party`,
+  `route_desc`) are populated in the `$group` stage. Columns that come from the
+  enriched `CustomerCode` master (`route`, `ship_to_party`) are resolved in
+  `_resolve_region_customers` and merged in `_build_channels`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `generate.py` | Region → customer codes → pivot → credit → `ReportResponse` |
+| `pivot.py` | MongoDB `$group` aggregation for the coil-stock pivot |
+| `credit.py` | Credit-report lookup + required-credit calculation |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `CustomerCode.code` is not unique. First document per normalized code wins
+  for both the enrichment map and the ingest-time customer mapping.
+- The pivot uses `party_code_normalized` (leading zeros stripped). The report
+  region filter restricts to codes belonging to the selected region.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`CODEX.md`](../../../../../CODEX.md) §Architecture Decisions

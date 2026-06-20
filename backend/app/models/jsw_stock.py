@@ -97,6 +97,9 @@ class JswStock(Document):
     route:                  str | None = None
     route_desc:             str | None = None
 
+    # ── internal duplicate-detection hash ─────────────────────────────────────
+    row_hash:               Annotated[str | None, Indexed()] = None
+
     # ── 7 mapping/meta fields ─────────────────────────────────────────────────
     party_code_normalized: Annotated[str | None, Indexed()] = None
     customer_name:         Annotated[str | None, Indexed()] = None

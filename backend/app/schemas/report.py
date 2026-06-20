@@ -44,6 +44,8 @@ class ReportParty(BaseModel):
 
     party_code: str                 # normalized display code ("40122581" / "8481")
     sold_to_party: str | None
+    ship_to_party: str | None       # from CustomerCode.ship_to_customer (+ ship_to fallback)
+    route: str | None               # from CustomerCode.route
     route_desc: str | None
     total: float                    # Σ stock_quantity for this party
     nco_yes_do: float               # Σ stock_quantity where nco_declared == "Yes"

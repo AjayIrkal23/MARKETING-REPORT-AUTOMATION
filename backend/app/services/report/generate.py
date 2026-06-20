@@ -47,11 +47,17 @@ def _channel_sort_key(name: str) -> tuple[int, str]:
     return (len(_CHANNEL_ORDER), name.lower())
 
 
-async def _resolve_codes(region_id: str | None) -> tuple[str, set[str]]:
-    """Resolve region → (region_name, normalized customer codes).
+async def _resolve_region_customers(
+    region_id: str | None,
+) -> tuple[str, set[str], dict[str, tuple[str | None, str | None]]]:
+    """Resolve region → (region_name, normalized codes, enrichment map).
 
     Empty *region_id* ⇒ all regions / all customer codes. A non-empty but
     invalid id raises ``ValidationError`` (400) via ``resolve_region_or_400``.
+
+    The enrichment map returns, per normalized code, the ``(route, ship_to_party)``
+    values sourced from the enriched ``CustomerCode`` master. ``ship_to_party`` is
+    ``ship_to_customer`` with a fallback to ``ship_to``. First doc per code wins.
     """
     if region_id:
         region = await resolve_region_or_400(region_id)
@@ -61,8 +67,18 @@ async def _resolve_codes(region_id: str | None) -> tuple[str, set[str]]:
         region_name = "All Regions"
         docs = await CustomerCode.find({}).to_list()
 
-    codes = {nc for d in docs if (nc := normalize_code(d.code))}
-    return region_name, codes
+    codes: set[str] = set()
+    extra: dict[str, tuple[str | None, str | None]] = {}
+    for doc in docs:
+        nc = normalize_code(doc.code)
+        if not nc:
+            continue
+        codes.add(nc)
+        if nc not in extra:
+            ship_to = (doc.ship_to_customer or "").strip() or doc.ship_to or None
+            extra[nc] = (doc.route, ship_to)
+
+    return region_name, codes, extra
 
 
 def _augment_credit(
@@ -114,6 +130,7 @@ def _build_channels(
     has_credit_report: bool,
     credit_map: dict[str, dict[str, Any]],
     price_per_qty: float | None,
+    customer_extra: dict[str, tuple[str | None, str | None]],
 ) -> list[ReportChannel]:
     """Group aggregation rows into ordered channels with parties + subtotals."""
     grouped: dict[str, list[ReportParty]] = {}
@@ -128,10 +145,13 @@ def _build_channels(
         credit = _augment_credit(
             total, nco_yes_do, party_key, has_credit_report, credit_map, price_per_qty
         )
+        route, ship_to_party = customer_extra.get(party_key, (None, None))
         grouped.setdefault(channel, []).append(
             ReportParty(
                 party_code=party_key,
                 sold_to_party=row.get("sold_to_party"),
+                ship_to_party=ship_to_party,
+                route=route,
                 route_desc=row.get("route_desc"),
                 total=total,
                 nco_yes_do=nco_yes_do,
@@ -160,7 +180,9 @@ async def generate_report(query: ReportQuery) -> ReportResponse:
     """Build the full Report JSW/JVML payload for *query*."""
     stock_model, cca = _REPORT_MAP[query.report_type]
 
-    region_name, normalized_codes = await _resolve_codes(query.region_id)
+    region_name, normalized_codes, customer_extra = await _resolve_region_customers(
+        query.region_id
+    )
     price_per_qty = await coil_price_per_qty()
 
     has_stock = await stock_model.find({"report_date": query.date}).count() > 0
@@ -172,7 +194,7 @@ async def generate_report(query: ReportQuery) -> ReportResponse:
             stock_model, query.date, list(normalized_codes), query.days
         )
         channels = _build_channels(
-            rows, has_credit_report, credit_map, price_per_qty
+            rows, has_credit_report, credit_map, price_per_qty, customer_extra
         )
 
     grand_req = [

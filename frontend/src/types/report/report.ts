@@ -15,6 +15,8 @@ export type CreditStatus = "" | "No Credit balance" | "NO CREDIT REPORT FOUND"
 export interface ReportParty {
   party_code: string                 // normalized display code
   sold_to_party: string | null
+  ship_to_party: string | null       // from CustomerCode.ship_to_customer (+ ship_to fallback)
+  route: string | null               // from CustomerCode.route
   route_desc: string | null
   total: number                      // Σ stock_quantity
   nco_yes_do: number                 // Σ stock_quantity where NCO Declared == "Yes"

@@ -1,7 +1,8 @@
 /**
  * ReportPartyRow — one party row in the Report JSW/JVML pivot.
- * Cols: Party Code · Sold To Party · Route Desc · Total · NCO Yes+DO · Blocked ·
- *   Credit Balance · Required ₹ · Credit Note. All values come from the backend.
+ * Cols: Party Code · Sold To Party · Ship-To Party · Route · Route Desc · Total ·
+ *   NCO Yes+DO · Blocked · Credit Balance · Required ₹ · Credit Note. All values
+ *   come from the backend.
  */
 
 import { TableCell, TableRow } from "@/components/ui/table"
@@ -53,6 +54,18 @@ export function ReportPartyRow({ party }: { party: ReportParty }) {
       <TableCell className="max-w-[220px]">
         <span className="block truncate text-sm" title={party.sold_to_party ?? undefined}>
           {party.sold_to_party ?? "—"}
+        </span>
+      </TableCell>
+
+      <TableCell className="max-w-[220px]">
+        <span className="block truncate text-sm" title={party.ship_to_party ?? undefined}>
+          {party.ship_to_party ?? "—"}
+        </span>
+      </TableCell>
+
+      <TableCell className="max-w-[120px]">
+        <span className="block truncate text-sm text-muted-foreground" title={party.route ?? undefined}>
+          {party.route ?? "—"}
         </span>
       </TableCell>
 

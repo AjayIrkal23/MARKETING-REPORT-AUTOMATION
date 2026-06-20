@@ -77,6 +77,9 @@ async def aggregate_pivot(
             {"_id": {"distr_chnl": str|None, "party": str},
              "total": float, "nco_yes_do": float, "nco_yes_do_count": int,
              "sold_to_party": str|None, "route_desc": str|None}
+
+    ``route`` and ``ship_to_party`` are added downstream by
+    ``services.report.generate`` from the ``CustomerCode`` master lookup.
     """
     match: dict[str, Any] = {
         "report_date": date,

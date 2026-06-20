@@ -19,6 +19,7 @@ from ..controllers import credit_report_config as cfg_ctrl
 from ..core.auth_deps import get_current_admin, get_current_user
 from ..core.responses import SuccessEnvelope
 from ..schemas.admin_user import AsyncOption
+from ..schemas.cleanup import CleanupDuplicatesResponse
 from ..schemas.credit_report_config import (
     CreditReportConfigPublic,
     CreditReportStatusPublic,
@@ -92,4 +93,12 @@ config_router.add_api_route(
     methods=["POST"],
     response_model=SuccessEnvelope[CreditReportStatusPublic],
     summary="Trigger credit report poll immediately",
+)
+
+config_router.add_api_route(
+    "/cleanup-duplicates",
+    cfg_ctrl.cleanup_duplicates_controller,
+    methods=["POST"],
+    response_model=SuccessEnvelope[CleanupDuplicatesResponse],
+    summary="Delete older duplicate credit report rows for a report date",
 )

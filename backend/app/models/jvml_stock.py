@@ -191,6 +191,12 @@ class JvmlStock(Document):
     """Route Desc (col 72). text."""
 
     # ------------------------------------------------------------------
+    # Internal duplicate-detection hash
+    # ------------------------------------------------------------------
+    row_hash:       Annotated[str | None, Indexed()] = None
+    """Deterministic hash of the source row — used for same-date deduplication."""
+
+    # ------------------------------------------------------------------
     # Meta / mapping fields (7 total)
     # ------------------------------------------------------------------
     party_code_normalized: Annotated[str | None, Indexed()] = None

@@ -20,6 +20,7 @@ from typing import Any
 
 from ...models.jvml_stock import JvmlStock
 from ...services.audit.events import audit_jvml_stock_event
+from ...services.shared.ingest_cleanup import _row_hash, cleanup_duplicates
 from ...utils.jvml_stock.columns import COLUMNS, coerce_value  # noqa: F401
 from ...utils.jvml_stock.excel import parse_workbook
 from ...utils.jvml_stock.filters import should_keep_row
@@ -128,6 +129,7 @@ async def ingest_file(path: str, report_date: str) -> int:
                 customer_code_id=customer_code_id,
                 report_date=report_date,
                 source_file=path,
+                row_hash=_row_hash(coerced),
                 created_at=now,
                 updated_at=now,
             )
@@ -140,7 +142,10 @@ async def ingest_file(path: str, report_date: str) -> int:
         await JvmlStock.insert_many(chunk)
         inserted += len(chunk)
 
-    # ── 6. Audit ──────────────────────────────────────────────────────────────
+    # ── 6. Defensive same-date duplicate cleanup ──────────────────────────────
+    await cleanup_duplicates(JvmlStock, report_date)
+
+    # ── 7. Audit ──────────────────────────────────────────────────────────────
     await audit_jvml_stock_event(
         "jvml_stock.ingested",
         summary=f"Ingested {inserted} rows for {report_date} from {path}",
@@ -152,5 +157,5 @@ async def ingest_file(path: str, report_date: str) -> int:
         },
     )
 
-    # ── 7. Return count ───────────────────────────────────────────────────────
+    # ── 8. Return count ───────────────────────────────────────────────────────
     return inserted

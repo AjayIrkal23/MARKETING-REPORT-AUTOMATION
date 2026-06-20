@@ -21,6 +21,8 @@ import type { ReportResponse } from "@/types/report/report"
 const COLUMNS: { label: string; className: string }[] = [
   { label: "Party Code",     className: "min-w-[90px]" },
   { label: "Sold To Party",  className: "min-w-[160px]" },
+  { label: "Ship-To Party",  className: "min-w-[160px]" },
+  { label: "Route",          className: "min-w-[100px]" },
   { label: "Route Desc",     className: "min-w-[140px]" },
   { label: "Total",          className: "text-right min-w-[90px]" },
   { label: "Yes+DO",         className: "text-center min-w-[100px]" },

@@ -19,6 +19,7 @@ from ..controllers import jvml_stock_config as cfg_ctrl
 from ..core.auth_deps import get_current_admin, get_current_user
 from ..core.responses import SuccessEnvelope
 from ..schemas.admin_user import AsyncOption
+from ..schemas.cleanup import CleanupDuplicatesResponse
 from ..schemas.jvml_stock_config import (
     JvmlStockConfigPublic,
     JvmlStockStatusPublic,
@@ -92,4 +93,12 @@ config_router.add_api_route(
     methods=["POST"],
     response_model=SuccessEnvelope[JvmlStockStatusPublic],
     summary="Trigger JVML stock poll immediately",
+)
+
+config_router.add_api_route(
+    "/cleanup-duplicates",
+    cfg_ctrl.cleanup_duplicates_controller,
+    methods=["POST"],
+    response_model=SuccessEnvelope[CleanupDuplicatesResponse],
+    summary="Delete older duplicate JVML stock rows for a report date",
 )

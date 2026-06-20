@@ -19,6 +19,7 @@ from ..controllers import jsw_stock_config as cfg_ctrl
 from ..core.auth_deps import get_current_admin, get_current_user
 from ..core.responses import SuccessEnvelope
 from ..schemas.admin_user import AsyncOption
+from ..schemas.cleanup import CleanupDuplicatesResponse
 from ..schemas.jsw_stock_config import JswStockConfigPublic, JswStockStatusPublic
 from ..schemas.jsw_stock_record import JswStockPublic
 
@@ -95,4 +96,13 @@ config_router.add_api_route(
     methods=["POST"],
     response_model=SuccessEnvelope[JswStockStatusPublic],
     summary="Trigger an immediate JSW stock poll",
+)
+
+# POST /cleanup-duplicates — remove older duplicate rows for a report date
+config_router.add_api_route(
+    "/cleanup-duplicates",
+    cfg_ctrl.cleanup_duplicates_controller,
+    methods=["POST"],
+    response_model=SuccessEnvelope[CleanupDuplicatesResponse],
+    summary="Delete older duplicate JSW stock rows for a report date",
 )
