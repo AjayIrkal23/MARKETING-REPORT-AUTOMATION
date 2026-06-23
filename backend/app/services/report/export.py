@@ -45,7 +45,7 @@ def _fmt_bool(value: bool | None) -> str:
     return "Yes" if value else "No"
 
 
-def _fmt_num(value: float | None) -> float | "":
+def _fmt_num(value: float | None) -> float | str:
     return "" if value is None else value
 
 
@@ -84,7 +84,7 @@ def _write_report(ws, report: ReportResponse) -> None:
         )
 
     # Grand total row
-    # Headers: fixed (9) + rake_columns (N) + trailing (6). Credit money is intentionally NOT summed.
+    # Headers: fixed (8) + rake_columns (N) + trailing (6). Credit money is intentionally NOT summed.
     total_row = ["Grand Total"] + [""] * (len(_FIXED_HEADERS) - 1)
     total_row += [""] * len(report.rake_columns)
     total_row += [

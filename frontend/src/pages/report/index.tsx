@@ -3,7 +3,7 @@
  *
  * Route: /report (ProtectedRoute, all authenticated users). Thin orchestrator:
  * ReportToolbar (inputs) → states (empty / loading / no-stock / no-credit banner)
- * → ReportTable. All state lives in `useReport`.
+ * → ReportPivotTable. All state lives in `useReport`.
  */
 
 import { FileSpreadsheet, AlertCircle, Info, FileX2, Loader2Icon } from "lucide-react"
