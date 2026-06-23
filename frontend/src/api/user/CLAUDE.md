@@ -1,31 +1,28 @@
 <!-- dox:child v1 -->
-# `frontend/src/api/user/` — local rules (dox)
+# `frontend/src/api/user/` — Current-user API
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+HTTP wrappers for the authenticated user endpoints.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Endpoints for the currently logged-in user that are outside the admin namespace. Currently a minimal placeholder for self-service operations.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Add self-service endpoints here (profile, password change, etc.).
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `list.ts` | `GET /user` — placeholder current-user list/summary. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- This folder is intentionally small; most user operations are under `admin/users/`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../frontend_docs/API_LAYER.md`](../../../../frontend_docs/API_LAYER.md)

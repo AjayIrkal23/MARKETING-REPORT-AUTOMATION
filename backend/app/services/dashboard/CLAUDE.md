@@ -1,31 +1,36 @@
 <!-- dox:child v1 -->
-# `backend/app/services/dashboard/` — local rules (dox)
+# `backend/app/services/dashboard/` — Dashboard summary
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Today's per-report ingestion status for the dashboard landing page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+A single service that builds the dashboard cards for JSW Stock, JVML Stock, and
+Credit Report by reading each domain's ingestion and config collections.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Derive `extracted` / `missing` booleans server-side so the frontend renders
+  state without re-implementing business rules.
+- Use `asyncio.gather` to fetch ingestion + config rows concurrently.
+- Match the poller's local-date convention (`dd-mm-yyyy`).
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Empty package marker. |
+| `summary.py` | `get_dashboard_summary()` — today's status across all three reports. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `_today_local()` uses the server's local clock; it must match the date-folder
+  convention used by the ingestion pollers.
+- Missing ingestion/config documents degrade gracefully (`status="none"`,
+  `enabled=False`).
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/API_CONTRACT.md`](../../../backend_docs/API_CONTRACT.md)

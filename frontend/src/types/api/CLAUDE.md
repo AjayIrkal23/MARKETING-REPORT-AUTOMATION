@@ -1,31 +1,30 @@
 <!-- dox:child v1 -->
-# `frontend/src/types/api/` — local rules (dox)
+# `frontend/src/types/api/` — API envelope types
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Shared API response and pagination contracts.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Defines the standard envelope shape, pagination metadata, and base query interfaces used by all API modules.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- All list endpoints return `PaginatedResult<T>`.
+- `PageQuery` is extended by domain list queries.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `envelope.ts` | `ApiSuccess`, `PaginationMeta`, `PageQuery`, `PaginatedResult`. |
+| `error.ts` | Backend error body contract. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `meta` is optional on `ApiSuccess` but required inside `PaginatedResult`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../frontend_docs/TYPES.md`](../../../../frontend_docs/TYPES.md)

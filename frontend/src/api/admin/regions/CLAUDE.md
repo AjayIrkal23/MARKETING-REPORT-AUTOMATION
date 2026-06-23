@@ -1,31 +1,34 @@
 <!-- dox:child v1 -->
-# `frontend/src/api/admin/regions/` — local rules (dox)
+# `frontend/src/api/admin/regions/` — Region API
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+HTTP wrappers for the `/admin/regions` endpoints.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+CRUD and option search for sales regions. Regions own an email notification list and are referenced by customer codes and stock filters.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Boolean `active` is normalized to `'true'`/`'false'` strings before `buildQuery`.
+- Email lists are edited via the shared `EmailChipInput` component.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `list.ts` | `GET /admin/regions`. |
+| `get.ts` | `GET /admin/regions/{id}`. |
+| `create.ts` | `POST /admin/regions`. |
+| `update.ts` | `PATCH /admin/regions/{id}`. |
+| `remove.ts` | `DELETE /admin/regions/{id}`. |
+| `options.ts` | Per-field async option search. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Deleting a region may break customer-code and stock-filter joins — backend enforces or warns.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../../frontend_docs/API_LAYER.md`](../../../../../frontend_docs/API_LAYER.md)

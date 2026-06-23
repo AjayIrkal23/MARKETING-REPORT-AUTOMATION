@@ -1,31 +1,36 @@
 <!-- dox:child v1 -->
-# `frontend/src/types/admin/` — local rules (dox)
+# `frontend/src/types/admin/` — Admin domain types
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+TypeScript types for admin features.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Contains audit logs, coil prices, customer codes, regions, and user management contracts and UI state types.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Each sub-domain has its own file pair (domain + `-ui`).
+- Sort/filter literals must match backend whitelists exactly.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `user.ts` | Admin user API contracts and query types. |
+| `user-ui.ts` | User management UI state types. |
+| `audit-log.ts` | Audit log API contracts. |
+| `audit-log-ui.ts` | Audit log UI state types. |
+| `region.ts` | Region API contracts. |
+| `customer-code.ts` | Customer code API contracts. |
+| `coil-price.ts` | Coil price API contracts. |
+| `options.ts` | Shared async option type. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `options.ts` is imported by many async comboboxes across domains.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../frontend_docs/TYPES.md`](../../../../frontend_docs/TYPES.md)

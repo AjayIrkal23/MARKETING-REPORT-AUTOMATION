@@ -1,31 +1,33 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/admin/coil-prices/` — local rules (dox)
+# `frontend/src/components/admin/coil-prices/` — Coil config UI
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Components for the admin Coil Config page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+A compact card-based page hosting the per-coil-price section. Each entry is a `{ quantity, price }` pair with an `active` flag.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- No full table-page treatment — the section is intentionally compact.
+- Money display uses INR `toLocaleString('en-IN')` with a `₹` prefix.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `PerCoilPriceSection.tsx` | Card wrapping the coil price list. |
+| `CoilPriceTable.tsx` | Small server-driven table with inline actions. |
+| `CreateCoilPriceDialog.tsx` | Create dialog. |
+| `EditCoilPriceDialog.tsx` | Edit dialog. |
+| `hooks/useCoilPrices.ts` | List fetch and delete mutation. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- The list fetches `limit=100` with no pagination UI — confirm backend size stays small.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`hooks/`](hooks/CLAUDE.md)
+- Related repo docs: [`../../../../../frontend_docs/COMPONENTS.md`](../../../../../frontend_docs/COMPONENTS.md)

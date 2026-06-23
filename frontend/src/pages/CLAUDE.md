@@ -1,31 +1,32 @@
 <!-- dox:child v1 -->
-# `frontend/src/pages/` — local rules (dox)
+# `frontend/src/pages/` — Route pages
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Top-level React components bound to routes.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Each folder corresponds to a route in `src/App.tsx`. Pages are thin orchestrators that wire feature components and hooks; they contain no business logic.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- One `index.tsx` per page folder exporting the page component.
+- Keep pages under 250 lines; move UI into `src/components/<domain>/`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `dashboard/home/index.tsx` | `/home` dashboard page. |
+| `jsw-stock/index.tsx` | `/jsw-stock` JSW Stock List page. |
+| `admin/users/index.tsx` | `/admin/users` User Management page. |
+| `auth/login/index.tsx` | `/login` page. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Route guards (`ProtectedRoute`, `AdminRoute`) are in `src/routes/`, not pages.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`admin/`](admin/CLAUDE.md) · [`auth/`](auth/CLAUDE.md) · [`credit-report/`](credit-report/CLAUDE.md) · [`dashboard/`](dashboard/CLAUDE.md) · [`jsw-stock/`](jsw-stock/CLAUDE.md) · [`jvml-stock/`](jvml-stock/CLAUDE.md) · [`report/`](report/CLAUDE.md)
+- Related repo docs: [`../../../frontend_docs/ROUTING.md`](../../../frontend_docs/ROUTING.md)

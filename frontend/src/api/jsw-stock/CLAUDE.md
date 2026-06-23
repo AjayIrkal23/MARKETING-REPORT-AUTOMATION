@@ -1,31 +1,31 @@
 <!-- dox:child v1 -->
-# `frontend/src/api/jsw-stock/` — local rules (dox)
+# `frontend/src/api/jsw-stock/` — JSW stock API
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+HTTP wrappers for the `/jsw-stock` endpoints.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Read-only browse and export for the daily JSW current-stock report. All filtering, sorting, and pagination is server-driven.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Normalize `date` to `'dd-MM-yyyy'` before sending.
+- Export reuses the same query params as the list endpoint.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `list.ts` | `GET /jsw-stock` — paginated, filtered list. |
+| `options.ts` | `GET /jsw-stock/options?field=...` — async filter options. |
+| `export.ts` | `GET /jsw-stock/export` — binary `.xlsx` download. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Filter keys are snake_case and must match the backend `JswStockListQuery` exactly.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../frontend_docs/API_LAYER.md`](../../../../frontend_docs/API_LAYER.md)

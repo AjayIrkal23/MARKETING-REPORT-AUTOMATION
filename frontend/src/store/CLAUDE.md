@@ -1,31 +1,31 @@
 <!-- dox:child v1 -->
-# `frontend/src/store/` — local rules (dox)
+# `frontend/src/store/` — Redux slices
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Domain-specific Redux slices and selectors.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Each sub-folder is a self-contained slice (state, actions, selectors). Slices are registered in `src/app/store.ts`. UI components should use the typed hooks from `src/app/hooks.ts`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- One slice per domain folder.
+- Keep slices small and focused; async server state stays in feature hooks.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `auth/slice.ts` | Auth state: isAuthenticated, user, loading. |
+| `auth/selectors.ts` | Memoized auth selectors including `selectIsAdmin`. |
+| `auth/session-user.ts` | Adapter from API user to session user. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Auth bootstrapping is handled by `AuthBootstrap.tsx` in `components/auth/`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`auth/`](auth/CLAUDE.md)
+- Related repo docs: [`../../../frontend_docs/STATE_MANAGEMENT.md`](../../../frontend_docs/STATE_MANAGEMENT.md)

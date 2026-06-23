@@ -1,31 +1,35 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/` — local rules (dox)
+# `frontend/src/components/` — React components
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+All React components, grouped by domain.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Components are organized by feature (`admin/`, `auth/`, `jsw-stock/`, etc.) with shared primitives under `ui/` (shadcn), `common/`, `layout/`, `theme/`, and `shared/`. Pages in `src/pages/` import and wire these components.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- One file per concern; split files that exceed 200 lines.
+- No API calls inside components — use dedicated feature hooks.
+- Use shadcn primitives from `ui/`; do not fork Radix directly.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `ui/` | ~55 shadcn/ui primitive components. |
+| `layout/` | DashboardLayout, AppSidebar, navigation items. |
+| `common/` | Shared filter/date components and hooks. |
+| `admin/` | Admin-only management screens. |
+| `jsw-stock/` | JSW Stock List read-only UI. |
+| `report/hooks/useReport.ts` | Report page state hook. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Check `frontend/CLAUDE.md` for the verified `src/` tree before assuming a component exists.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`admin/`](admin/CLAUDE.md) · [`auth/`](auth/CLAUDE.md) · [`common/`](common/CLAUDE.md) · [`credit-report/`](credit-report/CLAUDE.md) · [`dashboard/`](dashboard/CLAUDE.md) · [`jsw-stock/`](jsw-stock/CLAUDE.md) · [`jvml-stock/`](jvml-stock/CLAUDE.md) · [`layout/`](layout/CLAUDE.md) · [`report/`](report/CLAUDE.md) · [`settings/`](settings/CLAUDE.md) · [`shared/`](shared/CLAUDE.md) · [`theme/`](theme/CLAUDE.md) · [`ui/`](ui/CLAUDE.md)
+- Related repo docs: [`../../../frontend_docs/COMPONENTS.md`](../../../frontend_docs/COMPONENTS.md)

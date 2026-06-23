@@ -1,31 +1,30 @@
 <!-- dox:child v1 -->
-# `frontend/src/routes/` — local rules (dox)
+# `frontend/src/routes/` — Route guards
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Authentication and authorization route wrappers.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Houses `ProtectedRoute` (requires login) and `AdminRoute` (requires admin role). Actual page components live in `src/pages/`; this folder only contains guards.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Guards read auth state from the Redux store.
+- Add new route guards here; do not put page UI here.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `ProtectedRoute.tsx` | Redirects unauthenticated users to `/login`. |
+| `AdminRoute.tsx` | Redirects non-admins to `/home`. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Route definitions are in `src/App.tsx`, not here.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../frontend_docs/ROUTING.md`](../../../frontend_docs/ROUTING.md)

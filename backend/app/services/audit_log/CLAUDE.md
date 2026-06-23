@@ -1,31 +1,40 @@
 <!-- dox:child v1 -->
-# `backend/app/services/audit_log/` — local rules (dox)
+# `backend/app/services/audit_log/` — Audit log read services
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Paginated listing, detail lookup, async options, and filter facets for the
+admin audit-log viewer.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Read-only services over the `audit_logs` collection. The controllers gate these
+endpoints with `get_current_admin`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Use `utils/audit_log/query.py` for filter and sort construction.
+- Return `(list[DTO], PaginationMeta)` from list services.
+- Serialization helpers convert `AuditLog` documents to public/detail DTOs.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Aggregates public exports (`list_audit_logs`, `get_audit_log`, options, serializers). |
+| `list.py` | Paginated, filtered, sorted audit-log list. |
+| `get.py` | Single audit-log entry by ObjectId. |
+| `options.py` | Async combobox options and filter facet enums. |
+| `serialize.py` | `AuditLog` → `AuditLogPublic` / `AuditLogDetail` mappers. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `options.py` blends distinct values from `actor_email`, `path`, and `action`;
+  keep the per-source cap balanced so one field does not starve the others.
+- Facet `categories`, `outcomes`, and `sources` are static Literals; `methods`,
+  `statuses`, and `actions` are derived from the collection.
+- Unknown query keys are rejected by the controller whitelist, not here.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/API_CONTRACT.md`](../../../backend_docs/API_CONTRACT.md)

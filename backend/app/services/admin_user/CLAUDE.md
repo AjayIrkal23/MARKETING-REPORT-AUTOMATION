@@ -1,31 +1,45 @@
 <!-- dox:child v1 -->
-# `backend/app/services/admin_user/` — local rules (dox)
+# `backend/app/services/admin_user/` — Admin user management
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+CRUD, lifecycle, and search services for the admin user-management domain.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Each module performs one admin action on the `User` collection. Controllers in
+`app/controllers/admin_user.py` call these functions and wrap the results in the
+standard envelope.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Every public function is transport-free and raises typed `AppError` subclasses.
+- Pass `actor_email=admin.emailid` from the controller for audit threading.
+- Return `AdminUserPublic` DTOs, never raw `User` documents.
+- New users are created in the `invited` state with no password.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Package docstring. |
+| `create.py` | Create an invited user and send an invitation email. |
+| `delete.py` | Delete a user (with self/last-admin guards). |
+| `disable.py` / `enable.py` | Toggle user status. |
+| `get.py` | Fetch a single user by ObjectId. |
+| `list.py` | Backend-driven paginated user list. |
+| `options.py` | Async combobox search over name/email. |
+| `reset_password.py` | Set or clear a user's password. |
+| `update.py` | Partial update of name and/or admin flag. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `create.py` sends the invite email after persistence; email failure is logged
+  but does not roll back the created user.
+- `delete.py` prevents deleting the last admin or deleting yourself.
+- Sort/filter field names must stay in sync with `schemas/admin_user.py` and
+  `utils/admin_user/query.py`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/SERVICES.md`](../../../backend_docs/SERVICES.md)

@@ -1,31 +1,30 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/admin/customer-codes/hooks/` — local rules (dox)
+# `frontend/src/components/admin/customer-codes/hooks/` — Customer code hooks
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Feature hooks for the Customer Code Management page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Contains `useCustomerCodeManagement` (query/server/dialog/bulk-selection) and `useCustomerCodeMutations` (delete and mutation helpers).
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Use a single `setFilter` callback for all per-field filters.
+- Row selection is local to the current page.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `useCustomerCodeManagement.ts` | Query state, fetch, filters, dialogs, row selection. |
+| `useCustomerCodeMutations.ts` | Delete mutation and loading/error handling. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Bulk-delete endpoint accepts up to 100 ids; the hook should cap or chunk larger selections.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../../../frontend_docs/COMPONENTS.md`](../../../../../../frontend_docs/COMPONENTS.md)

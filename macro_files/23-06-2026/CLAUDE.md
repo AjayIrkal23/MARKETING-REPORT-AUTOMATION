@@ -6,26 +6,30 @@
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Date-stamped archive of the raw SAP Excel source reports ingested by the
+marketing report automation pipeline.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Directory name is the ingestion date (`DD-MM-YYYY`).
+- Files mirror the current macro source set in `../macro_files/` at the time of
+archive.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `COIL STK.xlsx` | Coil stock snapshot archive. |
+| `credit report.XLSX` | Credit report snapshot archive. |
+| `JVML Stock (99).xlsx` | JVML stock snapshot archive. |
+| `ZSD_CURRSTK_HR.xlsx` | Current stock / party code snapshot archive. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- These are immutable archives; do not edit them after ingestion.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../macro_docs/README.md`](../../macro_docs/README.md)

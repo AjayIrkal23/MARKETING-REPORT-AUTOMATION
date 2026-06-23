@@ -1,31 +1,36 @@
 <!-- dox:child v1 -->
-# `backend/app/services/user/` — local rules (dox)
+# `backend/app/services/user/` — User services
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Authenticated user listing and idempotent admin seeding.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+User-facing business logic that does not belong in the admin user-management
+domain. The startup admin seed is also here.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- `list.py` returns `(list[UserPublic], PaginationMeta)` using `utils/user/query.py`.
+- `seed.py` is safe to run repeatedly; it is invoked from the app lifespan and
+  from `scripts/seed.py`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Empty package marker. |
+| `list.py` | Backend-driven paginated user list for `GET /users`. |
+| `seed.py` | Idempotent seed-admin creation/backfill. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `seed.py` returns `None` when `SEED_ADMIN_PASSWORD` is unset so no default
+  password is provisioned.
+- Existing seed admin docs created before the `status`/`name` fields are
+  backfilled to `active` / `"Administrator"` / `isAdmin=True`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/SERVICES.md`](../../../backend_docs/SERVICES.md)

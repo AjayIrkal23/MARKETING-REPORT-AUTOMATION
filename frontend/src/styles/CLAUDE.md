@@ -1,31 +1,29 @@
 <!-- dox:child v1 -->
-# `frontend/src/styles/` — local rules (dox)
+# `frontend/src/styles/` — Global styles
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Additional global CSS beyond Tailwind and `src/index.css`.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Currently a landing zone for any project-wide CSS that does not fit in the Tailwind layer or the root `index.css`. Most theming uses shadcn semantic tokens defined in `src/index.css`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Prefer Tailwind utilities and CSS variables over new global CSS files.
+- Name files descriptively and import them in `main.tsx` or `App.tsx`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Empty today; avoid adding large stylesheets here — use Tailwind v4 tokens instead.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../frontend_docs/STYLING.md`](../../../frontend_docs/STYLING.md)

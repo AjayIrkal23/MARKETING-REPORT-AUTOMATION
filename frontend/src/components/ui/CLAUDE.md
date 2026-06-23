@@ -1,31 +1,33 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/ui/` — local rules (dox)
+# `frontend/src/components/ui/` — shadcn/ui primitives
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Radix-based UI primitive components installed via shadcn/ui.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+This folder contains ~55 reusable, unstyled/styled primitives (buttons, dialogs, tables, forms, etc.). Extend from here rather than forking Radix.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Do not add business logic here — these are presentational primitives.
+- Customize via Tailwind classes and CSS variables, not by editing internals.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `button.tsx` | Button primitive with variants. |
+| `dialog.tsx` | Dialog / modal primitive. |
+| `table.tsx` | Table primitive with sticky-header support. |
+| `combobox.tsx` | Combobox primitive. |
+| `select.tsx` | Select primitive. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Updating shadcn components can overwrite local edits — prefer composition over modification.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../frontend_docs/COMPONENTS.md`](../../../../frontend_docs/COMPONENTS.md)

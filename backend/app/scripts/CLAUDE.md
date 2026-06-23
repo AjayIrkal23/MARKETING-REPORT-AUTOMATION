@@ -1,31 +1,40 @@
 <!-- dox:child v1 -->
-# `backend/app/scripts/` — local rules (dox)
+# `backend/app/scripts/` — Standalone CLI scripts
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+One-off utilities and admin commands run directly from the backend virtual env.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Each script is a self-contained module that can be executed with
+`python -m app.scripts.<name>` from `backend/`. Scripts manage their own
+logging and, when needed, their own database lifecycle.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Run from `backend/` with the project venv active.
+- Scripts must not be imported by application code at runtime.
+- Keep scripts idempotent where possible.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Empty package marker. |
+| `seed.py` | Seed the initial admin user. Idempotent. |
+| `send_test_email.py` | Verify SMTP/Mailjet delivery end-to-end. |
+| `backfill_row_hashes.py` | Backfill `row_hash` and clean duplicates for stock/credit collections. |
+| `cleanup_ship_to_2.py` | Remove deprecated `ship_to_2` / `ship_to_customer_2` fields. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `send_test_email.py` surfaces SMTP exceptions (unlike `core.email.send_email`,
+  which swallows them) so you can diagnose credential/sender issues.
+- `cleanup_ship_to_2.py` talks to MongoDB via Motor directly, not Beanie, so it
+  works even if the document shape has changed.
+- `seed.py` skips creation when `SEED_ADMIN_PASSWORD` is unset.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend/README.md`](../../README.md)

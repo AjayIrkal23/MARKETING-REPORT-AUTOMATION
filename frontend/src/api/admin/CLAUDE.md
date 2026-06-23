@@ -1,31 +1,33 @@
 <!-- dox:child v1 -->
-# `frontend/src/api/admin/` — local rules (dox)
+# `frontend/src/api/admin/` — Admin API clients
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+HTTP wrappers for the `/admin/*` endpoints.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Each admin domain (users, audit logs, regions, customer codes, coil prices) has its own sub-folder. All endpoints require an admin session.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Mirror backend route namespaces in folder names.
+- List endpoints return `PaginatedResult<T>` from `getList`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `users/list.ts` | `GET /admin/users`. |
+| `audit-logs/list.ts` | `GET /admin/audit-logs`. |
+| `regions/list.ts` | `GET /admin/regions`. |
+| `customer-codes/list.ts` | `GET /admin/customer-codes`. |
+| `coil-prices/list.ts` | `GET /admin/coil-prices`. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Non-admin requests return 403 from the backend; the frontend relies on `AdminRoute`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`audit-logs/`](audit-logs/CLAUDE.md) · [`coil-prices/`](coil-prices/CLAUDE.md) · [`customer-codes/`](customer-codes/CLAUDE.md) · [`regions/`](regions/CLAUDE.md) · [`users/`](users/CLAUDE.md)
+- Related repo docs: [`../../../../frontend_docs/API_LAYER.md`](../../../../frontend_docs/API_LAYER.md)

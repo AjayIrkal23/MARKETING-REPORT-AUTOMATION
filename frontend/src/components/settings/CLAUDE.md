@@ -1,31 +1,38 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/settings/` — local rules (dox)
+# `frontend/src/components/settings/` — Settings UI
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Components for the admin Settings page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Scheduler config cards for JSW Stock, JVML Stock, and Credit Report ingestion. Each card owns its hook internally.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Cards are rendered via the domain-agnostic `StockConfigPanel`.
+- `config-domains.ts` defines the descriptor for each domain.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `JswStockConfigCard.tsx` | JSW Stock scheduler config card. |
+| `JvmlStockConfigCard.tsx` | JVML Stock scheduler config card. |
+| `CreditReportConfigCard.tsx` | Credit Report scheduler config card. |
+| `StockConfigPanel.tsx` | Domain-agnostic config/status/run-now UI. |
+| `StockLastRun.tsx` | Last-run status display. |
+| `ResolvedPathPreview.tsx` | Preview of the resolved file path. |
+| `config-domains.ts` | Domain descriptors (`JSW_DOMAIN`, etc.). |
+| `hooks/useJswStockConfig.ts` | JSW config/status/run-now state. |
+| `hooks/useJvmlStockConfig.ts` | JVML config/status/run-now state. |
+| `hooks/useCreditReportConfig.ts` | Credit Report config/status/run-now state. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- The page grid is `lg:grid-cols-2` — 2 cards per row.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`hooks/`](hooks/CLAUDE.md)
+- Related repo docs: [`../../../../frontend_docs/COMPONENTS.md`](../../../../frontend_docs/COMPONENTS.md)

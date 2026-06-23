@@ -1,31 +1,30 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/theme/` — local rules (dox)
+# `frontend/src/components/theme/` — Theme components
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Light/dark mode provider and toggle.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Wraps `next-themes` to provide the `ThemeProvider` and exposes a mode toggle button used in the login page and user menu.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Use semantic tokens (`--background`, `--foreground`) instead of hard-coded colors.
+- Theme class is applied at the document root.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `theme-provider.tsx` | Application `ThemeProvider`. |
+| `mode-toggle.tsx` | Light/dark/system toggle button. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Avoid importing `next-themes` directly in pages — go through `theme-provider`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../frontend_docs/STYLING.md`](../../../../frontend_docs/STYLING.md)

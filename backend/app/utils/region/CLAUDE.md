@@ -1,31 +1,32 @@
 <!-- dox:child v1 -->
-# `backend/app/utils/region/` — local rules (dox)
+# `backend/app/utils/region/` — Region query helpers
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+MongoDB filter and sort construction for the region list.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Pure functions that translate validated `RegionListQuery` DTOs into filter
+documents and sort tokens.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Escape free-text input with `re.escape`.
+- `q` searches both `name` and the `emails` array via `$or`.
+- Add `active` as an exact `bool` predicate only when supplied.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Package docstring. |
+| `query.py` | `build_region_filter()` and `build_sort()`. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- A `$regex` against an array field matches any element; no `$elemMatch` is needed.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/API_CONTRACT.md`](../../../backend_docs/API_CONTRACT.md)

@@ -1,31 +1,38 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/admin/users/` — local rules (dox)
+# `frontend/src/components/admin/users/` — User management UI
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Components for the admin User Management page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Server-driven table, toolbar, pagination, and dialogs for managing marketing report user accounts. State lives in `hooks/useUserManagement.ts`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Dialog state is a discriminated union covering create/view/edit/password/confirm.
+- Current user cannot disable/delete themselves.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `UserTable.tsx` | Sortable server-driven table. |
+| `UserTableToolbar.tsx` | Search + status/role filters + create button. |
+| `UserTablePagination.tsx` | Page/limit controls. |
+| `CreateUserDialog.tsx` | Create user dialog. |
+| `EditUserDialog.tsx` | Edit user dialog. |
+| `ViewUserSheet.tsx` | Read-only user detail sheet. |
+| `ChangePasswordDialog.tsx` | Reset/set password dialog. |
+| `ConfirmActionDialog.tsx` | Enable/disable/delete confirmation. |
+| `UserStatusBadge.tsx` | Invited/active/disabled badge. |
+| `hooks/useUserManagement.ts` | All page state + mutations. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Page maps toolbar `onQueryChange` to granular hook setters.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`hooks/`](hooks/CLAUDE.md)
+- Related repo docs: [`../../../../../frontend_docs/COMPONENTS.md`](../../../../../frontend_docs/COMPONENTS.md)

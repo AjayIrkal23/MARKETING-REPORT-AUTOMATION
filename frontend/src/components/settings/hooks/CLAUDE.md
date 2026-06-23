@@ -1,31 +1,31 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/settings/hooks/` — local rules (dox)
+# `frontend/src/components/settings/hooks/` — Settings hooks
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Feature hooks for the admin Settings page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Contains one hook per ingestible domain (`useJswStockConfig`, `useJvmlStockConfig`, `useCreditReportConfig`). Each loads config + status, saves config, and triggers run-now.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Each hook is self-contained and consumed by a single card.
+- Save triggers a status refresh to reflect scheduler changes.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `useJswStockConfig.ts` | JSW Stock config/status/run-now. |
+| `useJvmlStockConfig.ts` | JVML Stock config/status/run-now. |
+| `useCreditReportConfig.ts` | Credit Report config/status/run-now. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Keep the three hooks structurally identical so the shared panel can treat them uniformly.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../../frontend_docs/COMPONENTS.md`](../../../../../frontend_docs/COMPONENTS.md)

@@ -1,31 +1,29 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/common/hooks/` — local rules (dox)
+# `frontend/src/components/common/hooks/` — Shared component hooks
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Domain-agnostic hooks for shared components.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Contains `useAsyncOptions`, the debounced, race-safe hook backing async comboboxes across the app.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- The fetcher is injected; this hook is purely about request lifecycle.
+- Stale responses are discarded via `AbortController`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `useAsyncOptions.ts` | Debounced option fetch with race safety. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Default debounce is 300 ms; pass a different value only after UX review.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../../frontend_docs/COMPONENTS.md`](../../../../../frontend_docs/COMPONENTS.md)

@@ -1,31 +1,51 @@
 <!-- dox:child v1 -->
-# `backend/tests/` — local rules (dox)
+# `backend/tests/` — Backend test suite
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+pytest-based tests for the FastAPI backend.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+A mix of pure-function unit tests (no DB) and TestClient-based tests. Some tests
+use fake stand-in objects; others rely on a running MongoDB instance and the
+project `.env`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Run from `backend/` with the venv active: `pytest` (uses `pytest.ini`).
+- Pure-function tests live next to integration-style tests; no separate folder.
+- Tests that need the app lifespan/MongoDB must be run with a real DB; DB-free
+  tests explicitly avoid `TestClient` context managers or Mongo calls.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `test_meta_api.py` | Meta endpoints, envelope shape, security headers, auth gating. |
+| `test_security.py` | bcrypt hashing/verification. |
+| `test_otp.py` | OTP generation, hashing, and verification. |
+| `test_ratelimit.py` | Sliding-window login rate limiter. |
+| `test_user_query.py` | User list filter/sort helpers and schema validation. |
+| `test_admin_user_query.py` | Admin user filter/sort helpers. |
+| `test_admin_auth_gating.py` | Admin-only route authorization. |
+| `test_credit_report_coerce.py` | Credit-report date coercion edge cases. |
+| `test_credit_report_export.py` | Credit-report export behavior. |
+| `test_credit_report_filters.py` | Credit-report list filters. |
+| `test_customer_code_template.py` | Customer-code import template. |
+| `test_ingest_cleanup.py` | Duplicate-row cleanup helper. |
+| `test_jsw_stock_export.py` / `test_jvml_stock_export.py` | Stock export behavior. |
+| `test_stock_filters.py` | JSW/JVML ingestion row gates. |
+| `test_report_aging.py` / `test_report_enrichment.py` / `test_report_export.py` | RAKE report logic. |
+| `test_setup_schemas.py` | Setup/schema validation. |
+| `test_shared_export_style.py` | Shared export conventions. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- MongoDB-dependent tests require a local MongoDB and a valid `.env`.
+- `TestClient` tests that skip the lifespan do not initialize Beanie; use them
+  only for endpoints that fail before DB access.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/README.md`](../../backend_docs/README.md)

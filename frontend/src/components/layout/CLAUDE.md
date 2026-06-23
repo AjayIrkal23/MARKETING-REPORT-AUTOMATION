@@ -1,31 +1,33 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/layout/` — local rules (dox)
+# `frontend/src/components/layout/` — Layout components
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Shell components for authenticated pages.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Dashboard layout, sidebar, navbar, and user menu. These wrap all protected routes inside `DashboardLayout`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Layout components read auth state for the user menu.
+- Navigation items are defined in `nav-items.ts` and split into user + admin groups.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `DashboardLayout.tsx` | Authenticated page shell with sidebar inset. |
+| `AppSidebar.tsx` | Collapsible navigation sidebar. |
+| `DashboardNavbar.tsx` | Top navbar with page title and user menu. |
+| `UserMenu.tsx` | Logout and theme toggle dropdown. |
+| `nav-items.ts` | `NAV_ITEMS`, `ADMIN_NAV_ITEMS`, and `titleForPath`. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- The `min-w-0` on `SidebarInset` and `<main>` prevents horizontal overflow in wide tables.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../frontend_docs/COMPONENTS.md`](../../../../frontend_docs/COMPONENTS.md)

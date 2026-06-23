@@ -1,31 +1,31 @@
 <!-- dox:child v1 -->
-# `backend/app/services/meta/` — local rules (dox)
+# `backend/app/services/meta/` — Meta-domain services
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Banner, health, and ping data for the service meta endpoints.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Pure, stateless helpers used by `controllers/meta.py`. No database access.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Keep functions side-effect free and fast.
+- Uptime is computed from `time.monotonic()`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Empty package marker. |
+| `ping.py` | `get_root()`, `get_health()`, `next_ping()` and in-process ping counter. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- The ping counter is in-process only and resets on server restart.
+- `__version__` is imported from `app`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend/CLAUDE.md`](../../../CLAUDE.md)

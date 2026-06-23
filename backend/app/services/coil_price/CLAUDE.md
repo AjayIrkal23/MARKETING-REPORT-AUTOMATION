@@ -1,31 +1,40 @@
 <!-- dox:child v1 -->
-# `backend/app/services/coil_price/` — local rules (dox)
+# `backend/app/services/coil_price/` — Coil price management
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+CRUD and listing services for per-quantity coil prices.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Business logic for the `coil_prices` collection. Admin controllers gate these
+operations with `get_current_admin`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- One action per file (`create.py`, `update.py`, `delete.py`, `get.py`, `list.py`).
+- Enforce `quantity` uniqueness at the service layer.
+- Return `CoilPricePublic` DTOs via `serialize.py`.
+- Emit `coil_config` audit events on mutations.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Empty package marker. |
+| `create.py` | Insert a new coil price. |
+| `delete.py` | Hard-delete a coil price. |
+| `get.py` | Fetch a single coil price. |
+| `list.py` | Backend-driven paginated list. |
+| `serialize.py` | Document → `CoilPricePublic` mapper. |
+| `update.py` | Partial update of a coil price. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `quantity` uniqueness is checked with an exact-match query rather than a
+  MongoDB unique index.
+- List filtering/sorting delegates to `utils/coil_price/query.py`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/SERVICES.md`](../../../backend_docs/SERVICES.md)

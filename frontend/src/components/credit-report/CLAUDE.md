@@ -1,31 +1,35 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/credit-report/` — local rules (dox)
+# `frontend/src/components/credit-report/` — Credit report UI
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Components for the Credit Report page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Read-only server-driven table, toolbar, pagination, and detail dialog for the SAP Credit Management report. State lives in `hooks/useCreditReportList.ts`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- No mutations — credit report is read-only.
+- Money cells use INR formatting and sign coloring (red negative, green positive).
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `CreditReportTable.tsx` | Sortable server-driven table. |
+| `CreditReportTableToolbar.tsx` | Date picker + filters. |
+| `CreditReportFilters.tsx` | Inline async filters + blocked/balance selects. |
+| `CreditReportTablePagination.tsx` | Page/limit controls. |
+| `ViewCreditReportDialog.tsx` | Read-only detail dialog. |
+| `credit-report-fields.ts` | Config-driven field registry. |
+| `hooks/useCreditReportList.ts` | All Credit Report page state. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Filter surface: single date + 4 async selects + blocked + credit balance.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`hooks/`](hooks/CLAUDE.md)
+- Related repo docs: [`../../../../frontend_docs/COMPONENTS.md`](../../../../frontend_docs/COMPONENTS.md)

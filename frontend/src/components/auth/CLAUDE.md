@@ -1,31 +1,30 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/auth/` — local rules (dox)
+# `frontend/src/components/auth/` — Auth components
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Auth-related components and hooks.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Contains `AuthBootstrap` (session restoration on app mount) and `useLogout`. Login-specific components live in the `login/` sub-folder.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- AuthBootstrap runs `GET /auth/me` once on mount and clears stale sessions.
+- Logout clears the client session regardless of API outcome.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `AuthBootstrap.tsx` | Validates stored session on app mount. |
+| `hooks/useLogout.ts` | Logout handler with navigation. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Do not add login form UI here — use `login/`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`hooks/`](hooks/CLAUDE.md) · [`login/`](login/CLAUDE.md)
+- Related repo docs: [`../../../../frontend_docs/COMPONENTS.md`](../../../../frontend_docs/COMPONENTS.md)

@@ -1,31 +1,29 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/jvml-stock/hooks/` — local rules (dox)
+# `frontend/src/components/jvml-stock/hooks/` — JVML stock hooks
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Feature hooks for the JVML Stock List page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Contains `useJvmlStockList`, mirroring `useJswStockList` for the JVML domain.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Use `setDate` for the single report-date filter.
+- `setFilter` handles the 4 field filters + region in one call.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `useJvmlStockList.ts` | All JVML Stock list state + export. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Any change to the JSW list hook should be evaluated for JVML parity.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../../frontend_docs/COMPONENTS.md`](../../../../../frontend_docs/COMPONENTS.md)

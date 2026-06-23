@@ -1,31 +1,35 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/admin/audit-logs/` — local rules (dox)
+# `frontend/src/components/admin/audit-logs/` — Audit logs UI
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Components for the admin Audit Logs page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Server-driven table, toolbar, pagination, and detail sheet for browsing system-wide audit events. State lives in `hooks/useAuditLogs.ts`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Components are presentational; all state comes from `useAuditLogs`.
+- Badges (`AuditCategoryBadge`, `AuditOutcomeBadge`) use fixed color maps.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `AuditLogTable.tsx` | Sortable server-driven table. |
+| `AuditLogToolbar.tsx` | Search + category/outcome/method/date filters. |
+| `AuditLogPagination.tsx` | Page/limit controls. |
+| `ViewAuditLogSheet.tsx` | Read-only detail panel. |
+| `AuditCategoryBadge.tsx` | Color-coded audit category badge. |
+| `AuditOutcomeBadge.tsx` | Success/failure outcome badge. |
+| `hooks/useAuditLogs.ts` | Query state, fetch effect, facets, view sheet. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Facets are loaded once on mount; failures fall back to static filter enums.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`hooks/`](hooks/CLAUDE.md)
+- Related repo docs: [`../../../../../frontend_docs/COMPONENTS.md`](../../../../../frontend_docs/COMPONENTS.md)

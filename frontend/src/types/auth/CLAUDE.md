@@ -1,31 +1,31 @@
 <!-- dox:child v1 -->
-# `frontend/src/types/auth/` — local rules (dox)
+# `frontend/src/types/auth/` — Auth domain types
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+TypeScript types for authentication.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Contains wire types for login/OTP, session state, and login form UI types.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Wire types (`auth.ts`, `otp.ts`) are distinct from the Redux session model (`session.ts`).
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `auth.ts` | Login credentials and `AuthUser` wire types. |
+| `session.ts` | Redux auth state and `SessionUser`. |
+| `otp.ts` | OTP request/confirm wire types. |
+| `login-ui.ts` | Login/OtpSetup component prop and hook result types. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Field name is `emailid` to match the backend schema.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../frontend_docs/TYPES.md`](../../../../frontend_docs/TYPES.md)

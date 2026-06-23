@@ -1,31 +1,31 @@
 <!-- dox:child v1 -->
-# `backend/app/utils/coil_price/` — local rules (dox)
+# `backend/app/utils/coil_price/` — Coil price query helpers
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+MongoDB filter and sort construction for the coil price list.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Pure functions that translate validated `CoilPriceListQuery` DTOs into filter
+documents and sort tokens.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Add `active` as an exact `bool` predicate only when the caller supplied it.
+- `build_sort` assumes `sort_by` is whitelisted by the schema.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Empty package marker. |
+| `query.py` | `build_coil_price_filter()` and `build_sort()`. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- No free-text search; the only filter is `active`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/API_CONTRACT.md`](../../../backend_docs/API_CONTRACT.md)

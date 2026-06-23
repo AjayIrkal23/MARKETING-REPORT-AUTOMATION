@@ -1,31 +1,41 @@
 <!-- dox:child v1 -->
-# `backend/app/services/region/` — local rules (dox)
+# `backend/app/services/region/` — Region management
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+CRUD and listing services for notification/distribution regions.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Business logic for the `regions` collection. Admin controllers gate these
+operations with `get_current_admin`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- One action per file (`create.py`, `update.py`, `delete.py`, `get.py`, `list.py`,
+  `options.py`).
+- Enforce case-insensitive name uniqueness at the service layer.
+- Return `RegionPublic` DTOs via `serialize.py`.
+- Emit `regions` audit events on mutations.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Empty package marker. |
+| `create.py` | Insert a region with name-uniqueness check. |
+| `delete.py` | Hard-delete a region. |
+| `get.py` | Fetch a single region. |
+| `list.py` | Backend-driven paginated list. |
+| `options.py` | Async combobox search over region names. |
+| `serialize.py` | Document → `RegionPublic` mapper. |
+| `update.py` | Partial update of a region. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Name uniqueness uses a case-insensitive anchored regex, not a unique index.
+- List filtering/sorting delegates to `utils/region/query.py`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/SERVICES.md`](../../../backend_docs/SERVICES.md)

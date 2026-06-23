@@ -1,31 +1,39 @@
 <!-- dox:child v1 -->
-# `frontend/src/api/admin/customer-codes/` — local rules (dox)
+# `frontend/src/api/admin/customer-codes/` — Customer code API
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+HTTP wrappers for the `/admin/customer-codes` endpoints.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+List, CRUD, import, export, and bulk-delete for the West-Central customer master mapping. The natural key is `code + ship_to + region_id`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Import uses a multipart `POST` with an Excel file.
+- Export uses raw `fetch` to download a binary `.xlsx`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `list.ts` | `GET /admin/customer-codes`. |
+| `get.ts` | `GET /admin/customer-codes/{id}`. |
+| `create.ts` | `POST /admin/customer-codes`. |
+| `update.ts` | `PATCH /admin/customer-codes/{id}`. |
+| `remove.ts` | `DELETE /admin/customer-codes/{id}`. |
+| `bulk-delete.ts` | `POST /admin/customer-codes/bulk-delete`. |
+| `import.ts` | `POST /admin/customer-codes/import` — multipart Excel upload. |
+| `export.ts` | `GET /admin/customer-codes/export` — binary download. |
+| `template.ts` | `GET /admin/customer-codes/template` — blank import template. |
+| `options.ts` | Per-field async option search. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Bulk-delete accepts up to 100 ids and returns the count actually deleted.
+- Import summary now reports `updated` rows for re-imports matching the natural key.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../../frontend_docs/API_LAYER.md`](../../../../../frontend_docs/API_LAYER.md)

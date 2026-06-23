@@ -1,31 +1,32 @@
 <!-- dox:child v1 -->
-# `frontend/src/store/auth/` — local rules (dox)
+# `frontend/src/store/auth/` — Auth Redux slice
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Session state, actions, and selectors for authentication.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Manages the client-side auth session: optimistic load from `localStorage`, login success, logout, and bootstrap completion. The actual session lives in an httpOnly cookie; this slice tracks the client projection.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Mutate state only through slice actions.
+- Use `selectIsAuthenticated` / `selectIsAdmin` from `selectors.ts` in components.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `slice.ts` | Auth reducer with `loginSuccess`, `logout`, `finishBootstrap`. |
+| `selectors.ts` | Auth selectors (`selectSessionUser`, `selectIsAdmin`, etc.). |
+| `session-user.ts` | Maps `AuthUser` to `SessionUser`. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- The legacy `app.auth.token` localStorage key is removed on load.
+- `AuthBootstrap` verifies the stored user with `GET /auth/me`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../frontend_docs/STATE_MANAGEMENT.md`](../../../../frontend_docs/STATE_MANAGEMENT.md)

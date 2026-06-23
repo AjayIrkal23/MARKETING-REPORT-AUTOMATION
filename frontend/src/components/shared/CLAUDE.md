@@ -1,11 +1,15 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/shared/` — local rules (dox)
+# `frontend/src/components/shared/` — App-wide shared components
 
-> Local doc for this directory only. Read after the parent `CLAUDE.md`.
+Reusable components not tied to a single feature.
 
 ## What lives here
 
-Reusable, app-level shared components that are not tied to a single feature.
+Small, app-level UI pieces used by multiple features. Larger domain-agnostic inputs live in `components/common/` instead.
+
+## Local conventions
+
+- Keep this folder small; prefer colocating components with their feature.
 
 ## Key files
 
@@ -13,7 +17,12 @@ Reusable, app-level shared components that are not tied to a single feature.
 |------|------|
 | `PageLoading.tsx` | Full-viewport centered loading spinner with optional message. |
 
+## Gotchas / fragile spots
+
+- Do not add feature-specific logic here.
+
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
 - Children: none
+- Related repo docs: [`../../../../frontend_docs/COMPONENTS.md`](../../../../frontend_docs/COMPONENTS.md)

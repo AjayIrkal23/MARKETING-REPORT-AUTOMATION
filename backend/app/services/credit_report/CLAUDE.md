@@ -22,7 +22,7 @@ Credit Report ingestion, listing, options, config and status services.
 |------|------|
 | `ingest.py` | Parse `credit report.XLSX`, filter to JV0H/VJ0H, bulk insert, dedupe |
 | `poller.py` | Scheduled daily poll + missing-file alert |
-| `list.py` / `options.py` / `query.py` | Server-driven list + filter options |
+| `list.py` / `options.py` / `serialize.py` | Server-driven list, filter options, and response serialization |
 | `config_service.py` / `status.py` | Admin config singleton + ingestion status |
 
 ## Gotchas / fragile spots

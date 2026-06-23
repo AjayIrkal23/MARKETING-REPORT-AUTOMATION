@@ -1,31 +1,29 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/report/hooks/` — local rules (dox)
+# `frontend/src/components/report/hooks/` — Report hooks
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Feature hooks for the Report JSW/JVML page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Contains `useReport`, which owns all page state: inputs, generation trigger, export, and optional column visibility.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Generation is manual — do not auto-fetch on input change.
+- Column visibility is the only client-side view config.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `useReport.ts` | All Report page state + generate/export. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- The pivot relies on backend sort order for client-side grouping.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../../frontend_docs/COMPONENTS.md`](../../../../../frontend_docs/COMPONENTS.md)

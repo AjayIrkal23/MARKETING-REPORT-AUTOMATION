@@ -1,31 +1,30 @@
 <!-- dox:child v1 -->
-# `frontend/src/app/` — local rules (dox)
+# `frontend/src/app/` — Redux store wiring
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Redux store configuration and typed hooks.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Contains the Redux store root and the strongly typed `useAppDispatch` / `useAppSelector` wrappers. Redux slices live under `src/store/`; this folder only wires them together.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Always import typed hooks from here — never raw `useDispatch` / `useSelector`.
+- Register new slices in `store.ts`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `store.ts` | Root Redux store with reducer map. |
+| `hooks.ts` | Typed `useAppDispatch` and `useAppSelector`. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Slices are not defined here; keep domain slices in `src/store/<domain>/`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../frontend_docs/STATE_MANAGEMENT.md`](../../../frontend_docs/STATE_MANAGEMENT.md)

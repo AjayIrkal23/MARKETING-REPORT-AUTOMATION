@@ -1,31 +1,41 @@
 <!-- dox:child v1 -->
-# `backend/app/services/auth/` — local rules (dox)
+# `backend/app/services/auth/` — Authentication services
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Login, account-status checks, and OTP-based first-login setup.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Credential verification and account-activation logic. Session cookie handling
+lives in `controllers/auth.py`; these services are transport-free.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Return generic errors for unknown email / bad password to prevent user
+  enumeration.
+- Branch on `User.status`: `invited` → `PasswordSetupRequiredError`,
+  `disabled` → `AccountDisabledError`, `active` → verify bcrypt hash.
+- OTPs are generated with `secrets`, stored as bcrypt hashes, and never returned
+  in API responses.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Empty package marker. |
+| `login.py` | Verify credentials, stamp `lastlogined`, return `AuthUser`. |
+| `account_status.py` | Check whether an email needs first-login activation. |
+| `otp_request.py` | Generate and email a setup OTP (throttled). |
+| `setup_confirm.py` | Verify OTP, hash password, activate account. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `otp_request.py` returns a generic message even when the email does not exist.
+- `setup_confirm.py` uses a single generic error for every failure path to avoid
+  leaking whether an email exists or an OTP is expired.
+- OTP attempts are capped; exhausting them invalidates the stored hash.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/SECURITY.md`](../../../backend_docs/SECURITY.md)

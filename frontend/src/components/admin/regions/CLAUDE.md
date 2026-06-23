@@ -1,31 +1,38 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/admin/regions/` — local rules (dox)
+# `frontend/src/components/admin/regions/` — Region management UI
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Components for the admin Region Management page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Server-driven table, toolbar, dialogs, and detail sheet for sales regions. State lives in `hooks/useRegionManagement.ts` and mutations in `hooks/useRegionMutations.ts`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Regions own a notification email list edited via `EmailChipInput`.
+- Dialog state is a discriminated union.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `RegionTable.tsx` | Sortable server-driven table. |
+| `RegionTableToolbar.tsx` | Search + active filter + create button. |
+| `RegionTablePagination.tsx` | Page/limit controls. |
+| `CreateRegionDialog.tsx` | Create dialog. |
+| `EditRegionDialog.tsx` | Edit dialog. |
+| `ViewRegionSheet.tsx` | Read-only detail sheet. |
+| `EmailChipInput.tsx` | Shared chip input for email lists. |
+| `RegionActiveBadge.tsx` | Active/inactive badge. |
+| `hooks/useRegionManagement.ts` | List query state and dialog state. |
+| `hooks/useRegionMutations.ts` | CRUD mutations. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `EmailChipInput` is reused by the Settings config cards — keep it region-agnostic.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`hooks/`](hooks/CLAUDE.md)
+- Related repo docs: [`../../../../../frontend_docs/COMPONENTS.md`](../../../../../frontend_docs/COMPONENTS.md)

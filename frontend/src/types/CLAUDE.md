@@ -1,31 +1,33 @@
 <!-- dox:child v1 -->
-# `frontend/src/types/` — local rules (dox)
+# `frontend/src/types/` — TypeScript types
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Domain TypeScript types and API contracts.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+All TypeScript types live here, mirrored by backend domain. No types should be scattered in components; import from `src/types/<domain>/`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- One folder per domain; split UI-specific types into a `-ui` file when large.
+- Keep wire types (API contracts) separate from component prop types.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `api/envelope.ts` | API success/pagination envelopes. |
+| `auth/auth.ts` | Auth API contracts. |
+| `admin/user.ts` | Admin user domain types. |
+| `jsw-stock/stock.ts` | JSW Stock row and query types. |
+| `settings/jsw-stock-config.ts` | JSW Stock scheduler config types. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Backend sort/filter literals must match exactly — they are whitelisted on both sides.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`admin/`](admin/CLAUDE.md) · [`api/`](api/CLAUDE.md) · [`auth/`](auth/CLAUDE.md) · [`credit-report/`](credit-report/CLAUDE.md) · [`dashboard/`](dashboard/CLAUDE.md) · [`jsw-stock/`](jsw-stock/CLAUDE.md) · [`jvml-stock/`](jvml-stock/CLAUDE.md) · [`meta/`](meta/CLAUDE.md) · [`report/`](report/CLAUDE.md) · [`settings/`](settings/CLAUDE.md) · [`theme/`](theme/CLAUDE.md) · [`user/`](user/CLAUDE.md)
+- Related repo docs: [`../../../frontend_docs/TYPES.md`](../../../frontend_docs/TYPES.md)

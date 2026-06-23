@@ -1,31 +1,32 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/dashboard/` — local rules (dox)
+# `frontend/src/components/dashboard/` — Dashboard UI
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Components for the home dashboard page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Status cards and analytics placeholders for the `/home` route. Data comes from `hooks/useDashboardSummary.ts`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Cards are config-driven via `report-card-config.ts`.
+- Analytics sections are currently placeholders.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `ReportStatusCard.tsx` | Per-report ingestion status card. |
+| `AnalyticsComingSoon.tsx` | Placeholder for future analytics. |
+| `report-card-config.ts` | Card layout configuration. |
+| `hooks/useDashboardSummary.ts` | Fetches today's ingestion summary. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Dashboard summary has no query params — it always reflects 'today'.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`hooks/`](hooks/CLAUDE.md)
+- Related repo docs: [`../../../../frontend_docs/COMPONENTS.md`](../../../../frontend_docs/COMPONENTS.md)

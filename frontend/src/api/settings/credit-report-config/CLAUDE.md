@@ -1,31 +1,32 @@
 <!-- dox:child v1 -->
-# `frontend/src/api/settings/credit-report-config/` — local rules (dox)
+# `frontend/src/api/settings/credit-report-config/` — Credit report config API
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+HTTP wrappers for the `/admin/credit-report` scheduler settings.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Load, update, status, and run-now for the Credit Report ingestion scheduler. Mirrors the JSW/JVML config modules.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Uses `putData` for updates.
+- Run-now returns the updated status payload.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `get.ts` | `GET /admin/credit-report/config`. |
+| `update.ts` | `PUT /admin/credit-report/config`. |
+| `status.ts` | `GET /admin/credit-report/status`. |
+| `runNow.ts` | `POST /admin/credit-report/run-now`. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Keep the shape identical to the JSW/JVML config modules where possible.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../../frontend_docs/API_LAYER.md`](../../../../../frontend_docs/API_LAYER.md)

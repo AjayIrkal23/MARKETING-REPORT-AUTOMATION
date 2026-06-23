@@ -1,31 +1,30 @@
 <!-- dox:child v1 -->
-# `frontend/src/types/credit-report/` — local rules (dox)
+# `frontend/src/types/credit-report/` — Credit report domain types
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+TypeScript types for the Credit Report feature.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Contains the row contract, query params, filter enums, and UI state types.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Money fields are numbers; formatting happens in components.
+- Blocked/balance filter enums are frontend-defined and mapped to backend values.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `credit-report.ts` | Credit report row and query types. |
+| `credit-report-ui.ts` | Credit report UI state types. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `customer_name` is native to the file — no customer-code mapping here.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../frontend_docs/TYPES.md`](../../../../frontend_docs/TYPES.md)

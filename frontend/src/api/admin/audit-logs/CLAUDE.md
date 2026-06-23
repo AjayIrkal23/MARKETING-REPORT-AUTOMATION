@@ -1,31 +1,32 @@
 <!-- dox:child v1 -->
-# `frontend/src/api/admin/audit-logs/` — local rules (dox)
+# `frontend/src/api/admin/audit-logs/` — Audit logs API
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+HTTP wrappers for the `/admin/audit-logs` endpoints.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Supports paginated listing, detail fetch, and facet loading for the admin Audit Logs page.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Facets are loaded once and cached in the feature hook.
+- Query params match `AuditLogListQuery` from `src/types/admin/audit-log.ts`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `list.ts` | `GET /admin/audit-logs` — paginated list. |
+| `get.ts` | `GET /admin/audit-logs/{id}` — detail payload. |
+| `facets.ts` | `GET /admin/audit-logs/facets` — filter option buckets. |
+| `options.ts` | Per-field async option search. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Facet failures are tolerated by the hook — the toolbar falls back to static enums.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../../frontend_docs/API_LAYER.md`](../../../../../frontend_docs/API_LAYER.md)

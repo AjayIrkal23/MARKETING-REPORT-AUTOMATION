@@ -31,10 +31,15 @@ RAKE-column pivot, credit augmentation, and final assembly.
 | `generate.py` | Region → customer codes → pivot → credit → `ReportResponse` |
 | `pivot.py` | MongoDB `$group` aggregation for the row fields |
 | `credit.py` | Credit-report lookup + required-credit calculation |
-| `export.py` | Export the RAKE-pivot report as .xlsx |
+| `export.py` | Export the report as a **grouped** .xlsx pivot — repeated parent cells blanked + per-group Distr.Channel (`{channel} Total`) subtotal rows + Grand Total (no Party Code subtotal) |
 
 ## Gotchas / fragile spots
 
+- **`export.py` grouping mirrors the frontend `report-grouping.ts` walker** and
+  depends on the same `_ROW_SORT_KEYS` ordering from `generate.py` (rows must stay
+  contiguous by the hierarchy, or subtotals fragment). The `{channel} Total` label
+  sits in the Distr.Channel column; Party Code groups get no subtotal. Credit money
+  (Balance, Blocked, Note) is intentionally blank on subtotal/grand rows.
 - `CustomerCode.code` is not unique. First document per normalized code wins
   for enrichment and RAKE assignment.
 - The pivot uses `party_code_normalized` (leading zeros stripped). The report

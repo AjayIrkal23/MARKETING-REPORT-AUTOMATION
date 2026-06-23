@@ -1,31 +1,34 @@
 <!-- dox:child v1 -->
-# `frontend/src/pages/admin/` — local rules (dox)
+# `frontend/src/pages/admin/` — Admin pages
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Top-level page components for admin routes.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Each folder exports a single page component used inside `AdminRoute` in `src/App.tsx`. Pages delegate to components in `src/components/admin/`.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Pages are thin orchestrators only.
+- All admin pages share the dashboard layout from `components/layout/`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `users/index.tsx` | `/admin/users` — User Management. |
+| `audit-logs/index.tsx` | `/admin/audit-logs` — Audit Logs. |
+| `regions/index.tsx` | `/admin/regions` — Region Management. |
+| `customer-codes/index.tsx` | `/admin/customer-codes` — Customer Codes. |
+| `coil-config/index.tsx` | `/admin/coil-config` — Coil Config. |
+| `settings/index.tsx` | `/admin/settings` — Scheduler Settings. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- These routes are nested under `AdminRoute` in `App.tsx`.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`audit-logs/`](audit-logs/CLAUDE.md) · [`coil-config/`](coil-config/CLAUDE.md) · [`customer-codes/`](customer-codes/CLAUDE.md) · [`regions/`](regions/CLAUDE.md) · [`settings/`](settings/CLAUDE.md) · [`users/`](users/CLAUDE.md)
+- Related repo docs: [`../../../../frontend_docs/ROUTING.md`](../../../../frontend_docs/ROUTING.md)

@@ -1,31 +1,29 @@
 <!-- dox:child v1 -->
-# `frontend/src/types/jvml-stock/` — local rules (dox)
+# `frontend/src/types/jvml-stock/` — JVML stock domain types
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+TypeScript types for the JVML Stock List feature.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Contains the row contract, sort/filter whitelists, query params, and UI state types. Structurally mirrors JSW Stock types.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Keep sort/filter literals in sync with the JSW Stock types where domains overlap.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `stock.ts` | JVML Stock row, sort, field, and query types. |
+| `stock-ui.ts` | JVML Stock UI state types. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Any change to JSW Stock query/filter types should be evaluated for JVML parity.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../frontend_docs/TYPES.md`](../../../../frontend_docs/TYPES.md)

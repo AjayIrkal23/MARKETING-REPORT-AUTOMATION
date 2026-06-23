@@ -1,31 +1,41 @@
 <!-- dox:child v1 -->
-# `backend/app/middleware/` — local rules (dox)
+# `backend/app/middleware/` — ASGI middleware
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+HTTP middleware components. Currently holds the audit middleware that records
+every request/response automatically.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+`AuditMiddleware` is a pure-ASGI middleware (not `BaseHTTPMiddleware`) that wraps
+the app, captures request/response metadata, redacts secrets, and writes an
+`audit_logs` document without blocking the response.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Keep middleware transport-only; no domain business logic.
+- `AuditMiddleware` is registered as the outermost layer in `app.main` so it sees
+  final statuses, CORS headers, and error envelopes.
+- Skip paths are driven by `Settings.audit_skip_paths` and
+  `Settings.audit_skip_path_prefixes`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Re-exports `AuditMiddleware`. |
+| `audit.py` | `AuditMiddleware` — request/response capture, category mapping, redaction. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `_CATEGORY_PREFIXES` is evaluated in order; specific domain prefixes must come
+  before the generic `/admin` fallback. Add a new domain's prefix here when you
+  add routes.
+- Body capture is capped by `audit_max_body_bytes`; large payloads are stored as
+  size markers only.
+- `spawn_audit` is fire-and-forget; audit write failures are logged, never raised.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/ARCHITECTURE.md`](../../backend_docs/ARCHITECTURE.md)

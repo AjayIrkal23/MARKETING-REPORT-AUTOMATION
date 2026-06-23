@@ -1,31 +1,37 @@
 <!-- dox:child v1 -->
-# `frontend/src/api/admin/users/` — local rules (dox)
+# `frontend/src/api/admin/users/` — User management API
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+HTTP wrappers for the `/admin/users` endpoints.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Full admin lifecycle: create, update, enable/disable, delete, and password reset for marketing-report user accounts.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Create returns the invited user; the backend sends an OTP email.
+- Reset password can set a value or clear it to force re-setup.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `list.ts` | `GET /admin/users`. |
+| `get.ts` | `GET /admin/users/{id}`. |
+| `create.ts` | `POST /admin/users`. |
+| `update.ts` | `PATCH /admin/users/{id}`. |
+| `remove.ts` | `DELETE /admin/users/{id}`. |
+| `enable.ts` | `POST /admin/users/{id}/enable`. |
+| `disable.ts` | `POST /admin/users/{id}/disable`. |
+| `resetPassword.ts` | `POST /admin/users/{id}/reset-password`. |
+| `options.ts` | Per-field async option search. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Admins cannot disable/delete themselves — the page guards against this client-side.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../../frontend_docs/API_LAYER.md`](../../../../../frontend_docs/API_LAYER.md)

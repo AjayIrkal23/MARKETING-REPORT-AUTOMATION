@@ -1,31 +1,34 @@
 <!-- dox:child v1 -->
-# `backend/app/utils/audit_log/` — local rules (dox)
+# `backend/app/utils/audit_log/` — Audit log query helpers
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+MongoDB filter and sort construction for the audit-log list.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Pure functions that translate validated `AuditLogListQuery` DTOs into filter
+documents and sort tokens for the `audit_logs` collection.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Escape all free-text input with `re.escape`.
+- Normalize `method` to uppercase before matching.
+- Combine `dateFrom`/`dateTo` into a single `timestamp` range predicate.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Empty package marker. |
+| `query.py` | `build_audit_filter()` and `build_sort()`. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `q` searches `path`, `summary`, `action`, and `actor_email` via `$or`.
+- The `actor` filter is a partial case-insensitive match on `actor_email`.
+- `build_sort` assumes `sort_by` has already been whitelisted by the schema.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/API_CONTRACT.md`](../../../backend_docs/API_CONTRACT.md)

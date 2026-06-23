@@ -1,31 +1,33 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/common/` — local rules (dox)
+# `frontend/src/components/common/` — Shared UI components
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Reusable, domain-agnostic input components.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Async comboboxes, date pickers, and filter primitives used across multiple list pages. These are presentational and delegate data fetching to caller hooks.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Keep components generic — no domain types here.
+- Date formats are explicit (`dd-MM-yyyy` for report dates).
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `AsyncCombobox.tsx` | Debounced searchable combobox with loading states. |
+| `FilterCombobox.tsx` | Pre-configured filter combobox wrapper. |
+| `DatePicker.tsx` | Single-date picker emitting `dd-MM-yyyy`. |
+| `DateRangePicker.tsx` | Date-range picker for audit-log style filters. |
+| `hooks/useAsyncOptions.ts` | Debounced, race-safe option fetching. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `DatePicker` (single) and `DateRangePicker` are different components — pick the right one.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`hooks/`](hooks/CLAUDE.md)
+- Related repo docs: [`../../../../frontend_docs/COMPONENTS.md`](../../../../frontend_docs/COMPONENTS.md)

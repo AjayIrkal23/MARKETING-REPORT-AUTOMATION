@@ -1,31 +1,31 @@
 <!-- dox:child v1 -->
-# `frontend/src/api/credit-report/` — local rules (dox)
+# `frontend/src/api/credit-report/` — Credit report API
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+HTTP wrappers for the `/credit-report` endpoints.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Read-only browse and export for the daily SAP Credit Management report, filtered to the JV0H / VJ0H control areas at ingest.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- No mutations — credit report is read-only for frontend users.
+- Export uses raw `fetch` for binary `.xlsx` download.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `list.ts` | `GET /credit-report` — paginated, filtered list. |
+| `options.ts` | Per-field async option search. |
+| `export.ts` | `GET /credit-report/export` — binary download. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Blocked and credit-balance filters use fixed frontend enums mapped to backend values.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../frontend_docs/API_LAYER.md`](../../../../frontend_docs/API_LAYER.md)

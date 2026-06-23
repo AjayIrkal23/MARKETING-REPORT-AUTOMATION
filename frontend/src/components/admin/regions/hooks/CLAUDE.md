@@ -1,31 +1,29 @@
 <!-- dox:child v1 -->
-# `frontend/src/components/admin/regions/hooks/` — local rules (dox)
+# `frontend/src/components/admin/regions/hooks/` — Region management hooks
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Feature hooks for the Region Management page.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Contains `useRegionManagement` (list/dialog state) and `useRegionMutations` (create/update/delete).
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- List query state and mutations are split across two hooks.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `useRegionManagement.ts` | Query/server/dialog state. |
+| `useRegionMutations.ts` | Create/update/delete mutations. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Keep `EmailChipInput` logic out of these hooks — it is a presentational component.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../../../frontend_docs/COMPONENTS.md`](../../../../../../frontend_docs/COMPONENTS.md)

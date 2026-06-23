@@ -1,31 +1,33 @@
 <!-- dox:child v1 -->
-# `backend/app/utils/report/` — local rules (dox)
+# `backend/app/utils/report/` — Report cross-domain helpers
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Shared utilities used by the RAKE pivot report and ingestion pipelines.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Normalization logic that must stay consistent across stock, customer-code, and
+credit-report domains.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Keep functions pure and deterministic.
+- Reuse helpers from here in pollers so ingest-time and report-time joins agree.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Empty package marker. |
+| `normalize.py` | `normalize_code()` — canonical SAP code (strip leading zeros). |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `normalize_code` returns `None` for empty or all-zero input; callers must handle
+  that case explicitly.
+- Stock pollers store `party_code_normalized` using this exact function.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`macro_docs/README.md`](../../../../macro_docs/README.md)

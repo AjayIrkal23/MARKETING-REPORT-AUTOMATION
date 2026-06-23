@@ -1,31 +1,29 @@
 <!-- dox:child v1 -->
-# `frontend/src/hooks/` — local rules (dox)
+# `frontend/src/hooks/` — Shared custom hooks
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Cross-cutting React hooks used by multiple features.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Generic hooks that are not tied to a single domain. Domain-specific hooks belong under `src/components/<domain>/hooks/` instead.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Keep hooks domain-agnostic; move feature hooks to the feature folder.
+- Name files `use<Name>.ts`.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `use-mobile.ts` | Detects mobile breakpoint via `useMediaQuery`. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- This folder is intentionally small — prefer colocating hooks with their feature.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../frontend_docs/COMPONENTS.md`](../../../frontend_docs/COMPONENTS.md)

@@ -1,31 +1,56 @@
 <!-- dox:child v1 -->
-# `backend/app/schemas/` — local rules (dox)
+# `backend/app/schemas/` — Pydantic request/response DTOs
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Typed I/O contracts for every endpoint: query params, mutation bodies, and
+public response shapes.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Each domain has its own schema module. Shared building blocks live in
+`common.py`. Query schemas extend `PageQuery` and pin `sortBy` to a `Literal`
+whitelist so unknown sort keys are rejected at parse time.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Extend `common.PageQuery` for any paginated list request.
+- Use `Literal[...]` for `sortBy` and enum filter fields.
+- Public DTOs expose `id` as a plain string, never as `ObjectId`.
+- `AsyncOption` is defined once in `admin_user.py`; other domains import it from
+  there (do not redefine it).
+- Keep DTOs transport-free — no `Request`/`Response` objects.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `__init__.py` | Re-exports common list/query DTOs. |
+| `common.py` | `PageQuery`, `SortOrder`, pagination base. |
+| `meta.py` | Root/health/ping response DTOs. |
+| `auth.py` | Login request/response and account-status DTOs. |
+| `otp.py` | OTP setup request/response DTOs. |
+| `user.py` | Public user list/query DTOs. |
+| `admin_user.py` | Admin user management + shared `AsyncOption` DTOs. |
+| `audit_log.py` | Audit log query/list/detail/facet DTOs + taxonomy Literals. |
+| `coil_price.py` | Coil price query/mutation/response DTOs. |
+| `region.py` | Region query/mutation/response/options DTOs. |
+| `customer_code.py` | Customer-code query/mutation/import/response DTOs. |
+| `credit_report.py` / `credit_report_record.py` | Credit report query and public row DTOs. |
+| `jsw_stock.py` / `jsw_stock_record.py` | JSW stock query and public row DTOs. |
+| `jvml_stock.py` / `jvml_stock_record.py` | JVML stock query and public row DTOs. |
+| `report.py` | RAKE pivot report query/response DTOs. |
+| `dashboard.py` | Dashboard ingestion-status DTOs. |
+| `cleanup.py` | Shared duplicate-cleanup response DTO. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `Region` list uses query key `region` in stock/credit schemas, but it maps to
+  `region_id` or `customer_code_id` internally.
+- Customer-code schemas import `AsyncOption` from `.admin_user` only.
+- Export routes bypass `response_model`, so the public record DTOs are used by
+  services directly for serialization.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`backend_docs/API_CONTRACT.md`](../../backend_docs/API_CONTRACT.md)

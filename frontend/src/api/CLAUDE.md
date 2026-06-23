@@ -1,31 +1,36 @@
 <!-- dox:child v1 -->
-# `frontend/src/api/` — local rules (dox)
+# `frontend/src/api/` — Backend API client modules
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+Per-domain HTTP clients for the FastAPI backend.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Every backend call goes through a module in this tree; components and hooks never call `fetch` directly. Domain folders map to backend route namespaces.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- One file per endpoint/verb (e.g. `list.ts`, `create.ts`, `update.ts`).
+- Normalize query params inside the API module before calling `buildQuery`.
+- Binary downloads and multipart uploads use raw `fetch` in dedicated modules.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `client.ts` | Base HTTP client, envelope unwrapping, `ApiError`, query builder. |
+| `auth/login.ts` | `POST /auth/login`. |
+| `auth/me.ts` | `GET /auth/me` — session restore. |
+| `admin/users/list.ts` | `GET /admin/users` paginated list. |
+| `jsw-stock/list.ts` | `GET /jsw-stock` with date + per-field filters. |
+| `settings/jsw-stock-config/update.ts` | `PUT /admin/jsw-stock/config`. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `buildQuery` serializes `null` as the string `'null'` — convert nullable params to `undefined`.
+- `getList` expects `{ data, meta }` with pagination metadata.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`auth/`](auth/CLAUDE.md) · [`admin/`](admin/CLAUDE.md) · [`credit-report/`](credit-report/CLAUDE.md) · [`dashboard/`](dashboard/CLAUDE.md) · [`jsw-stock/`](jsw-stock/CLAUDE.md) · [`jvml-stock/`](jvml-stock/CLAUDE.md) · [`meta/`](meta/CLAUDE.md) · [`report/`](report/CLAUDE.md) · [`settings/`](settings/CLAUDE.md) · [`user/`](user/CLAUDE.md)
+- Related repo docs: [`../../../frontend_docs/API_LAYER.md`](../../../frontend_docs/API_LAYER.md)

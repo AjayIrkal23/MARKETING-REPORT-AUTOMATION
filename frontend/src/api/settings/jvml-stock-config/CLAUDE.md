@@ -1,31 +1,32 @@
 <!-- dox:child v1 -->
-# `frontend/src/api/settings/jvml-stock-config/` — local rules (dox)
+# `frontend/src/api/settings/jvml-stock-config/` — JVML stock config API
 
-> Local doc for this directory only. Read after the root `CLAUDE.md`. Update this
-> file whenever you add, remove, or rename files here, or change a local convention.
+HTTP wrappers for the `/admin/jvml-stock` scheduler settings.
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Load, update, status, and run-now for the JVML Stock Excel ingestion scheduler. Identical in structure to the JSW stock config module.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Uses `putData` for updates.
+- Status includes recent ingestion rows.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `get.ts` | `GET /admin/jvml-stock/config`. |
+| `update.ts` | `PUT /admin/jvml-stock/config`. |
+| `status.ts` | `GET /admin/jvml-stock/status`. |
+| `runNow.ts` | `POST /admin/jvml-stock/run-now`. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Keep in sync with `jsw-stock-config/` — the UI treats both domains uniformly.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`../../../../../frontend_docs/API_LAYER.md`](../../../../../frontend_docs/API_LAYER.md)
