@@ -6,26 +6,33 @@
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+`index.tsx` — the **Report JSW/JVML** page (`/report`, ProtectedRoute, all
+authenticated users). Thin orchestrator only.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Zero business logic. The page pulls everything from `useReport()`
+  (`components/report/hooks/useReport.ts`) and renders: header → `ReportToolbar`
+  → states (idle / loading / no-stock / no-credit banner) → `ReportPivotTable`.
+- Thread `visibleCols` + `toggleCol` to **both** `ReportToolbar` (the Columns
+  dropdown) and `ReportPivotTable` (which columns to render).
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `index.tsx` | Page orchestrator; empty/loading/no-stock/no-credit states |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- The report is fetched **on demand** (`Generate` button), not reactively — the
+  pivot+credit join is heavy. Don't auto-fetch on input change.
+- `has_stock=false` → "No stock excel for this date selected" panel;
+  `has_credit_report=false` → amber banner + credit cells show "NO CREDIT REPORT
+  FOUND". Both booleans are decided backend-side.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: `components/report/CLAUDE.md`; backend `app/services/report/CLAUDE.md`

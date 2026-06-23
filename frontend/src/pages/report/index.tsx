@@ -12,13 +12,13 @@ import { Separator } from "@/components/ui/separator"
 
 import { useReport } from "@/components/report/hooks/useReport"
 import { ReportToolbar } from "@/components/report/ReportToolbar"
-import { ReportTable } from "@/components/report/ReportTable"
+import { ReportPivotTable } from "@/components/report/ReportPivotTable"
 import { fmtINR } from "@/components/report/report-format"
 
 export function ReportPage() {
   const {
     inputs, data, loading, exporting, error, generate, exportReport, canGenerate,
-    setDate, setReportType, setRegionId, setDays,
+    setDate, setReportType, setRegionId, setDays, visibleCols, toggleCol,
   } = useReport()
 
   return (
@@ -48,6 +48,8 @@ export function ReportPage() {
         loading={loading}
         exporting={exporting}
         canGenerate={canGenerate}
+        visibleCols={visibleCols}
+        onToggleCol={toggleCol}
         onDate={setDate}
         onReportType={setReportType}
         onRegion={setRegionId}
@@ -100,7 +102,7 @@ export function ReportPage() {
             </div>
           )}
 
-          <ReportTable report={data} />
+          <ReportPivotTable report={data} visibleCols={visibleCols} />
         </div>
       )}
     </div>

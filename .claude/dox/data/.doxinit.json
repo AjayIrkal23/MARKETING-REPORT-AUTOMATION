@@ -1,7 +1,7 @@
 {
   "autoManaged": true,
   "version": 2,
-  "fingerprint": "7b0544e56fe0925c",
+  "fingerprint": "3ecc25f3fdbf13e8",
   "documentedDirs": [
     "backend",
     "backend/app",
@@ -27,6 +27,7 @@
     "backend/app/services/meta",
     "backend/app/services/region",
     "backend/app/services/report",
+    "backend/app/services/shared",
     "backend/app/services/user",
     "backend/app/utils",
     "backend/app/utils/admin_user",
@@ -38,6 +39,7 @@
     "backend/app/utils/jvml_stock",
     "backend/app/utils/region",
     "backend/app/utils/report",
+    "backend/app/utils/shared",
     "backend/app/utils/user",
     "backend/tests",
     "backend_docs",
@@ -96,6 +98,7 @@
     "frontend/src/components/report/hooks",
     "frontend/src/components/settings",
     "frontend/src/components/settings/hooks",
+    "frontend/src/components/shared",
     "frontend/src/components/theme",
     "frontend/src/components/ui",
     "frontend/src/hooks",
@@ -135,7 +138,9 @@
     "frontend/src/types/user",
     "frontend_docs",
     "macro_docs",
-    "macro_files"
+    "macro_files",
+    "macro_files/20-06-2026",
+    "macro_files/23-06-2026"
   ],
   "missingChildren": []
 }

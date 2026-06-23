@@ -1,11 +1,13 @@
 """Report JSW/JVML request/response DTOs.
 
-Contract for ``GET /report/generate`` — a "Coil Stock" pivot (Sum of Stock
-Quantity grouped by Distr.Chnl → Party Code) for a date + report type + region,
-augmented with NCO-Yes+DO, credit-report Blocked, the SAP Credit Balance
-headroom, and a service-computed Required Credit.
+Contract for ``GET /report/generate`` — a "Coil Stock" RAKE pivot for a date +
+report type + region. Stock rows are grouped by SO Sales Org → Distr. Channel →
+Sold To Party → Sales Office (BRANCH) → Party Code → Ship-To Party, then
+enriched with CustomerCode master fields (Transport Mode, Destination, ROUTE).
+RAKE values from CustomerCode become dynamic column headers; the value is the
+sum of stock_quantity for that RAKE. Credit-report checks are kept unchanged.
 
-See ``.planning/report-jsw-jvml/SPEC.md`` (+ AUDIT.md) for the full algorithm.
+See ``.planning/report-jsw-jvml/SPEC.md`` for the full algorithm.
 """
 
 from __future__ import annotations
@@ -39,36 +41,28 @@ class ReportQuery(BaseModel):
     days: DaysFilter = "include"
 
 
-class ReportParty(BaseModel):
-    """One party row inside a distribution-channel group."""
+class ReportPivotRow(BaseModel):
+    """One row of the RAKE pivot report."""
 
-    party_code: str                 # normalized display code ("40122581" / "8481")
+    so_sales_org: str | None
+    distr_chnl: str | None
     sold_to_party: str | None
-    ship_to_party: str | None       # from CustomerCode.ship_to_customer (+ ship_to fallback)
-    route: str | None               # from CustomerCode.route
-    route_desc: str | None
-    rake: str | None                # from CustomerCode.rake
-    transport_mode: str | None      # from CustomerCode.transport_mode
-    total: float                    # Σ stock_quantity for this party
-    nco_yes_do: float               # Σ stock_quantity where nco_declared == "Yes"
-    nco_yes_do_count: int           # # rows where nco_declared == "Yes"
-    blocked: bool | None            # credit Blocked flag; None = no credit data
-    credit_balance: float | None    # SAP credit headroom; None = not in credit report
-    required_credit: float | None   # (total - nco_yes_do) * coil_price_per_qty
-    credit_sufficient: bool | None  # credit_balance >= required_credit (None if either missing)
-    credit_status: CreditStatus     # "" | "No Credit balance" | "NO CREDIT REPORT FOUND"
-    credit_note: str                # verdict label: Balance Available / Not Enough Balance /
-    #                                 Balance Negative / No Credit balance / NO CREDIT REPORT FOUND
-
-
-class ReportChannel(BaseModel):
-    """A distribution-channel group with its parties and subtotals."""
-
-    distr_chnl: str                 # "Unspecified" when the source value is null
-    parties: list[ReportParty]
-    subtotal: float
-    subtotal_nco_yes_do: float
-    subtotal_required_credit: float | None
+    sales_office: str | None       # rendered as BRANCH
+    party_code: str                # normalized display code
+    ship_to_party: str | None
+    transport_mode: str | None     # from CustomerCode.transport_mode
+    destination: str | None        # from CustomerCode.destination
+    route: str | None              # from CustomerCode.route
+    rake_quantities: dict[str, float] = {}  # { "KKU": 55.01, "ROAD": 0, ... }
+    total: float                   # Σ stock_quantity for this row
+    nco_yes_do: float              # Σ stock_quantity where nco_declared == "Yes"
+    nco_yes_do_count: int          # # rows where nco_declared == "Yes"
+    blocked: bool | None           # credit Blocked flag; None = no credit data
+    credit_balance: float | None   # SAP credit headroom; None = not in credit report
+    required_credit: float | None  # (total - nco_yes_do) * coil_price_per_qty
+    credit_sufficient: bool | None # credit_balance >= required_credit (None if either missing)
+    credit_status: CreditStatus    # "" | "No Credit balance" | "NO CREDIT REPORT FOUND"
+    credit_note: str               # verdict label
 
 
 class ReportResponse(BaseModel):
@@ -77,13 +71,14 @@ class ReportResponse(BaseModel):
     date: str
     report_type: ReportType
     region_id: str | None
-    region_name: str                # resolved name, or "All Regions"
+    region_name: str               # resolved name, or "All Regions"
     days_filter: DaysFilter
-    ccas: list[str]                # e.g. ["VJ0H", "1000"] (jsw) / ["JV0H"] (jvml)
-    has_stock: bool                 # False → "No stock excel for this date selected"
-    has_credit_report: bool         # False → all credit columns "NO CREDIT REPORT FOUND"
+    ccas: list[str]               # e.g. ["VJ0H", "1000"] (jsw) / ["JV0H"] (jvml)
+    has_stock: bool                # False → "No stock excel for this date selected"
+    has_credit_report: bool        # False → all credit columns "NO CREDIT REPORT FOUND"
     coil_price_per_qty: float | None
-    channels: list[ReportChannel]
+    rake_columns: list[str]        # sorted unique RAKE values for this report
+    rows: list[ReportPivotRow]
     grand_total: float
     grand_nco_yes_do: float
     grand_required_credit: float | None

@@ -42,6 +42,29 @@ Primitive selection reference (representative subset):
 
 ---
 
+## Wide-table scroll pattern (Report JSW/JVML)
+
+A data table wider than the viewport must scroll **inside its own box**, not widen
+the page. Two parts:
+
+1. **Page-level fix (once, app-wide):** `DashboardLayout` adds `min-w-0` to
+   `SidebarInset` **and** `<main>`. Without it, the `flex-1` inset keeps its default
+   `min-width:auto` and grows to the table's intrinsic width, so the whole page
+   scrolls sideways and the table's own `overflow-x-auto` never engages.
+2. **Table-level box:** the shadcn `Table` primitive accepts a `containerClassName`
+   prop (forwarded to its scroll-container div). Pass
+   `containerClassName="max-h-[calc(100vh-17rem)] overflow-auto rounded-lg border"`
+   for a bounded box, then mark header/footer cells `sticky top-0` / `sticky
+   bottom-0` with an **opaque** bg (`bg-background` / `bg-muted`) so scrolled rows
+   don't bleed through. See `components/report/ReportPivotTable.tsx`.
+
+**Optional columns** are a client-side *view* preference (not row filtering): the
+toolbar "Columns" dropdown toggles `visibleCols` (`useReport`), and the table
+renders trailing columns conditionally. The registry of toggleable columns lives in
+`components/report/report-format.ts` (`REPORT_OPTIONAL_COLS` / `DEFAULT_REPORT_COLS`).
+
+---
+
 ## Route Page vs Feature Component
 
 The project follows a strict two-layer split enforced by `frontend-structure-standards`.

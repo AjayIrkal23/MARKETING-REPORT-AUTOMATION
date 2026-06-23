@@ -1,4 +1,4 @@
-"""Unit test for Report JSW/JVML Excel export.
+"""Unit test for Report JSW/JVML RAKE-pivot Excel export.
 
 Mocks the report generator so no MongoDB connection is required.
 """
@@ -8,35 +8,31 @@ from __future__ import annotations
 import asyncio
 from unittest.mock import AsyncMock, patch
 
-from app.schemas.report import ReportChannel, ReportParty, ReportQuery, ReportResponse
+from app.schemas.report import ReportPivotRow, ReportQuery, ReportResponse
 from app.services.report.export import export_report
 
 
 def _fake_report() -> ReportResponse:
-    party = ReportParty(
-        party_code="40122581",
+    row = ReportPivotRow(
+        so_sales_org="1001",
+        distr_chnl="OEM",
         sold_to_party="ACME Steels Ltd",
-        ship_to_party=None,
-        route=None,
-        route_desc=None,
-        rake="KKU",
+        sales_office="Mumbai",
+        party_code="40122581",
+        ship_to_party="ACME Ship-To",
         transport_mode="ROAD/RAKE",
-        total=100.0,
-        nco_yes_do=10.0,
-        nco_yes_do_count=1,
+        destination="Jaipur",
+        route="KAT138",
+        rake_quantities={"KKU": 55.01, "ROAD": 0.0},
+        total=55.01,
+        nco_yes_do=0.0,
+        nco_yes_do_count=0,
         blocked=False,
         credit_balance=500000.0,
-        required_credit=90.0,
+        required_credit=55.01,
         credit_sufficient=True,
         credit_status="",
         credit_note="Balance Available",
-    )
-    channel = ReportChannel(
-        distr_chnl="OEM",
-        parties=[party],
-        subtotal=100.0,
-        subtotal_nco_yes_do=10.0,
-        subtotal_required_credit=90.0,
     )
     return ReportResponse(
         date="23-06-2026",
@@ -47,11 +43,12 @@ def _fake_report() -> ReportResponse:
         ccas=["VJ0H", "1000"],
         has_stock=True,
         has_credit_report=True,
-        coil_price_per_qty=0.9,
-        channels=[channel],
-        grand_total=100.0,
-        grand_nco_yes_do=10.0,
-        grand_required_credit=90.0,
+        coil_price_per_qty=1.0,
+        rake_columns=["KKU", "ROAD"],
+        rows=[row],
+        grand_total=55.01,
+        grand_nco_yes_do=0.0,
+        grand_required_credit=55.01,
     )
 
 

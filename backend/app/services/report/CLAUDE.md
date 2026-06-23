@@ -6,34 +6,52 @@
 
 ## What lives here
 
-JSW/JVML "Coil Stock" pivot + credit-report orchestration. Files build the
-`GET /report/generate` payload: aggregation, credit augmentation, and final
-channel assembly.
+JSW/JVML "Coil Stock" RAKE-pivot + credit-report orchestration. Files build the
+`GET /report/generate` payload: stock aggregation, CustomerCode enrichment,
+RAKE-column pivot, credit augmentation, and final assembly.
 
 ## Local conventions
 
 - Keep all MongoDB aggregation logic in `pivot.py`; business decisions about
   credit status/blocked belong in `generate.py`.
-- `ReportParty` columns that come from the stock row (`sold_to_party`,
-  `route_desc`) are populated in the `$group` stage. Columns that come from the
-  enriched `CustomerCode` master (`route`, `ship_to_party`, `rake`,
-  `transport_mode`) are resolved in `_resolve_region_customers` and merged in
-  `_build_channels`.
+- `ReportPivotRow` columns come from two sources:
+  - Stock row fields (`so_sales_org`, `distr_chnl`, `sold_to_party`,
+    `sales_office`, `party_code`, `ship_to_party`) are populated in the `$group`
+    stage.
+  - CustomerCode master fields (`transport_mode`, `destination`, `route`, `rake`)
+    are resolved in `_resolve_region_customers` and merged in `_build_pivot_rows`.
+- `rake_quantities` is a dict mapping each unique RAKE value for the selected
+  region to the row's summed stock quantity; only the RAKE of the first matching
+  CustomerCode document per normalized party code receives the total.
 
 ## Key files
 
 | File | Role |
 |------|------|
 | `generate.py` | Region → customer codes → pivot → credit → `ReportResponse` |
-| `pivot.py` | MongoDB `$group` aggregation for the coil-stock pivot |
+| `pivot.py` | MongoDB `$group` aggregation for the row fields |
 | `credit.py` | Credit-report lookup + required-credit calculation |
+| `export.py` | Export the RAKE-pivot report as .xlsx |
 
 ## Gotchas / fragile spots
 
 - `CustomerCode.code` is not unique. First document per normalized code wins
-  for both the enrichment map and the ingest-time customer mapping.
+  for enrichment and RAKE assignment.
 - The pivot uses `party_code_normalized` (leading zeros stripped). The report
   region filter restricts to codes belonging to the selected region.
+- RAKE columns are dynamic: the response includes the sorted list of unique
+  `CustomerCode.rake` values, so the frontend must render columns from
+  `rake_columns`, not a hard-coded list.
+- **RAKE columns are filtered to non-empty.** After `_build_pivot_rows`,
+  `generate_report` calls `_filter_used_rakes(rows, rake_columns)` to drop every
+  RAKE column that is all-zero for the chosen date and prune each row's
+  `rake_quantities` to the survivors — so `rake_columns` is already trimmed and
+  the table/export/payload only carry RAKEs that actually moved stock. This is a
+  business view rule, so it lives in the service, not the client.
+- **`so_sales_org` is grouped/sorted on but not exported.** The aggregation still
+  groups by `so_sales_org` and returns it per row, but it is intentionally **not**
+  a column in `export.py` (`_FIXED_HEADERS`) nor in the frontend table. Don't add
+  it back to the export headers without also adding the row value.
 
 ## Up / down
 

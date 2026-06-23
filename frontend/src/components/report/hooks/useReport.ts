@@ -11,6 +11,11 @@ import { format } from "date-fns"
 
 import { exportReport } from "@/api/report/export"
 import { generateReport } from "@/api/report/generate"
+import {
+  DEFAULT_REPORT_COLS,
+  type ReportColKey,
+  type ReportColVisibility,
+} from "@/components/report/report-format"
 import type {
   DaysFilter,
   ReportResponse,
@@ -37,6 +42,8 @@ export interface UseReportResult {
   generate: () => void
   exportReport: () => void
   canGenerate: boolean
+  visibleCols: ReportColVisibility
+  toggleCol: (key: ReportColKey) => void
 }
 
 export function useReport(): UseReportResult {
@@ -50,8 +57,16 @@ export function useReport(): UseReportResult {
   const [loading, setLoading] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [visibleCols, setVisibleCols] = useState<ReportColVisibility>(
+    () => ({ ...DEFAULT_REPORT_COLS }),
+  )
 
   const fetchIdRef = useRef(0)
+
+  const toggleCol = useCallback(
+    (key: ReportColKey) => setVisibleCols((p) => ({ ...p, [key]: !p[key] })),
+    [],
+  )
 
   const setDate = useCallback((date: string | null) => setInputs((p) => ({ ...p, date })), [])
   const setReportType = useCallback((report_type: ReportType) => setInputs((p) => ({ ...p, report_type })), [])
@@ -115,5 +130,7 @@ export function useReport(): UseReportResult {
     generate,
     exportReport: exportReportCallback,
     canGenerate: inputs.date !== null,
+    visibleCols,
+    toggleCol,
   }
 }

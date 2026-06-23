@@ -7,17 +7,26 @@
  * Purely presentational — all state lives in `useReport`.
  */
 
-import { DownloadIcon, Loader2Icon, Play } from "lucide-react"
+import { Columns3, DownloadIcon, Loader2Icon, Play } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
+import {
+  DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { DatePicker } from "@/components/common/DatePicker"
 import { AsyncCombobox } from "@/components/common/AsyncCombobox"
 import { searchRegionOptions } from "@/api/admin/regions/options"
 import { cn } from "@/lib/utils"
 import type { DaysFilter, ReportType } from "@/types/report/report"
+import {
+  REPORT_OPTIONAL_COLS,
+  type ReportColKey,
+  type ReportColVisibility,
+} from "./report-format"
 import type { ReportInputs } from "./hooks/useReport"
 
 const DAYS_OPTIONS: { value: DaysFilter; label: string }[] = [
@@ -36,6 +45,8 @@ export interface ReportToolbarProps {
   loading: boolean
   exporting: boolean
   canGenerate: boolean
+  visibleCols: ReportColVisibility
+  onToggleCol: (key: ReportColKey) => void
   onDate: (d: string | null) => void
   onReportType: (t: ReportType) => void
   onRegion: (id: string | null) => void
@@ -45,10 +56,11 @@ export interface ReportToolbarProps {
 }
 
 export function ReportToolbar({
-  inputs, loading, exporting, canGenerate,
+  inputs, loading, exporting, canGenerate, visibleCols, onToggleCol,
   onDate, onReportType, onRegion, onDays, onGenerate, onExport,
 }: ReportToolbarProps) {
   const busy = loading || exporting
+  const shownCount = REPORT_OPTIONAL_COLS.filter((c) => visibleCols[c.key]).length
 
   return (
     <div
@@ -103,6 +115,31 @@ export function ReportToolbar({
           aria-label="Filter by region"
         />
       </div>
+
+      {/* Columns — toggle optional trailing columns (checkboxes) */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button type="button" variant="outline" size="sm" className="h-9 shrink-0 gap-1.5" disabled={busy}>
+            <Columns3 className="size-4" />
+            Columns
+            <span className="text-muted-foreground">({shownCount}/{REPORT_OPTIONAL_COLS.length})</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-52">
+          <DropdownMenuLabel>Optional columns</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {REPORT_OPTIONAL_COLS.map((c) => (
+            <DropdownMenuCheckboxItem
+              key={c.key}
+              checked={visibleCols[c.key]}
+              onCheckedChange={() => onToggleCol(c.key)}
+              onSelect={(e) => e.preventDefault()}
+            >
+              {c.label}
+            </DropdownMenuCheckboxItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {/* Days (aging) */}
       <Select value={inputs.days} onValueChange={(v) => onDays(v as DaysFilter)} disabled={busy}>

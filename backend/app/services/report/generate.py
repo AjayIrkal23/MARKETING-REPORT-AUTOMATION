@@ -1,4 +1,4 @@
-"""Report JSW/JVML orchestrator — region → codes → pivot → credit → assemble.
+"""Report JSW/JVML orchestrator — region → codes → RAKE pivot → credit → assemble.
 
 See ``.planning/report-jsw-jvml/SPEC.md`` §2 for the algorithm. All business
 booleans (``has_stock``, ``has_credit_report``, ``blocked``, ``credit_status``)
@@ -13,8 +13,7 @@ from ...models.customer_code import CustomerCode
 from ...models.jsw_stock import JswStock
 from ...models.jvml_stock import JvmlStock
 from ...schemas.report import (
-    ReportChannel,
-    ReportParty,
+    ReportPivotRow,
     ReportQuery,
     ReportResponse,
 )
@@ -30,36 +29,35 @@ _REPORT_MAP: dict[str, tuple[type, list[str]]] = {
     "jvml": (JvmlStock, _PLANT_CCA_MAP["jvml"]),
 }
 
-# Channel display order; unknown channels sort after these (alphabetical),
-# and a null/blank channel is bucketed as "Unspecified" and sorts last.
-_CHANNEL_ORDER = [
-    "MSME", "OEM", "Retail", "SBU-A", "Stock Transfer",
-    "Auction", "Others", "SEZ/Deemed Export",
-]
-_UNSPECIFIED = "Unspecified"
-
-
-def _channel_sort_key(name: str) -> tuple[int, str]:
-    """Sort key: known channels by defined order, then unknowns A-Z, Unspecified last."""
-    if name == _UNSPECIFIED:
-        return (len(_CHANNEL_ORDER) + 1, "")
-    if name in _CHANNEL_ORDER:
-        return (_CHANNEL_ORDER.index(name), "")
-    return (len(_CHANNEL_ORDER), name.lower())
+# Row field display order; blank/null values sort as empty strings.
+_ROW_SORT_KEYS = (
+    "so_sales_org",
+    "distr_chnl",
+    "sold_to_party",
+    "sales_office",
+    "party_code",
+    "ship_to_party",
+    "transport_mode",
+    "destination",
+    "route",
+)
 
 
 async def _resolve_region_customers(
     region_id: str | None,
-) -> tuple[str, set[str], dict[str, tuple[str | None, str | None, str | None, str | None]]]:
-    """Resolve region → (region_name, normalized codes, enrichment map).
+) -> tuple[str, set[str], dict[str, CustomerCode], list[str]]:
+    """Resolve region → (region_name, normalized codes, first-doc map, all RAKEs).
 
     Empty *region_id* ⇒ all regions / all customer codes. A non-empty but
     invalid id raises ``ValidationError`` (400) via ``resolve_region_or_400``.
 
-    The enrichment map returns, per normalized code, the
-    ``(route, ship_to_party, rake, transport_mode)`` values sourced from the
-    enriched ``CustomerCode`` master. ``ship_to_party`` is ``ship_to_customer``
-    with a fallback to ``ship_to``. First doc per code wins.
+    Returns:
+        - region_name
+        - set of normalized customer codes
+        - dict mapping normalized code → first ``CustomerCode`` document
+          (used for enrichment; ``ship_to_customer`` trailing space is stripped
+          before the doc is stored, but we still defensively strip strings here)
+        - sorted list of all unique ``rake`` values across the selected docs
     """
     if region_id:
         region = await resolve_region_or_400(region_id)
@@ -70,22 +68,30 @@ async def _resolve_region_customers(
         docs = await CustomerCode.find({}).to_list()
 
     codes: set[str] = set()
-    extra: dict[str, tuple[str | None, str | None, str | None, str | None]] = {}
+    first_doc: dict[str, CustomerCode] = {}
+    rakes: set[str] = set()
+
     for doc in docs:
         nc = normalize_code(doc.code)
         if not nc:
             continue
         codes.add(nc)
-        if nc not in extra:
-            ship_to = (doc.ship_to_customer or "").strip() or doc.ship_to or None
-            extra[nc] = (
-                doc.route,
-                ship_to,
-                (doc.rake or "").strip() or None,
-                (doc.transport_mode or "").strip() or None,
-            )
+        if nc not in first_doc:
+            first_doc[nc] = doc
+        if doc.rake:
+            rake_val = doc.rake.strip()
+            if rake_val:
+                rakes.add(rake_val)
 
-    return region_name, codes, extra
+    return region_name, codes, first_doc, sorted(rakes)
+
+
+def _strip_or_none(value: object | None) -> str | None:
+    """Return a stripped non-empty string, or ``None``."""
+    if value is None:
+        return None
+    s = str(value).strip()
+    return s if s else None
 
 
 def _augment_credit(
@@ -96,7 +102,7 @@ def _augment_credit(
     credit_map: dict[str, dict[str, Any]],
     price_per_qty: float | None,
 ) -> dict[str, Any]:
-    """Compute the per-party credit columns (required credit + status/blocked)."""
+    """Compute the per-row credit columns (required credit + status/blocked)."""
     required = (
         (total - nco_yes_do) * price_per_qty if price_per_qty is not None else None
     )
@@ -132,19 +138,38 @@ def _augment_credit(
     }
 
 
-def _build_channels(
+def _filter_used_rakes(
+    rows: list[ReportPivotRow], rake_columns: list[str]
+) -> list[str]:
+    """Keep only RAKE columns that carry a non-zero value in at least one row.
+
+    A region can declare dozens of RAKEs in ``customer_codes`` while a given
+    date's stock only moves a handful — the rest render as all-dash columns.
+    Drop those empty columns and prune each surviving row's ``rake_quantities``
+    to the kept set so the table/export/payload stay lean. Returns the filtered,
+    order-preserving column list.
+    """
+    used = {col for row in rows for col, qty in row.rake_quantities.items() if qty}
+    kept = [c for c in rake_columns if c in used]
+    if kept != rake_columns:
+        for row in rows:
+            row.rake_quantities = {c: row.rake_quantities.get(c, 0.0) for c in kept}
+    return kept
+
+
+def _build_pivot_rows(
     rows: list[dict[str, Any]],
     has_credit_report: bool,
     credit_map: dict[str, dict[str, Any]],
     price_per_qty: float | None,
-    customer_extra: dict[str, tuple[str | None, str | None, str | None, str | None]],
-) -> list[ReportChannel]:
-    """Group aggregation rows into ordered channels with parties + subtotals."""
-    grouped: dict[str, list[ReportParty]] = {}
+    customer_map: dict[str, CustomerCode],
+    rake_columns: list[str],
+) -> list[ReportPivotRow]:
+    """Turn aggregation rows into enriched RAKE-pivot rows."""
+    pivot_rows: list[ReportPivotRow] = []
 
     for row in rows:
         ident = row["_id"]
-        channel = ident.get("distr_chnl") or _UNSPECIFIED
         party_key = ident["party"]
         total = float(row.get("total") or 0.0)
         nco_yes_do = float(row.get("nco_yes_do") or 0.0)
@@ -152,18 +177,32 @@ def _build_channels(
         credit = _augment_credit(
             total, nco_yes_do, party_key, has_credit_report, credit_map, price_per_qty
         )
-        route, ship_to_party, rake, transport_mode = customer_extra.get(
-            party_key, (None, None, None, None)
-        )
-        grouped.setdefault(channel, []).append(
-            ReportParty(
+
+        doc = customer_map.get(party_key)
+        if doc:
+            rake = _strip_or_none(doc.rake)
+            transport_mode = _strip_or_none(doc.transport_mode)
+            destination = _strip_or_none(doc.destination)
+            route = _strip_or_none(doc.route)
+        else:
+            rake = transport_mode = destination = route = None
+
+        rake_quantities = {col: 0.0 for col in rake_columns}
+        if rake and rake in rake_quantities:
+            rake_quantities[rake] = total
+
+        pivot_rows.append(
+            ReportPivotRow(
+                so_sales_org=ident.get("so_sales_org"),
+                distr_chnl=ident.get("distr_chnl"),
+                sold_to_party=ident.get("sold_to_party"),
+                sales_office=ident.get("sales_office"),
                 party_code=party_key,
-                sold_to_party=row.get("sold_to_party"),
-                ship_to_party=ship_to_party,
-                route=route,
-                route_desc=row.get("route_desc"),
-                rake=rake,
+                ship_to_party=ident.get("ship_to_party"),
                 transport_mode=transport_mode,
+                destination=destination,
+                route=route,
+                rake_quantities=rake_quantities,
                 total=total,
                 nco_yes_do=nco_yes_do,
                 nco_yes_do_count=int(row.get("nco_yes_do_count") or 0),
@@ -171,27 +210,20 @@ def _build_channels(
             )
         )
 
-    channels: list[ReportChannel] = []
-    for name in sorted(grouped, key=_channel_sort_key):
-        parties = sorted(grouped[name], key=lambda p: p.party_code)
-        req_vals = [p.required_credit for p in parties if p.required_credit is not None]
-        channels.append(
-            ReportChannel(
-                distr_chnl=name,
-                parties=parties,
-                subtotal=sum(p.total for p in parties),
-                subtotal_nco_yes_do=sum(p.nco_yes_do for p in parties),
-                subtotal_required_credit=sum(req_vals) if req_vals else None,
-            )
+    # Stable sort by the row-field tuple.
+    pivot_rows.sort(
+        key=lambda r: tuple(
+            (getattr(r, k) or "").lower() for k in _ROW_SORT_KEYS
         )
-    return channels
+    )
+    return pivot_rows
 
 
 async def generate_report(query: ReportQuery) -> ReportResponse:
-    """Build the full Report JSW/JVML payload for *query*."""
+    """Build the full RAKE-pivot Report JSW/JVML payload for *query*."""
     stock_model, ccas = _REPORT_MAP[query.report_type]
 
-    region_name, normalized_codes, customer_extra = await _resolve_region_customers(
+    region_name, normalized_codes, customer_map, rake_columns = await _resolve_region_customers(
         query.region_id
     )
     price_per_qty = await coil_price_per_qty()
@@ -199,19 +231,19 @@ async def generate_report(query: ReportQuery) -> ReportResponse:
     has_stock = await stock_model.find({"report_date": query.date}).count() > 0
     has_credit_report, credit_map = await build_credit_map(query.date, ccas)
 
-    channels: list[ReportChannel] = []
+    pivot_rows: list[ReportPivotRow] = []
     if has_stock and normalized_codes:
         rows = await aggregate_pivot(
             stock_model, query.date, list(normalized_codes), query.days
         )
-        channels = _build_channels(
-            rows, has_credit_report, credit_map, price_per_qty, customer_extra
+        pivot_rows = _build_pivot_rows(
+            rows, has_credit_report, credit_map, price_per_qty, customer_map, rake_columns
         )
+        # Show only RAKE columns that actually moved stock (drop all-dash columns).
+        rake_columns = _filter_used_rakes(pivot_rows, rake_columns)
 
     grand_req = [
-        c.subtotal_required_credit
-        for c in channels
-        if c.subtotal_required_credit is not None
+        r.required_credit for r in pivot_rows if r.required_credit is not None
     ]
     return ReportResponse(
         date=query.date,
@@ -223,8 +255,9 @@ async def generate_report(query: ReportQuery) -> ReportResponse:
         has_stock=has_stock,
         has_credit_report=has_credit_report,
         coil_price_per_qty=price_per_qty,
-        channels=channels,
-        grand_total=sum(c.subtotal for c in channels),
-        grand_nco_yes_do=sum(c.subtotal_nco_yes_do for c in channels),
+        rake_columns=rake_columns,
+        rows=pivot_rows,
+        grand_total=sum(r.total for r in pivot_rows),
+        grand_nco_yes_do=sum(r.nco_yes_do for r in pivot_rows),
         grand_required_credit=sum(grand_req) if grand_req else None,
     )

@@ -7,9 +7,11 @@ export function DashboardLayout() {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
+      {/* min-w-0 lets the flex child shrink below its content width, so wide
+          tables scroll inside their own box instead of widening the whole page. */}
+      <SidebarInset className="min-w-0">
         <DashboardNavbar />
-        <main className="flex-1 p-4 md:p-6">
+        <main className="min-w-0 flex-1 p-4 md:p-6">
           <Outlet />
         </main>
       </SidebarInset>

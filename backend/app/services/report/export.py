@@ -1,4 +1,4 @@
-"""Report JSW/JVML business logic: export the generated report as .xlsx."""
+"""Report JSW/JVML business logic: export the generated RAKE-pivot report as .xlsx."""
 
 from __future__ import annotations
 
@@ -16,15 +16,20 @@ from ...utils.shared.export_style import (
 from .generate import generate_report
 
 
-_HEADERS = [
-    "Channel",
-    "Party Code",
+# Fixed row fields in display order.
+_FIXED_HEADERS = [
+    "Distr. Channel",
     "Sold To Party",
-    "Ship-To Party",
-    "Route",
-    "Route Desc",
-    "RAKE",
-    "Mode of Transport",
+    "BRANCH",
+    "Party Code",
+    "Ship To Party",
+    "Transport Mode",
+    "Destination",
+    "ROUTE",
+]
+
+# Fixed trailing columns after the dynamic RAKE columns.
+_TRAILING_HEADERS = [
     "Total",
     "Yes+DO",
     "Blocked",
@@ -32,6 +37,7 @@ _HEADERS = [
     "Required Credit",
     "Credit Note",
 ]
+
 
 def _fmt_bool(value: bool | None) -> str:
     if value is None:
@@ -44,8 +50,9 @@ def _fmt_num(value: float | None) -> float | "":
 
 
 def _write_report(ws, report: ReportResponse) -> None:
-    """Write channel/parties/subtotals/grand-total rows to *ws*."""
-    ws.append(_HEADERS)
+    """Write pivot rows/subtotals/grand-total rows to *ws*."""
+    headers = _FIXED_HEADERS + report.rake_columns + _TRAILING_HEADERS
+    ws.append(headers)
     style_header_row(ws[1])
 
     import openpyxl
@@ -53,73 +60,44 @@ def _write_report(ws, report: ReportResponse) -> None:
 
     bold = Font(bold=True)
 
-    for channel in report.channels:
-        # Channel header row
-        ws.append([channel.distr_chnl] + [""] * (len(_HEADERS) - 1))
-        header_row = ws.max_row
-        ws.merge_cells(
-            start_row=header_row, start_column=1, end_row=header_row, end_column=len(_HEADERS)
+    for row in report.rows:
+        ws.append(
+            [
+                row.distr_chnl or "",
+                row.sold_to_party or "",
+                row.sales_office or "",
+                row.party_code,
+                row.ship_to_party or "",
+                row.transport_mode or "",
+                row.destination or "",
+                row.route or "",
+            ]
+            + [row.rake_quantities.get(col, 0.0) or "" for col in report.rake_columns]
+            + [
+                _fmt_num(row.total),
+                _fmt_num(row.nco_yes_do),
+                _fmt_bool(row.blocked),
+                _fmt_num(row.credit_balance),
+                _fmt_num(row.required_credit),
+                row.credit_note,
+            ]
         )
-        ws.cell(row=header_row, column=1).font = bold
-
-        for party in channel.parties:
-            ws.append([
-                "",
-                party.party_code,
-                party.sold_to_party or "",
-                party.ship_to_party or "",
-                party.route or "",
-                party.route_desc or "",
-                party.rake or "",
-                party.transport_mode or "",
-                _fmt_num(party.total),
-                _fmt_num(party.nco_yes_do),
-                _fmt_bool(party.blocked),
-                _fmt_num(party.credit_balance),
-                _fmt_num(party.required_credit),
-                party.credit_note,
-            ])
-
-        # Channel subtotal row
-        ws.append([
-            "",
-            "",
-            f"{channel.distr_chnl} Total",
-            "",
-            "",
-            "",
-            "",
-            "",
-            _fmt_num(channel.subtotal),
-            _fmt_num(channel.subtotal_nco_yes_do),
-            "",
-            "",
-            _fmt_num(channel.subtotal_required_credit),
-            "",
-        ])
-        for col in range(1, len(_HEADERS) + 1):
-            ws.cell(row=ws.max_row, column=col).font = bold
 
     # Grand total row
-    ws.append([
-        "Grand Total",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
+    # Headers: fixed (9) + rake_columns (N) + trailing (6). Credit money is intentionally NOT summed.
+    total_row = ["Grand Total"] + [""] * (len(_FIXED_HEADERS) - 1)
+    total_row += [""] * len(report.rake_columns)
+    total_row += [
         _fmt_num(report.grand_total),
         _fmt_num(report.grand_nco_yes_do),
         "",
         "",
         _fmt_num(report.grand_required_credit),
         "",
-    ])
-    for col in range(1, len(_HEADERS) + 1):
+    ]
+    ws.append(total_row)
+    for col in range(1, len(headers) + 1):
         ws.cell(row=ws.max_row, column=col).font = bold
-
 
 
 async def export_report(query: ReportQuery) -> bytes:

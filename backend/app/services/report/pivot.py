@@ -1,14 +1,12 @@
-"""Stock pivot aggregation for the Report JSW/JVML feature.
+"""RAKE-pivot aggregation for the Report JSW/JVML feature.
 
-Builds the "Sum of Stock Quantity" pivot (grouped by ``distr_chnl`` →
-``party_code_normalized``) for one date, restricted to a set of normalized
-customer codes, with the aging day-filter applied. Runs a single MongoDB
-``$group`` aggregation (no per-row Python work — ``backend-performance-standards``;
-the jvml collection holds ~17k rows).
+Builds the row-level aggregation grouped by the stock row fields
+(SO Sales Org → Distr. Channel → Sold To Party → Sales Office → Party Code →
+Ship-To Party) for one date, restricted to a set of normalized customer codes,
+with the aging day-filter applied.
 
-Returns raw ``list[dict]`` aggregation results (no ``projection_model`` — passing
-a Pydantic model would inject Beanie's auto-``$project`` and break the
-sub-document ``_id`` access, per AUDIT.md).
+CustomerCode enrichment (RAKE, Transport Mode, Destination, ROUTE) and the
+RAKE-column pivot happen in ``services.report.generate`` after this step.
 """
 
 from __future__ import annotations
@@ -62,7 +60,7 @@ async def aggregate_pivot(
     normalized_codes: list[str],
     days: str,
 ) -> list[dict[str, Any]]:
-    """Aggregate the stock pivot for *date* over *normalized_codes*.
+    """Aggregate stock rows for *date* over *normalized_codes*.
 
     Args:
         stock_model: ``JswStock`` or ``JvmlStock`` Beanie Document class.
@@ -74,12 +72,19 @@ async def aggregate_pivot(
     Returns:
         A list of group dicts, each shaped::
 
-            {"_id": {"distr_chnl": str|None, "party": str},
-             "total": float, "nco_yes_do": float, "nco_yes_do_count": int,
-             "sold_to_party": str|None, "route_desc": str|None}
+            {"_id": {"so_sales_org": str|None,
+                     "distr_chnl": str|None,
+                     "sold_to_party": str|None,
+                     "sales_office": str|None,
+                     "party": str,
+                     "ship_to_party": str|None},
+             "total": float,
+             "nco_yes_do": float,
+             "nco_yes_do_count": int}
 
-    ``route`` and ``ship_to_party`` are added downstream by
-    ``services.report.generate`` from the ``CustomerCode`` master lookup.
+    Enrichment with ``CustomerCode`` (RAKE, Transport Mode, Destination, ROUTE)
+    and the RAKE-column pivot are applied downstream by
+    ``services.report.generate``.
     """
     match: dict[str, Any] = {
         "report_date": date,
@@ -93,16 +98,18 @@ async def aggregate_pivot(
         {
             "$group": {
                 "_id": {
+                    "so_sales_org": "$so_sales_org",
                     "distr_chnl": "$distr_chnl",
+                    "sold_to_party": "$sold_to_party",
+                    "sales_office": "$sales_office",
                     "party": "$party_code_normalized",
+                    "ship_to_party": "$ship_to_party",
                 },
                 "total": {"$sum": "$stock_quantity"},
                 "nco_yes_do": {
                     "$sum": {"$cond": [is_nco_yes, "$stock_quantity", 0]}
                 },
                 "nco_yes_do_count": {"$sum": {"$cond": [is_nco_yes, 1, 0]}},
-                "sold_to_party": {"$first": "$sold_to_party"},
-                "route_desc": {"$first": "$route_desc"},
             }
         },
     ]
