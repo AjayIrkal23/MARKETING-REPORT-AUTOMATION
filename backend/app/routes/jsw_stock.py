@@ -42,6 +42,14 @@ router.add_api_route(
     summary="List JSW stock rows (paginated)",
 )
 
+# GET /export — download matching rows as .xlsx
+router.add_api_route(
+    "/export",
+    ctrl.export_jsw_stock_controller,
+    methods=["GET"],
+    summary="Export JSW stock as .xlsx",
+)
+
 # GET /options — async-combobox field options
 # Registered BEFORE any variable-segment route (none here, but convention kept).
 router.add_api_route(

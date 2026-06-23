@@ -15,6 +15,7 @@
  * Route:    /admin/regions  (guarded by AdminRoute)
  */
 
+import { useState } from "react"
 import { MapPin } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 
@@ -50,6 +51,8 @@ export function RegionManagementPage() {
     closeDialog,
     actions,
   } = useRegionManagement()
+
+  const [isConfirmLoading, setIsConfirmLoading] = useState(false)
 
   // ── Toolbar adapter ───────────────────────────────────────────────────────
   // RegionTableToolbar expects a single `onQueryChange` callback that accepts
@@ -172,10 +175,16 @@ export function RegionManagementPage() {
         onOpenChange={(open) => { if (!open) closeDialog() }}
         variant={confirmVariant}
         targetLabel={dialogRegion?.name ?? ""}
-        onConfirm={() => {
+        isLoading={isConfirmLoading}
+        onConfirm={async () => {
           if (!dialogRegion) return
-          if (isConfirmDelete) void actions.remove(dialogRegion.id)
-          if (isConfirmToggle) void actions.toggleActive(dialogRegion)
+          setIsConfirmLoading(true)
+          try {
+            if (isConfirmDelete) await actions.remove(dialogRegion.id)
+            if (isConfirmToggle) await actions.toggleActive(dialogRegion)
+          } finally {
+            setIsConfirmLoading(false)
+          }
         }}
       />
 

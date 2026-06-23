@@ -32,6 +32,8 @@ function buildParams(
     ...(q.customer_name    ? { customer_name: q.customer_name }           : {}),
     ...(q.sales_office     ? { sales_office: q.sales_office }             : {}),
     ...(q.nco_declared     ? { nco_declared: q.nco_declared }             : {}),
+    // Region filter — only include when non-empty
+    ...(q.region           ? { region: q.region }                         : {}),
   }
 }
 

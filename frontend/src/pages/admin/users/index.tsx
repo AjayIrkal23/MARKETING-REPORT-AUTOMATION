@@ -15,6 +15,7 @@
  * Route:    /admin/users  (guarded by AdminRoute)
  */
 
+import { useState } from "react"
 import { ShieldUser } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 
@@ -58,6 +59,8 @@ export function UserManagementPage() {
     closeDialog,
     actions,
   } = useUserManagement()
+
+  const [isConfirmLoading, setIsConfirmLoading] = useState(false)
 
   // ── Toolbar adapter ───────────────────────────────────────────────────────
   // UserTableToolbar expects a single `onQueryChange` callback that accepts
@@ -198,11 +201,17 @@ export function UserManagementPage() {
         onOpenChange={(open) => { if (!open) closeDialog() }}
         variant={confirmVariant}
         targetLabel={dialogUser?.name ?? dialogUser?.emailid ?? "this user"}
-        onConfirm={() => {
+        isLoading={isConfirmLoading}
+        onConfirm={async () => {
           if (!dialogUser) return
-          if (isConfirmEnable)  void actions.enable(dialogUser.id)
-          if (isConfirmDisable) void actions.disable(dialogUser.id)
-          if (isConfirmDelete)  void actions.remove(dialogUser.id)
+          setIsConfirmLoading(true)
+          try {
+            if (isConfirmEnable)  await actions.enable(dialogUser.id)
+            if (isConfirmDisable) await actions.disable(dialogUser.id)
+            if (isConfirmDelete)  await actions.remove(dialogUser.id)
+          } finally {
+            setIsConfirmLoading(false)
+          }
         }}
       />
 

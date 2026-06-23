@@ -2,9 +2,8 @@
 
 ``openpyxl`` is imported **lazily inside each function** so ``import app.main``
 works without the package installed.  Real-file quirks handled: ``code`` as int,
-``MOB No.`` as int or free-text, ``CAM `` trailing space, unnamed junk columns
-(None-header guard), duplicate ``SHIP TO`` / ``SHIP TO CUSTOMER`` columns, and
-numeric cells coerced to strings.
+``MOB No.`` as int or free-text, ``CAM `` trailing space, numeric cells coerced
+to strings, and strict template enforcement via a hidden fingerprint sheet.
 """
 
 from __future__ import annotations
@@ -12,6 +11,18 @@ from __future__ import annotations
 import re
 
 from ...schemas.customer_code import CustomerCodeImportError
+
+
+# ---------------------------------------------------------------------------
+# Template fingerprint
+# ---------------------------------------------------------------------------
+
+#: Hidden worksheet name used to mark an official portal-generated workbook.
+_TEMPLATE_MARKER_SHEET: str = "_JSW_MRA_TEMPLATE_"
+
+#: Cell values stored in the hidden fingerprint sheet.
+_TEMPLATE_MARKER_A1: str = "CUSTOMER_CODES_TEMPLATE"
+_TEMPLATE_MARKER_A2: str = "v1"
 
 
 # ---------------------------------------------------------------------------
@@ -32,8 +43,6 @@ def normalize_header(h: object) -> str:
 
 #: Maps *normalised* Excel header strings to CustomerCode model field names.
 #: Three ``mob`` aliases handle period-dropped exports and bare ``"mob"``.
-#: Duplicate ``ship to`` / ``ship to customer`` columns are resolved by
-#: occurrence order in ``_header_to_field`` below.
 _HEADER_MAP: dict[str, str] = {
     "segment":          "segment",
     "code":             "code",
@@ -60,35 +69,32 @@ MAX_IMPORT_ROWS: int = 50_000
 
 
 # ---------------------------------------------------------------------------
-# Header resolution with duplicate handling
+# Header resolution
 # ---------------------------------------------------------------------------
 
 def _header_to_field(header_row: tuple[object, ...]) -> dict[int, str]:
     """Build a column-index → field-name map from the header row.
 
-    Duplicate ``ship to`` / ``ship to customer`` headers are mapped by
-    occurrence: first pair → ``ship_to`` / ``ship_to_customer``, second pair
-    → ``ship_to_2`` / ``ship_to_customer_2``. Unnamed / unknown headers are
-    ignored so their stray values do not pollute parsed rows.
+    Every non-empty header must exist in ``_HEADER_MAP``; callers enforce
+    template conformance before this function is reached.
     """
-    seen: dict[str, int] = {}
     col_field_map: dict[int, str] = {}
     for col_idx, h in enumerate(header_row):
         if h is None:
             continue
         norm = normalize_header(h)
         field = _HEADER_MAP.get(norm)
-        if not field:
-            continue
-        # Resolve duplicate ship-to headers by occurrence.
-        if norm == "ship to":
-            seen["ship to"] = seen.get("ship to", 0) + 1
-            field = "ship_to" if seen["ship to"] == 1 else "ship_to_2"
-        elif norm == "ship to customer":
-            seen["ship to customer"] = seen.get("ship to customer", 0) + 1
-            field = "ship_to_customer" if seen["ship to customer"] == 1 else "ship_to_customer_2"
-        col_field_map[col_idx] = field
+        if field:
+            col_field_map[col_idx] = field
     return col_field_map
+
+
+def _strip_trailing_nones(header_row: tuple[object, ...]) -> list[object]:
+    """Return the header row with trailing ``None`` cells removed."""
+    headers = list(header_row)
+    while headers and headers[-1] is None:
+        headers.pop()
+    return headers
 
 
 # ---------------------------------------------------------------------------
@@ -118,6 +124,75 @@ def cell_to_str(v: object) -> str | None:
 # Workbook parser
 # ---------------------------------------------------------------------------
 
+def _verify_template_fingerprint(wb) -> bool:
+    """Return True if the workbook contains the official portal fingerprint."""
+    if _TEMPLATE_MARKER_SHEET not in wb.sheetnames:
+        return False
+    ws = wb[_TEMPLATE_MARKER_SHEET]
+    return (
+        ws["A1"].value == _TEMPLATE_MARKER_A1
+        and ws["A2"].value == _TEMPLATE_MARKER_A2
+    )
+
+
+def _validate_headers(
+    header_row: tuple[object, ...],
+) -> tuple[dict[int, str] | None, CustomerCodeImportError | None]:
+    """Check header conformance and return ``(col_field_map, error)``.
+
+    The visible headers must be a subsequence of ``TEMPLATE_HEADERS`` after
+    normalisation: order must be preserved, no unknown/extra headers, and no
+    duplicate headers.  Missing columns are allowed; required columns that are
+    absent will have their values default to ``"unknown"`` at the row level.
+    """
+    actual_headers = _strip_trailing_nones(header_row)
+    expected_norm = [normalize_header(h) for h in TEMPLATE_HEADERS]
+    actual_norm = [normalize_header(h) for h in actual_headers]
+
+    # Detect unknown / extra headers.
+    unknown = [h for h in actual_norm if h not in expected_norm]
+    if unknown:
+        return None, CustomerCodeImportError(
+            row=0,
+            message=(
+                "Uploaded file contains unexpected column(s): "
+                f"{', '.join(unknown)}. "
+                "Download the official customer codes template and use it without modification."
+            ),
+        )
+
+    # Detect duplicate headers.
+    seen = set()
+    duplicates = {h for h in actual_norm if h in seen or seen.add(h)}  # type: ignore[func-returns-value]
+    if duplicates:
+        return None, CustomerCodeImportError(
+            row=0,
+            message=(
+                "Uploaded file contains duplicate column(s): "
+                f"{', '.join(sorted(duplicates))}. "
+                "Download the official customer codes template and use it without modification."
+            ),
+        )
+
+    # Require the actual headers to appear in the same order as the template.
+    expected_iter = iter(expected_norm)
+    for h in actual_norm:
+        for expected in expected_iter:
+            if h == expected:
+                break
+        else:
+            # `h` was not found in the remaining expected headers → wrong order.
+            return None, CustomerCodeImportError(
+                row=0,
+                message=(
+                    "Uploaded file columns are out of order. "
+                    "Download the official customer codes template and use it without modification."
+                ),
+            )
+
+    return _header_to_field(header_row), None
+
+
 def parse_workbook(
     file_bytes: bytes,
 ) -> tuple[list[dict[str, str | None]], list[CustomerCodeImportError]]:
@@ -126,12 +201,15 @@ def parse_workbook(
     Each element of ``valid_rows`` is a ``dict`` of model field → cleaned
     string (or ``None`` for optional fields).  Fully-empty rows are silently
     skipped (counted as *skipped*, not as errors in the import summary).
-    Non-empty rows missing a required field have that field filled with the
-    string ``"unknown"`` instead of being rejected.
+    Missing columns are allowed; absent required columns result in ``"unknown"``
+    for every row, and absent optional columns result in ``None``.
 
-    Early-return paths: (1) no rows → ``([], [])``;
-    (2) required headers absent → ``([], [error])``;
-    (3) exceeds ``MAX_IMPORT_ROWS`` → ``([], [error])``.
+    Early-return paths:
+    (1) missing/invalid fingerprint → row-0 error;
+    (2) unknown, duplicate, or out-of-order headers → row-0 error;
+    (3) no rows → ``([], [])``;
+    (4) exceeds ``MAX_IMPORT_ROWS`` → row-0 error.
+
     Excel row numbers: header = 1, first data row = 2.
     Rows buffered before ``wb.close()`` — openpyxl read-only mode
     releases file handles on close.
@@ -145,6 +223,19 @@ def parse_workbook(
         read_only=True,
         data_only=True,
     )
+
+    if not _verify_template_fingerprint(wb):
+        wb.close()
+        return [], [
+            CustomerCodeImportError(
+                row=0,
+                message=(
+                    "Uploaded file is not the official customer codes template. "
+                    "Download the template from this portal and use it without modification."
+                ),
+            )
+        ]
+
     ws = wb.active
     rows = list(ws.iter_rows(values_only=True))  # buffer before close
     wb.close()  # required: releases file handles held by read_only mode
@@ -152,22 +243,10 @@ def parse_workbook(
     if not rows:
         return [], []
 
-    # Build column-index → field-name map from the header row.
-    col_field_map = _header_to_field(rows[0])
-
-    # Validate that all required headers are present.
-    mapped_fields = set(col_field_map.values())
-    missing_headers = [f for f in REQUIRED_FIELDS if f not in mapped_fields]
-    if missing_headers:
-        return [], [
-            CustomerCodeImportError(
-                row=0,
-                message=(
-                    f"Missing required column(s): {', '.join(missing_headers)}. "
-                    "Ensure the file uses the official template headers."
-                ),
-            )
-        ]
+    # Validate headers and build column-index → field-name map.
+    col_field_map, header_error = _validate_headers(rows[0])
+    if header_error is not None or col_field_map is None:
+        return [], [header_error] if header_error is not None else []
 
     # DoS guard — reject sheets that exceed MAX_IMPORT_ROWS.
     data_rows = rows[1:]
@@ -185,12 +264,17 @@ def parse_workbook(
     valid_rows: list[dict[str, str | None]] = []
     errors: list[CustomerCodeImportError] = []
 
+    all_fields = set(_HEADER_MAP.values())
+
     for row_idx, raw_row in enumerate(data_rows, start=2):
-        # Map each tracked column index to its coerced string value.
-        parsed: dict[str, str | None] = {
+        # Seed every known field with None, then override with actual values.
+        # Missing columns therefore produce explicit None values rather than
+        # absent keys; required fields are filled with "unknown" below.
+        parsed: dict[str, str | None] = {field: None for field in all_fields}
+        parsed.update({
             field: cell_to_str(raw_row[col_i] if col_i < len(raw_row) else None)
             for col_i, field in col_field_map.items()
-        }
+        })
 
         # Branch A: all mapped fields are None → fully-empty row, skip silently.
         # These contribute to the *skipped* count, not the error count.
@@ -219,7 +303,6 @@ TEMPLATE_HEADERS: list[str] = [
     "Segment", "code", "Customer", "Destination",
     "CAM", "MOB No.", "Head", "ROUTE",
     "SHIP TO", "SHIP TO CUSTOMER",
-    "SHIP TO", "SHIP TO CUSTOMER",
     "SHIP TO CITY", "RAKE", "TRANSPORT MODE",
 ]
 
@@ -227,18 +310,31 @@ _TEMPLATE_EXAMPLE_ROW: list[str] = [
     "Retail", "40020365", "Example Steel Traders", "Mumbai",
     "Ravi Kumar", "9876543210", "Sales Head Name", "KAT036",
     "40047421", "Example Ship-To Pvt Ltd",
-    "40047422", "Example Second Ship-To Pvt Ltd",
     "Mumbai", "RAKE-01", "RAKE",
 ]
+
+
+def add_template_fingerprint(wb) -> None:
+    """Attach the official-portal fingerprint sheet to ``wb``.
+
+    The sheet is hidden and contains a stable marker.  It is preserved when
+    the user edits the workbook in Excel/LibreOffice, but lost when values are
+    copied into a new blank workbook — this enforces template-only imports.
+    """
+    ws = wb.create_sheet(title=_TEMPLATE_MARKER_SHEET)
+    ws["A1"] = _TEMPLATE_MARKER_A1
+    ws["A2"] = _TEMPLATE_MARKER_A2
+    ws.sheet_state = "hidden"
 
 
 def build_template_workbook() -> bytes:
     """Build a minimal import template and return raw ``.xlsx`` bytes.
 
-    The workbook contains one sheet (``"Customer Codes"``) with the canonical
-    header row and one example data row illustrating expected value formats.
-    Headers are bold with a light-blue fill for readability; columns are
-    auto-sized to the widest of header or example value.
+    The workbook contains one visible sheet (``"Customer Codes"``) with the
+    canonical header row and one example data row illustrating expected value
+    formats, plus a hidden fingerprint sheet proving it was generated by the
+    portal.  Headers are bold with a light-blue fill for readability; columns
+    are auto-sized to the widest of header or example value.
 
     Returns raw bytes suitable for ``StreamingResponse`` with content-type
     ``application/vnd.openxmlformats-officedocument.spreadsheetml.sheet``.
@@ -253,6 +349,8 @@ def build_template_workbook() -> bytes:
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Customer Codes"
+
+    add_template_fingerprint(wb)
 
     header_fill = PatternFill(start_color="D9E1F2", end_color="D9E1F2", fill_type="solid")
     header_font = Font(bold=True)

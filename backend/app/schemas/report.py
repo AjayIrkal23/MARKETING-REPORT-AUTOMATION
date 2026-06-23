@@ -13,9 +13,9 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 from typing import Literal
 
-# Report type → stock collection + credit control area:
-#   jsw  → jsw_stock  + CCA "VJ0H"
-#   jvml → jvml_stock + CCA "JV0H"
+# Report type → stock collection + credit control areas:
+#   jsw  → jsw_stock  + CCAs ["VJ0H", "1000"]
+#   jvml → jvml_stock + CCA ["JV0H"]
 ReportType = Literal["jsw", "jvml"]
 
 # QA-hold aging day-filter, defined around "aged QA-hold" stock =
@@ -47,6 +47,8 @@ class ReportParty(BaseModel):
     ship_to_party: str | None       # from CustomerCode.ship_to_customer (+ ship_to fallback)
     route: str | None               # from CustomerCode.route
     route_desc: str | None
+    rake: str | None                # from CustomerCode.rake
+    transport_mode: str | None      # from CustomerCode.transport_mode
     total: float                    # Σ stock_quantity for this party
     nco_yes_do: float               # Σ stock_quantity where nco_declared == "Yes"
     nco_yes_do_count: int           # # rows where nco_declared == "Yes"
@@ -77,7 +79,7 @@ class ReportResponse(BaseModel):
     region_id: str | None
     region_name: str                # resolved name, or "All Regions"
     days_filter: DaysFilter
-    cca: str                        # "VJ0H" (jsw) / "JV0H" (jvml)
+    ccas: list[str]                # e.g. ["VJ0H", "1000"] (jsw) / ["JV0H"] (jvml)
     has_stock: bool                 # False → "No stock excel for this date selected"
     has_credit_report: bool         # False → all credit columns "NO CREDIT REPORT FOUND"
     coil_price_per_qty: float | None

@@ -148,7 +148,7 @@ export interface JswStock {
  * Query params for GET /jsw-stock.
  * All filtering is server-driven — no client-side filtering.
  * Keys must match backend JswStockListQuery exactly (snake_case).
- * Exactly 6 filters: single `date` ("dd-MM-yyyy") + 5 per-field filters.
+ * Exactly 7 filters: single `date` ("dd-MM-yyyy") + 5 per-field filters + region.
  */
 export interface JswStockListQuery extends PageQuery {
   sortBy?: JswStockSortBy
@@ -160,4 +160,6 @@ export interface JswStockListQuery extends PageQuery {
   customer_name?: string
   sales_office?: string
   nco_declared?: string
+  // Region filter — region _id hex; applied via CustomerCode join on the backend
+  region?: string
 }

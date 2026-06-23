@@ -3,6 +3,7 @@ import { XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AsyncCombobox } from "@/components/common/AsyncCombobox"
 import { searchJvmlStockFieldOptions } from "@/api/jvml-stock/options"
+import { searchRegionOptions } from "@/api/admin/regions/options"
 import type { JvmlStockField } from "@/types/jvml-stock/stock"
 import type { JvmlStockFiltersProps } from "@/types/jvml-stock/stock-ui"
 
@@ -33,7 +34,8 @@ const FETCHERS = Object.fromEntries(
 // ── Active count helper ───────────────────────────────────────────────────────
 
 function countActive(props: JvmlStockFiltersProps): number {
-  return FIELD_FILTERS.filter(({ field }) => !!props[field]).length
+  const fieldActive = FIELD_FILTERS.filter(({ field }) => !!props[field]).length
+  return fieldActive + (props.region ? 1 : 0)
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -47,7 +49,7 @@ function countActive(props: JvmlStockFiltersProps): number {
  * FETCHERS are frozen at module level for referential stability across renders.
  */
 export function JvmlStockFilters(props: JvmlStockFiltersProps) {
-  const { onFilterChange, onClearAll } = props
+  const { onFilterChange, onClearAll, disabled } = props
   const activeCount = countActive(props)
 
   return (
@@ -65,10 +67,24 @@ export function JvmlStockFilters(props: JvmlStockFiltersProps) {
             placeholder={placeholder}
             emptyText={`No ${label.toLowerCase()} options.`}
             allowClear
+            disabled={disabled}
             aria-label={`Filter by ${label}`}
           />
         </div>
       ))}
+
+      <div className="min-w-[150px] flex-[1_1_150px]">
+        <AsyncCombobox
+          value={props.region || null}
+          onChange={(value) => onFilterChange({ region: value ?? "" })}
+          fetchOptions={searchRegionOptions}
+          placeholder="All regions"
+          emptyText="No regions found."
+          allowClear
+          disabled={disabled}
+          aria-label="Filter by region"
+        />
+      </div>
 
       {activeCount > 0 && (
         <Button
@@ -76,6 +92,7 @@ export function JvmlStockFilters(props: JvmlStockFiltersProps) {
           variant="ghost"
           size="sm"
           onClick={onClearAll}
+          disabled={disabled}
           className="h-9 shrink-0 gap-1.5 text-muted-foreground hover:text-foreground"
           aria-label={`Clear all filters, ${activeCount} active`}
         >

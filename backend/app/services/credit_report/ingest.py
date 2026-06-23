@@ -5,7 +5,7 @@ Flow:
   2. Parse bytes with the raw-zip parser via parse_workbook.
   3. Delete existing docs for *report_date* (idempotency).
   4. Build CreditReport documents — only rows passing should_keep_row
-     (non-empty customer_name AND credit_control_area in {JV0H, VJ0H}).
+     (non-empty customer_name AND credit_control_area in {JV0H, VJ0H, 1000}).
   5. Insert in chunks of 1 000; track count via len(chunk).
   6. Emit ``credit_report.ingested`` audit event.
   7. Return total inserted count.
@@ -93,8 +93,8 @@ async def ingest_file(path: str, report_date: str) -> int:
             for _, field, _ in COLUMNS
         }
 
-        # Business-rule gate: non-empty customer_name AND CCA in {JV0H, VJ0H}.
-        # should_keep_row takes ONE argument — the coerced dict.
+        # Business-rule gate: non-empty customer_name AND CCA in
+        # {JV0H, VJ0H, 1000}. should_keep_row takes ONE argument — the coerced dict.
         if not should_keep_row(coerced):
             continue
 

@@ -29,6 +29,9 @@ export type CreditReportField =
   | "customer"
   | "cca_description"
 
+/** Plant-level grouping of credit control areas — must match backend PlantFilter Literal. */
+export type CreditReportPlant = "jsw" | "jvml" | "all"
+
 /**
  * Single Credit Report row — mirrors backend CreditReportPublic schema.
  * text → string|null, number → number|null.
@@ -82,7 +85,8 @@ export interface CreditReport {
  * Query params for GET /credit-report.
  * All filtering is server-driven — no client-side filtering.
  * Keys must match backend CreditReportListQuery exactly (snake_case).
- * 6 filters: 4 per-field async-select + blocked enum + credit_balance_sign enum.
+ * 8 filters: 4 per-field async-select + blocked enum + credit_balance_sign enum +
+ * plant enum + region.
  * `date` (report_date exact) included for parity; FE does not send it.
  */
 export interface CreditReportListQuery extends PageQuery {
@@ -101,4 +105,8 @@ export interface CreditReportListQuery extends PageQuery {
   blocked?: "blocked" | "unblocked"
   /** Enum filter — "positive" = credit_balance >= 0; "negative" = credit_balance < 0. */
   credit_balance_sign?: "positive" | "negative"
+  /** Plant filter — "jsw" = VJ0H + 1000; "jvml" = JV0H; "all" = no CCA filter. */
+  plant?: CreditReportPlant
+  /** Region filter — region _id hex; applied via CustomerCode join on `customer`. */
+  region?: string
 }

@@ -6,26 +6,30 @@
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Centralized, framework-agnostic utilities used across the application: API
+client, Tailwind class merging, and shared browser helpers.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Keep modules free of React/UI state unless their name explicitly says so.
+- API calls live in `src/api/<domain>/`; helpers that wrap browser APIs
+  (download, upload, etc.) live here.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `api.ts` | Base HTTP client, `ApiError`, and `buildQuery`. |
+| `download.ts` | Shared `downloadBlob` and `downloadFromFetch` helpers for binary backend responses. |
+| `utils.ts` | `cn()` Tailwind class-merge utility. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- `downloadFromFetch` intentionally uses raw `fetch` with `credentials: "include"`
+  because download endpoints return binary streams, not the standard JSON envelope.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: none
+- Related repo docs: [`frontend_docs/API_LAYER.md`](../../../frontend_docs/API_LAYER.md)

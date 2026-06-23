@@ -1,8 +1,8 @@
 /**
  * CreditReportPage — thin orchestrator for the Credit Report screen.
  *
- * Layout: header → Separator → CreditReportTableToolbar (6 filters: 4 async-select
- * + blocked enum + credit_balance_sign enum) → CreditReportTable →
+ * Layout: header → Separator → CreditReportTableToolbar (7 filters: 4 async-select
+ * + blocked enum + credit_balance_sign enum + plant enum) → CreditReportTable →
  * CreditReportTablePagination → ViewCreditReportDialog.
  * All state lives in `useCreditReportList`. Zero business logic here.
  *
@@ -22,7 +22,7 @@ import type { CreditReportSortBy } from "@/types/credit-report/credit-report"
 import type { CreditReportQueryState } from "@/types/credit-report/credit-report-ui"
 
 // ---------------------------------------------------------------------------
-// Filter keys — the 6 filter fields this toolbar manages
+// Filter keys — the 7 filter fields this toolbar manages
 // ---------------------------------------------------------------------------
 
 const FILTER_KEYS = [
@@ -32,6 +32,8 @@ const FILTER_KEYS = [
   "cca_description",
   "blocked",
   "credit_balance_sign",
+  "plant",
+  "region",
 ] as const
 
 type FilterKey = (typeof FILTER_KEYS)[number]
@@ -51,6 +53,8 @@ export function CreditReportPage() {
     rows,
     meta,
     loading,
+    exporting,
+    exportRows,
     error,
     dialog,
     openDialog,
@@ -114,8 +118,14 @@ export function CreditReportPage() {
 
       <Separator />
 
-      {/* ── Toolbar (6 filters: 4 async-select + 2 enum selects) ─────── */}
-      <CreditReportTableToolbar query={query} onQueryChange={handleQueryChange} />
+      {/* ── Toolbar (8 filters + export) ─────────────────────────────── */}
+      <CreditReportTableToolbar
+        query={query}
+        onQueryChange={handleQueryChange}
+        loading={loading}
+        exporting={exporting}
+        onExport={() => exportRows()}
+      />
 
       {/* ── Table ────────────────────────────────────────────────────── */}
       <CreditReportTable

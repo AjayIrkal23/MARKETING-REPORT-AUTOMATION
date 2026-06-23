@@ -9,6 +9,7 @@
 import { useCallback, useRef, useState } from "react"
 import { format } from "date-fns"
 
+import { exportReport } from "@/api/report/export"
 import { generateReport } from "@/api/report/generate"
 import type {
   DaysFilter,
@@ -31,8 +32,10 @@ export interface UseReportResult {
   setDays: (d: DaysFilter) => void
   data: ReportResponse | null
   loading: boolean
+  exporting: boolean
   error: string | null
   generate: () => void
+  exportReport: () => void
   canGenerate: boolean
 }
 
@@ -45,6 +48,7 @@ export function useReport(): UseReportResult {
   }))
   const [data, setData] = useState<ReportResponse | null>(null)
   const [loading, setLoading] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const fetchIdRef = useRef(0)
@@ -81,6 +85,23 @@ export function useReport(): UseReportResult {
       })
   }, [inputs])
 
+  const exportReportCallback = useCallback(() => {
+    if (!inputs.date) {
+      setError("Select a date first.")
+      return
+    }
+    setExporting(true)
+    setError(null)
+    exportReport({
+      date: inputs.date,
+      report_type: inputs.report_type,
+      region_id: inputs.region_id ?? undefined,
+      days: inputs.days,
+    })
+      .catch(() => setError("Failed to export the report. Please try again."))
+      .finally(() => setExporting(false))
+  }, [inputs])
+
   return {
     inputs,
     setDate,
@@ -89,8 +110,10 @@ export function useReport(): UseReportResult {
     setDays,
     data,
     loading,
+    exporting,
     error,
     generate,
+    exportReport: exportReportCallback,
     canGenerate: inputs.date !== null,
   }
 }

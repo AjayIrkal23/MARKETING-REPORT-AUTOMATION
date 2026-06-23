@@ -11,6 +11,7 @@ from __future__ import annotations
 from math import ceil
 
 from ...core.responses import PaginationMeta
+from ...models.customer_code import CustomerCode
 from ...models.jsw_stock import JswStock
 from ...schemas.jsw_stock import JswStockListQuery
 from ...schemas.jsw_stock_record import JswStockPublic
@@ -36,6 +37,11 @@ async def list_jsw_stock(
         carries pagination bookkeeping consumed by the frontend table component.
     """
     filt = build_jsw_stock_filter(query)
+
+    if query.region:
+        region_docs = await CustomerCode.find({"region_id": query.region}).to_list()
+        region_codes = [str(doc.id) for doc in region_docs]
+        filt["customer_code_id"] = {"$in": region_codes}
 
     total = await JswStock.find(filt).count()
 

@@ -19,14 +19,15 @@ from ...schemas.report import (
     ReportResponse,
 )
 from ...services.customer_code.region_link import resolve_region_or_400
+from ...utils.credit_report.query import _PLANT_CCA_MAP
 from ...utils.report.normalize import normalize_code
 from .credit import build_credit_map, coil_price_per_qty
 from .pivot import aggregate_pivot
 
-# Report type → (stock model, credit control area).
-_REPORT_MAP: dict[str, tuple[type, str]] = {
-    "jsw": (JswStock, "VJ0H"),
-    "jvml": (JvmlStock, "JV0H"),
+# Report type → (stock model, credit control areas).
+_REPORT_MAP: dict[str, tuple[type, list[str]]] = {
+    "jsw": (JswStock, _PLANT_CCA_MAP["jsw"]),
+    "jvml": (JvmlStock, _PLANT_CCA_MAP["jvml"]),
 }
 
 # Channel display order; unknown channels sort after these (alphabetical),
@@ -49,15 +50,16 @@ def _channel_sort_key(name: str) -> tuple[int, str]:
 
 async def _resolve_region_customers(
     region_id: str | None,
-) -> tuple[str, set[str], dict[str, tuple[str | None, str | None]]]:
+) -> tuple[str, set[str], dict[str, tuple[str | None, str | None, str | None, str | None]]]:
     """Resolve region → (region_name, normalized codes, enrichment map).
 
     Empty *region_id* ⇒ all regions / all customer codes. A non-empty but
     invalid id raises ``ValidationError`` (400) via ``resolve_region_or_400``.
 
-    The enrichment map returns, per normalized code, the ``(route, ship_to_party)``
-    values sourced from the enriched ``CustomerCode`` master. ``ship_to_party`` is
-    ``ship_to_customer`` with a fallback to ``ship_to``. First doc per code wins.
+    The enrichment map returns, per normalized code, the
+    ``(route, ship_to_party, rake, transport_mode)`` values sourced from the
+    enriched ``CustomerCode`` master. ``ship_to_party`` is ``ship_to_customer``
+    with a fallback to ``ship_to``. First doc per code wins.
     """
     if region_id:
         region = await resolve_region_or_400(region_id)
@@ -68,7 +70,7 @@ async def _resolve_region_customers(
         docs = await CustomerCode.find({}).to_list()
 
     codes: set[str] = set()
-    extra: dict[str, tuple[str | None, str | None]] = {}
+    extra: dict[str, tuple[str | None, str | None, str | None, str | None]] = {}
     for doc in docs:
         nc = normalize_code(doc.code)
         if not nc:
@@ -76,7 +78,12 @@ async def _resolve_region_customers(
         codes.add(nc)
         if nc not in extra:
             ship_to = (doc.ship_to_customer or "").strip() or doc.ship_to or None
-            extra[nc] = (doc.route, ship_to)
+            extra[nc] = (
+                doc.route,
+                ship_to,
+                (doc.rake or "").strip() or None,
+                (doc.transport_mode or "").strip() or None,
+            )
 
     return region_name, codes, extra
 
@@ -130,7 +137,7 @@ def _build_channels(
     has_credit_report: bool,
     credit_map: dict[str, dict[str, Any]],
     price_per_qty: float | None,
-    customer_extra: dict[str, tuple[str | None, str | None]],
+    customer_extra: dict[str, tuple[str | None, str | None, str | None, str | None]],
 ) -> list[ReportChannel]:
     """Group aggregation rows into ordered channels with parties + subtotals."""
     grouped: dict[str, list[ReportParty]] = {}
@@ -145,7 +152,9 @@ def _build_channels(
         credit = _augment_credit(
             total, nco_yes_do, party_key, has_credit_report, credit_map, price_per_qty
         )
-        route, ship_to_party = customer_extra.get(party_key, (None, None))
+        route, ship_to_party, rake, transport_mode = customer_extra.get(
+            party_key, (None, None, None, None)
+        )
         grouped.setdefault(channel, []).append(
             ReportParty(
                 party_code=party_key,
@@ -153,6 +162,8 @@ def _build_channels(
                 ship_to_party=ship_to_party,
                 route=route,
                 route_desc=row.get("route_desc"),
+                rake=rake,
+                transport_mode=transport_mode,
                 total=total,
                 nco_yes_do=nco_yes_do,
                 nco_yes_do_count=int(row.get("nco_yes_do_count") or 0),
@@ -178,7 +189,7 @@ def _build_channels(
 
 async def generate_report(query: ReportQuery) -> ReportResponse:
     """Build the full Report JSW/JVML payload for *query*."""
-    stock_model, cca = _REPORT_MAP[query.report_type]
+    stock_model, ccas = _REPORT_MAP[query.report_type]
 
     region_name, normalized_codes, customer_extra = await _resolve_region_customers(
         query.region_id
@@ -186,7 +197,7 @@ async def generate_report(query: ReportQuery) -> ReportResponse:
     price_per_qty = await coil_price_per_qty()
 
     has_stock = await stock_model.find({"report_date": query.date}).count() > 0
-    has_credit_report, credit_map = await build_credit_map(query.date, cca)
+    has_credit_report, credit_map = await build_credit_map(query.date, ccas)
 
     channels: list[ReportChannel] = []
     if has_stock and normalized_codes:
@@ -208,7 +219,7 @@ async def generate_report(query: ReportQuery) -> ReportResponse:
         region_id=query.region_id,
         region_name=region_name,
         days_filter=query.days,
-        cca=cca,
+        ccas=ccas,
         has_stock=has_stock,
         has_credit_report=has_credit_report,
         coil_price_per_qty=price_per_qty,

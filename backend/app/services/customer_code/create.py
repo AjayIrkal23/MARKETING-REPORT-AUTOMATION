@@ -70,8 +70,6 @@ async def create_customer_code(
         "route": data.route,
         "ship_to": ship_to,
         "ship_to_customer": data.ship_to_customer,
-        "ship_to_2": _norm_ship_to(data.ship_to_2),
-        "ship_to_customer_2": data.ship_to_customer_2,
         "ship_to_city": data.ship_to_city,
         "rake": data.rake,
         "transport_mode": data.transport_mode,

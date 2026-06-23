@@ -68,10 +68,6 @@ export interface CustomerCode {
   ship_to: string | null
   /** Ship-to customer name. Optional. */
   ship_to_customer: string | null
-  /** Second ship-to code. Optional. */
-  ship_to_2: string | null
-  /** Second ship-to customer name. Optional. */
-  ship_to_customer_2: string | null
   /** Ship-to city. Optional. */
   ship_to_city: string | null
   /** RAKE identifier. Optional. */
@@ -135,8 +131,6 @@ export interface CreateCustomerCodeInput {
   route?: string | null
   ship_to?: string | null
   ship_to_customer?: string | null
-  ship_to_2?: string | null
-  ship_to_customer_2?: string | null
   ship_to_city?: string | null
   rake?: string | null
   transport_mode?: string | null
@@ -159,8 +153,6 @@ export interface UpdateCustomerCodeInput {
   route?: string | null
   ship_to?: string | null
   ship_to_customer?: string | null
-  ship_to_2?: string | null
-  ship_to_customer_2?: string | null
   ship_to_city?: string | null
   rake?: string | null
   transport_mode?: string | null

@@ -116,14 +116,6 @@ async def update_customer_code(
         doc.ship_to_customer = update_data["ship_to_customer"]
         changed.append("ship_to_customer")
 
-    if "ship_to_2" in update_data:
-        doc.ship_to_2 = update_data["ship_to_2"]
-        changed.append("ship_to_2")
-
-    if "ship_to_customer_2" in update_data:
-        doc.ship_to_customer_2 = update_data["ship_to_customer_2"]
-        changed.append("ship_to_customer_2")
-
     if "ship_to_city" in update_data:
         doc.ship_to_city = update_data["ship_to_city"]
         changed.append("ship_to_city")

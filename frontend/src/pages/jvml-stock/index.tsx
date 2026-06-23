@@ -24,12 +24,13 @@ import type { JvmlStockQueryState } from "@/types/jvml-stock/stock-ui"
 // Filter key list — used by handleQueryChange to detect filter patches
 // ---------------------------------------------------------------------------
 
-const FILTER_KEYS: ReadonlyArray<JvmlStockField> = [
+const FILTER_KEYS: ReadonlyArray<JvmlStockField | "region"> = [
   "party_code",
   "sales_order_type",
   "customer_name",
   "sales_office",
   "nco_declared",
+  "region",
 ]
 
 // ---------------------------------------------------------------------------
@@ -47,6 +48,8 @@ export function JvmlStockListPage() {
     rows,
     meta,
     loading,
+    exporting,
+    exportRows,
     error,
     dialog,
     openDialog,
@@ -111,7 +114,13 @@ export function JvmlStockListPage() {
       <Separator />
 
       {/* ── Toolbar (date + 4 per-field filters) ─────────────────────── */}
-      <JvmlStockTableToolbar query={query} onQueryChange={handleQueryChange} />
+      <JvmlStockTableToolbar
+        query={query}
+        onQueryChange={handleQueryChange}
+        loading={loading}
+        exporting={exporting}
+        onExport={() => void exportRows()}
+      />
 
       {/* ── Table ────────────────────────────────────────────────────── */}
       <JvmlStockTable

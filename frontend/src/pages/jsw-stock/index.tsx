@@ -17,19 +17,20 @@ import { JswStockTable } from "@/components/jsw-stock/JswStockTable"
 import { JswStockTablePagination } from "@/components/jsw-stock/JswStockTablePagination"
 import { ViewJswStockDialog } from "@/components/jsw-stock/ViewJswStockDialog"
 
-import type { JswStockField, JswStockSortBy } from "@/types/jsw-stock/stock"
+import type { JswStockSortBy } from "@/types/jsw-stock/stock"
 import type { JswStockQueryState } from "@/types/jsw-stock/stock-ui"
 
 // ---------------------------------------------------------------------------
 // Filter key list — used by handleQueryChange to detect filter patches
 // ---------------------------------------------------------------------------
 
-const FILTER_KEYS: ReadonlyArray<JswStockField> = [
+const FILTER_KEYS: ReadonlyArray<keyof JswStockQueryState> = [
   "party_code",
   "sales_order_type",
   "customer_name",
   "sales_office",
   "nco_declared",
+  "region",
 ]
 
 // ---------------------------------------------------------------------------
@@ -47,6 +48,8 @@ export function JswStockListPage() {
     rows,
     meta,
     loading,
+    exporting,
+    exportRows,
     error,
     dialog,
     openDialog,
@@ -110,8 +113,14 @@ export function JswStockListPage() {
 
       <Separator />
 
-      {/* ── Toolbar (date + 4 per-field filters) ─────────────────────── */}
-      <JswStockTableToolbar query={query} onQueryChange={handleQueryChange} />
+      {/* ── Toolbar (date + 5 per-field filters + region + export) ───── */}
+      <JswStockTableToolbar
+        query={query}
+        onQueryChange={handleQueryChange}
+        loading={loading}
+        exporting={exporting}
+        onExport={() => exportRows()}
+      />
 
       {/* ── Table ────────────────────────────────────────────────────── */}
       <JswStockTable

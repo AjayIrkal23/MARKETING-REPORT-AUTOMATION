@@ -15,7 +15,10 @@ Unknown-key rejection (backend-api-standards, OWASP A04):
 
 from __future__ import annotations
 
+from io import BytesIO
+
 from fastapi import Depends, Request
+from starlette.responses import StreamingResponse
 
 from ..core.auth_deps import get_current_user
 from ..core.errors import ValidationError
@@ -24,6 +27,7 @@ from ..schemas.admin_user import AsyncOption
 from ..schemas.auth import AuthUser
 from ..schemas.credit_report import CreditReportListQuery, CreditReportOptionsQuery
 from ..schemas.credit_report_record import CreditReportPublic
+from ..services.credit_report.export import export_credit_report
 from ..services.credit_report.list import list_credit_report
 from ..services.credit_report.options import search_field_options
 
@@ -31,7 +35,7 @@ from ..services.credit_report.options import search_field_options
 # Whitelists for unknown-key rejection (backend-api-standards, OWASP A04).
 # Any query param not in these sets → 400 immediately.
 #
-# List: 4 base keys + date + 4 per-field filter keys + 2 enum filters = 11 total
+# List: 4 base keys + date + 4 per-field filter keys + 3 enum filters = 12 total
 # Options: 3 keys (field, q, limit)
 # ---------------------------------------------------------------------------
 
@@ -40,11 +44,20 @@ _ALLOWED_LIST_KEYS = frozenset({
     "page", "limit", "sortBy", "sortOrder", "date",
     # 4 per-field async-select filter keys (CreditReportField Literal)
     "customer_name", "city", "customer", "cca_description",
-    # 2 enum filters
-    "blocked", "credit_balance_sign",
+    # 3 enum filters
+    "blocked", "credit_balance_sign", "plant",
+    # Region filter
+    "region",
 })
 
 _ALLOWED_OPTION_KEYS = frozenset({"field", "q", "limit"})
+
+_ALLOWED_EXPORT_KEYS = frozenset({
+    "date",
+    "customer_name", "city", "customer", "cca_description",
+    "blocked", "credit_balance_sign", "plant",
+    "region",
+})
 
 
 # ---------------------------------------------------------------------------
@@ -90,3 +103,28 @@ async def field_options_controller(
         )
     options = await search_field_options(query)
     return success(options)
+
+
+async def export_credit_report_controller(
+    request: Request,
+    query: CreditReportListQuery = Depends(),
+    _user: AuthUser = Depends(get_current_user),
+) -> StreamingResponse:
+    """``GET /credit-report/export`` — export matching rows as .xlsx.
+
+    Applies the same filters as the list endpoint but returns every matching
+    row without pagination.
+    """
+    unknown = set(request.query_params.keys()) - _ALLOWED_EXPORT_KEYS
+    if unknown:
+        raise ValidationError(
+            f"Unknown query parameter(s): {', '.join(sorted(unknown))}"
+        )
+
+    data: bytes = await export_credit_report(query)
+    filename = f"credit_report_{query.date or 'all'}.xlsx"
+    return StreamingResponse(
+        BytesIO(data),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

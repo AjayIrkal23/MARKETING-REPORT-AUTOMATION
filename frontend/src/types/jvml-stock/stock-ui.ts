@@ -38,6 +38,8 @@ export type JvmlStockQueryState = {
   customer_name: string
   sales_office: string
   nco_declared: string
+  // Region filter — empty string = no filter
+  region: string
 }
 
 // ---------------------------------------------------------------------------
@@ -79,11 +81,16 @@ export interface JvmlStockTableToolbarProps {
 // Filters (5 async-select fields)
 // ---------------------------------------------------------------------------
 
-/** Subset of JvmlStockQueryState keys that map to the 5 filterable fields. */
+/** Subset of JvmlStockQueryState keys that map to filterable fields. */
 type FilterPatch = Partial<
   Pick<
     JvmlStockQueryState,
-    "party_code" | "sales_order_type" | "customer_name" | "sales_office" | "nco_declared"
+    | "party_code"
+    | "sales_order_type"
+    | "customer_name"
+    | "sales_office"
+    | "nco_declared"
+    | "region"
   >
 >
 
@@ -94,6 +101,8 @@ export interface JvmlStockFiltersProps {
   customer_name: string
   sales_office: string
   nco_declared: string
+  region: string
+  disabled?: boolean
   onFilterChange: (patch: FilterPatch) => void
   onClearAll: () => void
 }
@@ -129,11 +138,11 @@ export interface UseJvmlStockListResult {
   setPage: (page: number) => void
   setLimit: (limit: number) => void
   setSort: (sortBy: JvmlStockSortBy, sortOrder: "asc" | "desc") => void
-  /** Single setter for the 4 per-field filters — resets page to 1. */
+  /** Single setter for per-field filters — resets page to 1. */
   setFilter: (patch: FilterPatch) => void
   /** Set the single report-date filter ("dd-MM-yyyy" | null); resets page to 1. */
   setDate: (date: string | null) => void
-  /** Resets the 4 per-field filters AND the date; resets page to 1. */
+  /** Resets the per-field filters AND the date; resets page to 1. */
   clearFilters: () => void
   rows: JvmlStock[]
   meta: PaginationMeta | null
@@ -144,4 +153,6 @@ export interface UseJvmlStockListResult {
   openDialog: (d: JvmlStockDialogState) => void
   closeDialog: () => void
   refetch: () => void
+  exporting: boolean
+  exportRows: (filename?: string) => Promise<void>
 }

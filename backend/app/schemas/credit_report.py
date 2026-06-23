@@ -3,11 +3,12 @@
 Mirrors schemas/jvml_stock.py pattern (jvml_stock -> credit_report rename).
 AsyncOption imported exclusively from .admin_user (same rule as jvml_stock).
 
-Filter surface (6 filters total):
+Filter surface (7 filters total):
   - ``date``: single report date, ``"dd-mm-yyyy"`` — exact match on ``report_date``.
   - 4 per-field async-select filters (customer_name, city, customer, cca_description).
   - ``blocked``: enum filter ("blocked"/"unblocked") — maps "X" / None in the DB.
   - ``credit_balance_sign``: enum filter ("positive"/"negative") — numeric sign gate.
+  - ``plant``: enum filter ("jsw"/"jvml"/"all") — groups credit control areas.
 """
 from __future__ import annotations
 
@@ -50,6 +51,9 @@ CreditReportField = Literal[
     "cca_description",
 ]
 
+#: Plant-level grouping of credit control areas.
+PlantFilter = Literal["jsw", "jvml", "all"]
+
 # ---------------------------------------------------------------------------
 # Query DTOs
 # ---------------------------------------------------------------------------
@@ -61,13 +65,17 @@ class CreditReportListQuery(PageQuery):
     Extends PageQuery (page, limit, sortOrder).  Sort keys are a Pydantic
     Literal whitelist so unknown values are rejected at parse time.
 
-    Exactly 6 filters:
+    Exactly 8 filters:
       - ``date``: single report date, ``"dd-mm-yyyy"`` — exact match on the
         stored ``report_date`` field (pattern-validated; no timezone math).
       - 4 per-field exact-match filters (one per CreditReportField, None = off).
       - ``blocked``: enum — "blocked" maps to DB value "X"; "unblocked" maps
         to None/"" (i.e. not "X").
       - ``credit_balance_sign``: enum — "positive" (>=0) / "negative" (<0).
+      - ``plant``: enum — "jsw" maps to CCAs VJ0H + 1000; "jvml" maps to
+        CCA JV0H; "all" applies no CCA filter.
+      - ``region``: optional region _id; restricts rows whose ``customer``
+        SAP code matches a CustomerCode assigned to that region.
     """
 
     sortBy: CreditReportSortBy = "created_at"
@@ -86,6 +94,12 @@ class CreditReportListQuery(PageQuery):
 
     # Credit balance sign filter.
     credit_balance_sign: Literal["positive", "negative"] | None = None
+
+    # Plant-level CCA grouping filter.
+    plant: PlantFilter = "all"
+
+    # Region filter — region _id hex; applied via CustomerCode join on `customer`.
+    region: str | None = Field(default=None, max_length=200)
 
 
 class CreditReportOptionsQuery(BaseModel):

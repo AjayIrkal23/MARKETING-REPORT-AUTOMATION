@@ -1,7 +1,8 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom"
 
 import { useAppSelector } from "@/app/hooks"
-import { selectIsAuthenticated, selectIsAdmin } from "@/store/auth/selectors"
+import { PageLoading } from "@/components/shared/PageLoading"
+import { selectAuthLoading, selectIsAuthenticated, selectIsAdmin } from "@/store/auth/selectors"
 
 /**
  * Route guard for admin-only pages.
@@ -15,7 +16,12 @@ import { selectIsAuthenticated, selectIsAdmin } from "@/store/auth/selectors"
 export function AdminRoute() {
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
   const isAdmin = useAppSelector(selectIsAdmin)
+  const isLoading = useAppSelector(selectAuthLoading)
   const location = useLocation()
+
+  if (isLoading) {
+    return <PageLoading message="Loading session…" />
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location }} />

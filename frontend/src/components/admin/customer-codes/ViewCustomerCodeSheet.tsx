@@ -222,16 +222,6 @@ export function ViewCustomerCodeSheet({
               {optional(customerCode.ship_to_customer)}
             </DetailRow>
 
-            <DetailRow label="Ship-To 2">
-              <span className="font-mono text-xs text-muted-foreground select-all">
-                {optional(customerCode.ship_to_2)}
-              </span>
-            </DetailRow>
-
-            <DetailRow label="Ship-To Cust. 2">
-              {optional(customerCode.ship_to_customer_2)}
-            </DetailRow>
-
             <DetailRow label="Ship-To City">
               {optional(customerCode.ship_to_city)}
             </DetailRow>

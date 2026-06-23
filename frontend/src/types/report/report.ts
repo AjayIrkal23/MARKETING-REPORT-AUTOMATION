@@ -18,6 +18,8 @@ export interface ReportParty {
   ship_to_party: string | null       // from CustomerCode.ship_to_customer (+ ship_to fallback)
   route: string | null               // from CustomerCode.route
   route_desc: string | null
+  rake: string | null                // from CustomerCode.rake
+  transport_mode: string | null      // from CustomerCode.transport_mode
   total: number                      // Σ stock_quantity
   nco_yes_do: number                 // Σ stock_quantity where NCO Declared == "Yes"
   nco_yes_do_count: number
@@ -45,7 +47,7 @@ export interface ReportResponse {
   region_id: string | null
   region_name: string
   days_filter: DaysFilter
-  cca: string
+  ccas: string[]                    // e.g. ["VJ0H", "1000"] (jsw) / ["JV0H"] (jvml)
   has_stock: boolean                 // false → "No stock excel for this date selected"
   has_credit_report: boolean         // false → credit columns "NO CREDIT REPORT FOUND"
   coil_price_per_qty: number | null

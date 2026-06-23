@@ -48,8 +48,6 @@ def to_customer_code_public(
         route=doc.route,
         ship_to=doc.ship_to,
         ship_to_customer=doc.ship_to_customer,
-        ship_to_2=doc.ship_to_2,
-        ship_to_customer_2=doc.ship_to_customer_2,
         ship_to_city=doc.ship_to_city,
         rake=doc.rake,
         transport_mode=doc.transport_mode,

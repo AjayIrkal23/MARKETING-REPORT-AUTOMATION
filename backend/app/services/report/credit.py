@@ -28,28 +28,28 @@ async def coil_price_per_qty() -> float | None:
 
 
 async def build_credit_map(
-    date: str, cca: str
+    date: str, ccas: list[str]
 ) -> tuple[bool, dict[str, dict[str, object]]]:
     """Return ``(has_credit_report, {normalized_customer: {blocked, credit_balance}})``.
 
-    Scoped to the report's credit control area *cca* (jsw→VJ0H / jvml→JV0H) at the
-    query level (SPEC §2.6): ``has_credit_report`` is True only when credit rows
-    exist for *this* CCA on *date*. A customer appears under multiple CCAs, so a
-    date-level check could report "found" while this report type's CCA has no
-    rows — yielding a wrong "No Credit balance" instead of "NO CREDIT REPORT
-    FOUND" (the credit report file is gated to both CCAs, so in practice both are
-    present or neither is).
+    Scoped to the report's credit control areas *ccas* (jsw→["VJ0H", "1000"] /
+    jvml→["JV0H"]) at the query level (SPEC §2.6): ``has_credit_report`` is True
+    only when credit rows exist for at least one of these CCAs on *date*. A
+    customer may appear under multiple CCAs, so a date-level check could report
+    "found" while this report type's CCAs have no rows — yielding a wrong "No
+    Credit balance" instead of "NO CREDIT REPORT FOUND" (the credit report file
+    is gated to both CCAs, so in practice both are present or neither is).
 
     Args:
         date: Report date ``dd-mm-yyyy``.
-        cca: Credit control area for this report type.
+        ccas: Credit control areas for this report type.
 
     Returns:
         ``(has_credit_report, credit_map)``. ``blocked`` is ``blocked == "X"``.
         First row per normalized customer wins.
     """
     docs = await CreditReport.find(
-        {"report_date": date, "credit_control_area": cca}
+        {"report_date": date, "credit_control_area": {"$in": ccas}}
     ).to_list()
     has_credit_report = len(docs) > 0
 

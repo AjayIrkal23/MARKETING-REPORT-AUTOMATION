@@ -31,9 +31,12 @@ function buildParams(
     ...(q.city                ? { city: q.city }                               : {}),
     ...(q.customer            ? { customer: q.customer }                       : {}),
     ...(q.cca_description     ? { cca_description: q.cca_description }         : {}),
-    // 2 enum filters — only include when non-empty
+    // 3 enum filters — only include when non-empty / not "all"
     ...(q.blocked             ? { blocked: q.blocked }                         : {}),
     ...(q.credit_balance_sign ? { credit_balance_sign: q.credit_balance_sign } : {}),
+    ...(q.plant && q.plant !== "all" ? { plant: q.plant }                     : {}),
+    // Region filter — only include when non-empty
+    ...(q.region              ? { region: q.region }                           : {}),
   }
 }
 

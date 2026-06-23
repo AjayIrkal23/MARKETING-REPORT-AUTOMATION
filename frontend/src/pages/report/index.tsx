@@ -6,7 +6,7 @@
  * → ReportTable. All state lives in `useReport`.
  */
 
-import { FileSpreadsheet, AlertCircle, Info, FileX2 } from "lucide-react"
+import { FileSpreadsheet, AlertCircle, Info, FileX2, Loader2Icon } from "lucide-react"
 
 import { Separator } from "@/components/ui/separator"
 
@@ -17,7 +17,7 @@ import { fmtINR } from "@/components/report/report-format"
 
 export function ReportPage() {
   const {
-    inputs, data, loading, error, generate, canGenerate,
+    inputs, data, loading, exporting, error, generate, exportReport, canGenerate,
     setDate, setReportType, setRegionId, setDays,
   } = useReport()
 
@@ -46,12 +46,14 @@ export function ReportPage() {
       <ReportToolbar
         inputs={inputs}
         loading={loading}
+        exporting={exporting}
         canGenerate={canGenerate}
         onDate={setDate}
         onReportType={setReportType}
         onRegion={setRegionId}
         onDays={setDays}
         onGenerate={generate}
+        onExport={exportReport}
       />
 
       {/* Error */}
@@ -64,7 +66,10 @@ export function ReportPage() {
 
       {/* Result */}
       {loading ? (
-        <p className="py-12 text-center text-sm text-muted-foreground">Generating report…</p>
+        <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
+          <Loader2Icon className="size-8 animate-spin" aria-hidden />
+          <p className="text-sm">Generating report…</p>
+        </div>
       ) : !data ? (
         <p className="py-12 text-center text-sm text-muted-foreground">
           Choose a date, report type, region, and aging filter, then press <strong>Generate</strong>.
@@ -83,7 +88,7 @@ export function ReportPage() {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
             <span><strong className="text-foreground">{data.report_type.toUpperCase()}</strong> · {data.date}</span>
             <span>Region: <strong className="text-foreground">{data.region_name}</strong></span>
-            <span>CCA: <strong className="text-foreground">{data.cca}</strong></span>
+            <span>CCA: <strong className="text-foreground">{data.ccas.join(", ")}</strong></span>
             <span>Coil price/qty: <strong className="text-foreground">{fmtINR(data.coil_price_per_qty)}</strong></span>
           </div>
 

@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useDashboardSummary } from "@/components/dashboard/hooks/useDashboardSummary"
 import { ReportStatusCard } from "@/components/dashboard/ReportStatusCard"
 import { AnalyticsComingSoon } from "@/components/dashboard/AnalyticsComingSoon"
+import { PageLoading } from "@/components/shared/PageLoading"
 
 // ── Loading skeleton card ──────────────────────────────────────────────────────
 
@@ -99,9 +100,11 @@ export function HomePage() {
             Try again
           </Button>
         </div>
+      ) : loading && data === null ? (
+        <PageLoading message="Loading dashboard…" />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {loading || data === null
+          {data === null
             ? Array.from({ length: 3 }).map((_, i) => <StatusCardSkeleton key={i} />)
             : data.reports.map((report) => (
                 <ReportStatusCard key={report.key} report={report} />

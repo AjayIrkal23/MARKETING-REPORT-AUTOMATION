@@ -14,6 +14,7 @@ from __future__ import annotations
 from math import ceil
 
 from ...core.responses import PaginationMeta
+from ...models.customer_code import CustomerCode
 from ...models.jvml_stock import JvmlStock
 from ...schemas.jvml_stock import JvmlStockListQuery
 from ...schemas.jvml_stock_record import JvmlStockPublic
@@ -39,6 +40,11 @@ async def list_jvml_stock(
         page and ``meta`` carries pagination bookkeeping for the frontend.
     """
     filt = build_jvml_stock_filter(query)
+
+    if query.region:
+        region_docs = await CustomerCode.find({"region_id": query.region}).to_list()
+        region_ids = [str(doc.id) for doc in region_docs]
+        filt["customer_code_id"] = {"$in": region_ids}
 
     total = await JvmlStock.find(filt).count()
 

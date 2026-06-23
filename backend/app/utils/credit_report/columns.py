@@ -157,21 +157,33 @@ def coerce_value(
     # date
     if raw is None:
         return None
+
+    dt: datetime | None = None
     if isinstance(raw, (int, float)):
         try:
-            return excel_serial_to_datetime(raw)
-        except Exception:
+            dt = excel_serial_to_datetime(raw)
+        except (OverflowError, ValueError, OSError):
             return None
-    if isinstance(raw, str):
+    elif isinstance(raw, str):
         s = raw.strip()
         if not s:
             return None
         try:
-            return datetime.strptime(s, "%d.%m.%Y")
+            dt = datetime.strptime(s, "%d.%m.%Y")
         except ValueError:
             pass
-        try:
-            return datetime.fromisoformat(s.rstrip("Z"))
-        except ValueError:
-            return None
-    return None
+        if dt is None:
+            try:
+                dt = datetime.fromisoformat(s.rstrip("Z"))
+            except ValueError:
+                return None
+    if dt is None:
+        return None
+
+    # Drop open-ended / sentinel dates such as 9999-12-31.  They are valid
+    # Python datetimes but break downstream `.astimezone()` conversions on
+    # some platforms, and the credit-report UI does not use these columns.
+    if dt.year >= 9999:
+        return None
+
+    return dt

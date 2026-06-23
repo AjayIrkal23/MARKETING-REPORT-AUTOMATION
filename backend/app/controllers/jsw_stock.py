@@ -15,7 +15,10 @@ Unknown-key rejection (backend-api-standards, OWASP A04):
 
 from __future__ import annotations
 
+from io import BytesIO
+
 from fastapi import Depends, Request
+from starlette.responses import StreamingResponse
 
 from ..core.auth_deps import get_current_user
 from ..core.errors import ValidationError
@@ -24,6 +27,7 @@ from ..schemas.admin_user import AsyncOption
 from ..schemas.auth import AuthUser
 from ..schemas.jsw_stock import JswStockListQuery, JswStockOptionsQuery
 from ..schemas.jsw_stock_record import JswStockPublic
+from ..services.jsw_stock.export import export_jsw_stock
 from ..services.jsw_stock.list import list_jsw_stock
 from ..services.jsw_stock.options import search_field_options
 
@@ -40,9 +44,17 @@ _ALLOWED_LIST_KEYS = frozenset({
     "page", "limit", "sortBy", "sortOrder", "date",
     # 5 per-field filter keys (JswStockField Literal)
     "party_code", "sales_order_type", "customer_name", "sales_office", "nco_declared",
+    # Region filter
+    "region",
 })
 
 _ALLOWED_OPTION_KEYS = frozenset({"field", "q", "limit"})
+
+_ALLOWED_EXPORT_KEYS = frozenset({
+    "date",
+    "party_code", "sales_order_type", "customer_name", "sales_office", "nco_declared",
+    "region",
+})
 
 
 # ---------------------------------------------------------------------------
@@ -88,3 +100,28 @@ async def field_options_controller(
         )
     options = await search_field_options(query)
     return success(options)
+
+
+async def export_jsw_stock_controller(
+    request: Request,
+    query: JswStockListQuery = Depends(),
+    _user: AuthUser = Depends(get_current_user),
+) -> StreamingResponse:
+    """``GET /jsw-stock/export`` — export matching rows as .xlsx.
+
+    Applies the same filters as the list endpoint but returns every matching
+    row without pagination.
+    """
+    unknown = set(request.query_params.keys()) - _ALLOWED_EXPORT_KEYS
+    if unknown:
+        raise ValidationError(
+            f"Unknown query parameter(s): {', '.join(sorted(unknown))}"
+        )
+
+    data: bytes = await export_jsw_stock(query)
+    filename = f"jsw_stock_{query.date or 'all'}.xlsx"
+    return StreamingResponse(
+        BytesIO(data),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

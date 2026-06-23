@@ -6,26 +6,31 @@
 
 ## What lives here
 
-<One or two lines: the responsibility of this directory. What kind of files belong,
-what does NOT belong here.>
+Domain-specific and cross-cutting helper modules that do not depend on the
+HTTP/transport layer. Each subdirectory owns one domain concern.
 
 ## Local conventions
 
-- <e.g. naming pattern, file-size cap, import boundaries specific to this folder>
-- <e.g. "every X must register in Y" / "do not import from Z">
+- Keep utils transport-free and stateless.
+- Import ``openpyxl`` lazily inside Excel helpers so ``app.main`` can import
+  without the package installed.
+- Every file ≤250 lines; split early.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `<file>` | <what it does> |
+| `shared/export_style.py` | Shared Excel styling helpers (headers, auto-size, metadata, filters). |
+| `customer_code/excel.py` | Customer-code template headers, fingerprint, and workbook parser. |
+| `customer_code/query.py` | Customer-code filter builder used by list/export services. |
 
 ## Gotchas / fragile spots
 
-- <non-obvious thing that breaks if you're not careful>
+- Excel utility modules are imported by services that may load before the full
+  dependency stack is present; keep ``openpyxl`` imports inside functions.
 
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
-- Children: <links to deeper `*/CLAUDE.md`, or "none">
-- Related repo docs: <link to the numbered doc / CODEX.md section — link, don't restate>
+- Children: [`shared/`](shared/CLAUDE.md) · [`customer_code/`](customer_code/CLAUDE.md)
+- Related repo docs: [`backend_docs/ARCHITECTURE.md`](../../backend_docs/ARCHITECTURE.md)

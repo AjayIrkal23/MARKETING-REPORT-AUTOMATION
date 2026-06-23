@@ -16,8 +16,9 @@ channel assembly.
   credit status/blocked belong in `generate.py`.
 - `ReportParty` columns that come from the stock row (`sold_to_party`,
   `route_desc`) are populated in the `$group` stage. Columns that come from the
-  enriched `CustomerCode` master (`route`, `ship_to_party`) are resolved in
-  `_resolve_region_customers` and merged in `_build_channels`.
+  enriched `CustomerCode` master (`route`, `ship_to_party`, `rake`,
+  `transport_mode`) are resolved in `_resolve_region_customers` and merged in
+  `_build_channels`.
 
 ## Key files
 

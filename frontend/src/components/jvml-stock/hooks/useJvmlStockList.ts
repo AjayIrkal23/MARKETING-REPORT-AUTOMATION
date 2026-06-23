@@ -16,6 +16,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { format } from "date-fns"
 
+import { exportJvmlStock } from "@/api/jvml-stock/export"
 import { listJvmlStock } from "@/api/jvml-stock/list"
 
 import type { PaginationMeta } from "@/types/api/envelope"
@@ -46,6 +47,7 @@ const DEFAULT_QUERY: JvmlStockQueryState = {
   customer_name: "",
   sales_office: "",
   nco_declared: "",
+  region: "",
 }
 
 // ---------------------------------------------------------------------------
@@ -59,7 +61,8 @@ const FILTER_KEYS = [
   "customer_name",
   "sales_office",
   "nco_declared",
-] as const satisfies ReadonlyArray<JvmlStockField>
+  "region",
+] as const satisfies ReadonlyArray<JvmlStockField | "region">
 
 // ---------------------------------------------------------------------------
 // Hook
@@ -75,6 +78,7 @@ export function useJvmlStockList(): UseJvmlStockListResult {
   const [rows, setRows] = useState<JvmlStock[]>([])
   const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [loading, setLoading] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dialog, setDialog] = useState<JvmlStockDialogState>({ type: "none" })
 
@@ -102,6 +106,7 @@ export function useJvmlStockList(): UseJvmlStockListResult {
         ...(q.customer_name    ? { customer_name: q.customer_name }           : {}),
         ...(q.sales_office     ? { sales_office: q.sales_office }             : {}),
         ...(q.nco_declared     ? { nco_declared: q.nco_declared }             : {}),
+        ...(q.region           ? { region: q.region }                         : {}),
       }
       const result = await listJvmlStock(params)
       if (id !== fetchIdRef.current) return
@@ -139,9 +144,9 @@ export function useJvmlStockList(): UseJvmlStockListResult {
     [],
   )
 
-  /** Single setter for the 4 per-field filters; resets page to 1. */
+  /** Single setter for per-field filters; resets page to 1. */
   const setFilter = useCallback(
-    (patch: Partial<Pick<JvmlStockQueryState, JvmlStockField>>) =>
+    (patch: Partial<Pick<JvmlStockQueryState, JvmlStockField | "region">>) =>
       setQuery((q) => ({ ...q, ...patch, page: 1 })),
     [],
   )
@@ -152,13 +157,38 @@ export function useJvmlStockList(): UseJvmlStockListResult {
     [],
   )
 
-  /** Reset the 4 per-field filters to "" AND the date to null; resets page to 1. */
+  /** Reset per-field filters to "" AND the date to null; resets page to 1. */
   const clearFilters = useCallback(() => {
     const cleared = Object.fromEntries(
       FILTER_KEYS.map((k) => [k, ""]),
     ) as Pick<JvmlStockQueryState, typeof FILTER_KEYS[number]>
     setQuery((q) => ({ ...q, ...cleared, date: null, page: 1 }))
   }, [])
+
+  const exportRows = useCallback(
+    async (filename?: string) => {
+      setExporting(true)
+      try {
+        const params: JvmlStockListQuery = {
+          page: query.page,
+          limit: query.limit,
+          sortBy: query.sortBy,
+          sortOrder: query.sortOrder,
+          ...(query.date             ? { date: query.date }                             : {}),
+          ...(query.party_code       ? { party_code: query.party_code }                 : {}),
+          ...(query.sales_order_type ? { sales_order_type: query.sales_order_type }     : {}),
+          ...(query.customer_name    ? { customer_name: query.customer_name }           : {}),
+          ...(query.sales_office     ? { sales_office: query.sales_office }             : {}),
+          ...(query.nco_declared     ? { nco_declared: query.nco_declared }             : {}),
+          ...(query.region           ? { region: query.region }                         : {}),
+        }
+        await exportJvmlStock(params, filename)
+      } finally {
+        setExporting(false)
+      }
+    },
+    [query],
+  )
 
   // Trigger re-fetch without changing params (identity change → useEffect fires).
   const refetch = useCallback(() => setQuery((q) => ({ ...q })), [])
@@ -181,6 +211,8 @@ export function useJvmlStockList(): UseJvmlStockListResult {
     rows,
     meta,
     loading,
+    exporting,
+    exportRows,
     error,
     dialog,
     openDialog,

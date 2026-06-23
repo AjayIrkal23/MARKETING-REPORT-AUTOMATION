@@ -21,4 +21,6 @@ export interface SessionUser {
 export interface AuthState {
   isAuthenticated: boolean
   user: SessionUser | null
+  /** True while the app is verifying the session via `GET /auth/me`. */
+  isLoading: boolean
 }

@@ -12,12 +12,12 @@ function loadInitialState(): AuthState {
     const userRaw = localStorage.getItem(USER_KEY)
     if (userRaw) {
       // Optimistic: AuthBootstrap confirms via GET /auth/me on mount.
-      return { isAuthenticated: true, user: JSON.parse(userRaw) as SessionUser }
+      return { isAuthenticated: true, user: JSON.parse(userRaw) as SessionUser, isLoading: true }
     }
   } catch {
     /* ignore corrupt storage */
   }
-  return { isAuthenticated: false, user: null }
+  return { isAuthenticated: false, user: null, isLoading: true }
 }
 
 const authSlice = createSlice({
@@ -27,15 +27,20 @@ const authSlice = createSlice({
     loginSuccess(state, action: PayloadAction<{ user: SessionUser }>) {
       state.isAuthenticated = true
       state.user = action.payload.user
+      state.isLoading = false
       localStorage.setItem(USER_KEY, JSON.stringify(action.payload.user))
     },
     logout(state) {
       state.isAuthenticated = false
       state.user = null
+      state.isLoading = false
       localStorage.removeItem(USER_KEY)
+    },
+    finishBootstrap(state) {
+      state.isLoading = false
     },
   },
 })
 
-export const { loginSuccess, logout } = authSlice.actions
+export const { loginSuccess, logout, finishBootstrap } = authSlice.actions
 export default authSlice.reducer

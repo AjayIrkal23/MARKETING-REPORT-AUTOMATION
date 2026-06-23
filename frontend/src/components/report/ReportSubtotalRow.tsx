@@ -26,7 +26,7 @@ export function ReportSubtotalRow({
 
   return (
     <TableRow className={cn(rowCls, "hover:bg-transparent")}>
-      <TableCell colSpan={5} className="text-right text-sm text-foreground">
+      <TableCell colSpan={7} className="text-right text-sm text-foreground">
         {label}
       </TableCell>
       <TableCell className="text-right tabular-nums">{fmtQty(total)}</TableCell>

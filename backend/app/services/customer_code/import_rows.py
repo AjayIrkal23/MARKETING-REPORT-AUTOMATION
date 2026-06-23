@@ -86,8 +86,6 @@ async def import_customer_codes(
             "route": row.get("route"),
             "ship_to": ship_to,
             "ship_to_customer": row.get("ship_to_customer"),
-            "ship_to_2": _norm_ship_to(row.get("ship_to_2")),
-            "ship_to_customer_2": row.get("ship_to_customer_2"),
             "ship_to_city": row.get("ship_to_city"),
             "rake": row.get("rake"),
             "transport_mode": row.get("transport_mode"),

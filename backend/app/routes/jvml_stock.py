@@ -53,6 +53,13 @@ router.add_api_route(
     summary="Async combobox field options",
 )
 
+router.add_api_route(
+    "/export",
+    ctrl.export_jvml_stock_controller,
+    methods=["GET"],
+    summary="Export JVML stock as .xlsx",
+)
+
 # ---------------------------------------------------------------------------
 # Admin config router
 # ---------------------------------------------------------------------------

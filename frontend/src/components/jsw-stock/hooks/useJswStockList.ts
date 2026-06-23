@@ -16,6 +16,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { format } from "date-fns"
 
+import { exportJswStock } from "@/api/jsw-stock/export"
 import { listJswStock } from "@/api/jsw-stock/list"
 
 import type { PaginationMeta } from "@/types/api/envelope"
@@ -46,6 +47,7 @@ const DEFAULT_QUERY: JswStockQueryState = {
   customer_name: "",
   sales_office: "",
   nco_declared: "",
+  region: "",
 }
 
 // ---------------------------------------------------------------------------
@@ -59,7 +61,8 @@ const FILTER_KEYS = [
   "customer_name",
   "sales_office",
   "nco_declared",
-] as const satisfies ReadonlyArray<JswStockField>
+  "region",
+] as const satisfies ReadonlyArray<JswStockField | "region">
 
 // ---------------------------------------------------------------------------
 // Hook
@@ -75,6 +78,7 @@ export function useJswStockList(): UseJswStockListResult {
   const [rows, setRows] = useState<JswStock[]>([])
   const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [loading, setLoading] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dialog, setDialog] = useState<JswStockDialogState>({ type: "none" })
 
@@ -102,6 +106,7 @@ export function useJswStockList(): UseJswStockListResult {
         ...(q.customer_name    ? { customer_name: q.customer_name }           : {}),
         ...(q.sales_office     ? { sales_office: q.sales_office }             : {}),
         ...(q.nco_declared     ? { nco_declared: q.nco_declared }             : {}),
+        ...(q.region           ? { region: q.region }                         : {}),
       }
       const result = await listJswStock(params)
       if (id !== fetchIdRef.current) return
@@ -139,9 +144,9 @@ export function useJswStockList(): UseJswStockListResult {
     [],
   )
 
-  /** Single setter for the 4 per-field filters; resets page to 1. */
+  /** Single setter for per-field filters; resets page to 1. */
   const setFilter = useCallback(
-    (patch: Partial<Pick<JswStockQueryState, JswStockField>>) =>
+    (patch: Partial<Pick<JswStockQueryState, JswStockField | "region">>) =>
       setQuery((q) => ({ ...q, ...patch, page: 1 })),
     [],
   )
@@ -152,13 +157,38 @@ export function useJswStockList(): UseJswStockListResult {
     [],
   )
 
-  /** Reset the 4 per-field filters to "" AND the date to null; resets page to 1. */
+  /** Reset per-field filters to "" AND the date to null; resets page to 1. */
   const clearFilters = useCallback(() => {
     const cleared = Object.fromEntries(
       FILTER_KEYS.map((k) => [k, ""]),
     ) as Pick<JswStockQueryState, typeof FILTER_KEYS[number]>
     setQuery((q) => ({ ...q, ...cleared, date: null, page: 1 }))
   }, [])
+
+  const exportRows = useCallback(
+    async (filename?: string) => {
+      setExporting(true)
+      try {
+        const params: JswStockListQuery = {
+          page: query.page,
+          limit: query.limit,
+          sortBy: query.sortBy,
+          sortOrder: query.sortOrder,
+          ...(query.date             ? { date: query.date }                             : {}),
+          ...(query.party_code       ? { party_code: query.party_code }                 : {}),
+          ...(query.sales_order_type ? { sales_order_type: query.sales_order_type }     : {}),
+          ...(query.customer_name    ? { customer_name: query.customer_name }           : {}),
+          ...(query.sales_office     ? { sales_office: query.sales_office }             : {}),
+          ...(query.nco_declared     ? { nco_declared: query.nco_declared }             : {}),
+          ...(query.region           ? { region: query.region }                         : {}),
+        }
+        await exportJswStock(params, filename)
+      } finally {
+        setExporting(false)
+      }
+    },
+    [query],
+  )
 
   // Trigger re-fetch without changing params (identity change → useEffect fires).
   const refetch = useCallback(() => setQuery((q) => ({ ...q })), [])
@@ -181,6 +211,8 @@ export function useJswStockList(): UseJswStockListResult {
     rows,
     meta,
     loading,
+    exporting,
+    exportRows,
     error,
     dialog,
     openDialog,

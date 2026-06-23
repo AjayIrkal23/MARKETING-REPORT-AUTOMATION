@@ -36,6 +36,14 @@ router = APIRouter(
     dependencies=[Depends(get_current_user)],
 )
 
+# /export — download matching rows as .xlsx
+router.add_api_route(
+    "/export",
+    ctrl.export_credit_report_controller,
+    methods=["GET"],
+    summary="Export credit report as .xlsx",
+)
+
 # /options MUST come before any /{id} route (registration-order guard).
 router.add_api_route(
     "",

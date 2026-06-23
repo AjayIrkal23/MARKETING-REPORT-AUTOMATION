@@ -109,6 +109,10 @@ ReportChannel { distr_chnl, subtotal, subtotal_nco_yes_do, parties: ReportParty[
 ReportParty {
   party_code,            // normalized display ("40122581","8481")
   sold_to_party, route_desc,
+  route: string|null,             // from CustomerCode.route
+  ship_to_party: string|null,     // from CustomerCode.ship_to_customer (+ ship_to fallback)
+  rake: string|null,              // from CustomerCode.rake
+  transport_mode: string|null,    // from CustomerCode.transport_mode
   total, nco_yes_do, nco_yes_do_count,
   blocked: bool|null, credit_balance: float|null,
   required_credit: float|null, credit_status: string  // ""|"No Credit balance"|"NO CREDIT REPORT FOUND"

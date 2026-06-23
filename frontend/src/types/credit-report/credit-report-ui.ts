@@ -13,7 +13,7 @@
  *   - Pagination prop: `isLoading: boolean` (NOT loading)
  */
 
-import type { CreditReport, CreditReportSortBy } from "./credit-report"
+import type { CreditReport, CreditReportPlant, CreditReportSortBy } from "./credit-report"
 import type { PaginationMeta } from "@/types/api/envelope"
 
 // ---------------------------------------------------------------------------
@@ -23,7 +23,7 @@ import type { PaginationMeta } from "@/types/api/envelope"
 /**
  * Full reactive query state owned by useCreditReportList.
  * The 4 per-field async-select filters use empty string to mean "no filter"
- * (stripped before the API call). The 2 enum filters use "" for "no filter".
+ * (stripped before the API call). The enum filters use "" for "no filter".
  */
 export type CreditReportQueryState = {
   page: number
@@ -37,9 +37,12 @@ export type CreditReportQueryState = {
   city: string
   customer: string
   cca_description: string
-  // 2 enum filters — "" = no filter
+  // 3 enum filters — "" = no filter
   blocked: "" | "blocked" | "unblocked"
   credit_balance_sign: "" | "positive" | "negative"
+  plant: CreditReportPlant
+  // Region filter — empty string = no filter
+  region: string
 }
 
 // ---------------------------------------------------------------------------
@@ -75,6 +78,12 @@ export interface CreditReportTableToolbarProps {
   /** Full reactive query state — the 6 filter fields feed CreditReportFilters. */
   query: CreditReportQueryState
   onQueryChange: (patch: Partial<CreditReportQueryState>) => void
+  /** Whether the table is loading; disables all filter controls. */
+  loading?: boolean
+  /** Called when the user clicks Export. */
+  onExport?: () => void
+  /** Whether an export is in progress. */
+  exporting?: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -87,9 +96,12 @@ export interface CreditReportFiltersProps {
   city: string
   customer: string
   cca_description: string
-  // 2 enum filter props
+  // 3 enum filter props
   blocked: "" | "blocked" | "unblocked"
   credit_balance_sign: "" | "positive" | "negative"
+  plant: CreditReportPlant
+  // Region filter — empty string = no filter
+  region: string
   onFilterChange: (
     patch: Partial<
       Pick<
@@ -100,10 +112,14 @@ export interface CreditReportFiltersProps {
         | "cca_description"
         | "blocked"
         | "credit_balance_sign"
+        | "plant"
+        | "region"
       >
     >
   ) => void
   onClearAll: () => void
+  /** Disables all filter inputs. */
+  disabled?: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -137,7 +153,7 @@ export interface UseCreditReportListResult {
   setPage: (page: number) => void
   setLimit: (limit: number) => void
   setSort: (sortBy: CreditReportSortBy, sortOrder: "asc" | "desc") => void
-  /** Single setter for all 6 filter fields — resets page to 1. */
+  /** Single setter for all 8 filter fields — resets page to 1. */
   setFilter: (
     patch: Partial<
       Pick<
@@ -148,17 +164,23 @@ export interface UseCreditReportListResult {
         | "cca_description"
         | "blocked"
         | "credit_balance_sign"
+        | "plant"
+        | "region"
       >
     >
   ) => void
   /** Set the single report-date filter ("dd-MM-yyyy" | null); resets page to 1. */
   setDate: (date: string | null) => void
-  /** Resets all 6 filter fields to "" AND the date to null; resets page to 1. */
+  /** Resets all 7 filter fields to "" / "all" AND the date to null; resets page to 1. */
   clearFilters: () => void
   rows: CreditReport[]
   meta: PaginationMeta | null
   /** Named 'loading' (NOT 'isLoading'). */
   loading: boolean
+  /** Whether an export is currently in progress. */
+  exporting: boolean
+  /** Trigger a download of the current filtered view as .xlsx. */
+  exportRows: (filename?: string) => Promise<void>
   error: string | null
   dialog: CreditReportDialogState
   openDialog: (d: CreditReportDialogState) => void

@@ -28,6 +28,7 @@ export interface DatePickerProps {
   placeholder?: string
   className?: string
   "aria-label"?: string
+  disabled?: boolean
 }
 
 function parseWire(value: string | null): Date | undefined {
@@ -42,6 +43,7 @@ export function DatePicker({
   placeholder = "Pick a date",
   className,
   "aria-label": ariaLabel,
+  disabled = false,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
   const selected = parseWire(value)
@@ -63,6 +65,7 @@ export function DatePicker({
         <Button
           variant="outline"
           aria-label={ariaLabel ?? placeholder}
+          disabled={disabled}
           className={cn(
             "h-9 justify-start gap-2 px-3 font-normal",
             !selected && "text-muted-foreground",

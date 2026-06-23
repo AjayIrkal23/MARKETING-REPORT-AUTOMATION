@@ -70,10 +70,12 @@ class JswStockListQuery(PageQuery):
     Extends PageQuery (page, limit, sortOrder).  Sort keys are a Pydantic
     Literal whitelist so unknown values are rejected at parse time.
 
-    Exactly 6 filters:
+    Exactly 7 filters:
       - ``date``: single report date, ``"dd-mm-yyyy"`` — exact match on the
         stored ``report_date`` field (pattern-validated; no timezone math).
       - 5 per-field exact-match filters (one per JswStockField, None = off).
+      - ``region``: optional region _id; restricts rows whose ``customer_code_id``
+        matches a CustomerCode assigned to that region.
     """
 
     sortBy: JswStockSortBy = "created_at"
@@ -87,6 +89,9 @@ class JswStockListQuery(PageQuery):
     customer_name: str | None = Field(default=None, max_length=200)
     sales_office: str | None = Field(default=None, max_length=200)
     nco_declared: str | None = Field(default=None, max_length=200)
+
+    # Region filter — region _id hex; applied via CustomerCode join.
+    region: str | None = Field(default=None, max_length=200)
 
 
 class JswStockOptionsQuery(BaseModel):

@@ -29,3 +29,11 @@ router.add_api_route(
     response_model=SuccessEnvelope[ReportResponse],
     summary="Generate the Report JSW/JVML pivot + credit report",
 )
+
+# GET /export — download the generated report as .xlsx
+router.add_api_route(
+    "/export",
+    ctrl.export_report_controller,
+    methods=["GET"],
+    summary="Export the Report JSW/JVML as .xlsx",
+)

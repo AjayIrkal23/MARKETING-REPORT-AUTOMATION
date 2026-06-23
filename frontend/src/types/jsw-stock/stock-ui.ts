@@ -38,6 +38,8 @@ export type JswStockQueryState = {
   customer_name: string
   sales_office: string
   nco_declared: string
+  // Region filter — empty string = no filter
+  region: string
 }
 
 // ---------------------------------------------------------------------------
@@ -73,17 +75,23 @@ export interface JswStockTableToolbarProps {
   /** Full reactive query state — date feeds DatePicker, the 4 string fields feed JswStockFilters. */
   query: JswStockQueryState
   onQueryChange: (patch: Partial<JswStockQueryState>) => void
+  /** Whether the table is loading; disables all filter controls. */
+  loading?: boolean
+  /** Called when the user clicks Export. */
+  onExport?: () => void
+  /** Whether an export is in progress. */
+  exporting?: boolean
 }
 
 // ---------------------------------------------------------------------------
 // Filters (5 async-select fields)
 // ---------------------------------------------------------------------------
 
-/** Subset of JswStockQueryState keys that map to the 5 filterable fields. */
+/** Subset of JswStockQueryState keys that map to the filterable fields. */
 type FilterPatch = Partial<
   Pick<
     JswStockQueryState,
-    "party_code" | "sales_order_type" | "customer_name" | "sales_office" | "nco_declared"
+    "party_code" | "sales_order_type" | "customer_name" | "sales_office" | "nco_declared" | "region"
   >
 >
 
@@ -94,8 +102,12 @@ export interface JswStockFiltersProps {
   customer_name: string
   sales_office: string
   nco_declared: string
+  // Region filter — empty string = no filter
+  region: string
   onFilterChange: (patch: FilterPatch) => void
   onClearAll: () => void
+  /** Disables all filter inputs. */
+  disabled?: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -139,6 +151,10 @@ export interface UseJswStockListResult {
   meta: PaginationMeta | null
   /** Named 'loading' (NOT 'isLoading'). */
   loading: boolean
+  /** Whether an export is currently in progress. */
+  exporting: boolean
+  /** Trigger a download of the current filtered view as .xlsx. */
+  exportRows: (filename?: string) => Promise<void>
   error: string | null
   dialog: JswStockDialogState
   openDialog: (d: JswStockDialogState) => void

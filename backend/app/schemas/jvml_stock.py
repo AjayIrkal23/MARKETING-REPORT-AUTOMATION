@@ -89,6 +89,9 @@ class JvmlStockListQuery(PageQuery):
     sales_office: str | None = Field(default=None, max_length=200)
     nco_declared: str | None = Field(default=None, max_length=200)
 
+    # Region filter — restricts rows to parties linked to this region_id.
+    region: str | None = Field(default=None, max_length=64)
+
 
 class JvmlStockOptionsQuery(BaseModel):
     """Query params for GET /jvml-stock/options.

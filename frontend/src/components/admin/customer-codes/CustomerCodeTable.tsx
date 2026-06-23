@@ -1,6 +1,6 @@
 /**
  * CustomerCodeTable — server-driven sortable table for the Customer Code Management screen.
- * Columns: Segment (badge) · Code · Customer · Destination · Region · CAM · ROUTE · Actions.
+ * Columns: Segment (badge) · Code · Customer · Destination · Region · CAM · ROUTE · Ship-To City · RAKE · Transport Mode · Actions.
  * Loading: 8 skeleton rows. Empty state: Building2 icon. Error state: AlertCircle.
  * No client-side filtering — all sort/filter state is driven by the parent via props.
  * Contract source: .planning/customer-codes/SPEC.md §4.3 + ADDENDUM §Area 8.
@@ -87,6 +87,7 @@ export function CustomerCodeTable({
             <TableHead className="text-muted-foreground">CAM</TableHead>
             <TableHead className="text-muted-foreground">ROUTE</TableHead>
             <TableHead className="text-muted-foreground">Ship-To City</TableHead>
+            <TableHead className="text-muted-foreground">RAKE</TableHead>
             <TableHead className="text-muted-foreground">Transport Mode</TableHead>
             <TableHead className="w-10" />
           </TableRow>
@@ -103,6 +104,7 @@ export function CustomerCodeTable({
               <TableCell><Skeleton className="h-3.5 w-24" /></TableCell>
               <TableCell><Skeleton className="h-3.5 w-16" /></TableCell>
               <TableCell><Skeleton className="h-3.5 w-24" /></TableCell>
+              <TableCell><Skeleton className="h-3.5 w-20" /></TableCell>
               <TableCell><Skeleton className="h-3.5 w-20" /></TableCell>
               <TableCell><Skeleton className="size-7 rounded-md" /></TableCell>
             </TableRow>
@@ -171,6 +173,8 @@ export function CustomerCodeTable({
           <SortableHead label="ROUTE"       col="route"       {...sortProps} />
           {/* Ship-To City sortable */}
           <SortableHead label="Ship-To City" col="ship_to_city" {...sortProps} />
+          {/* RAKE sortable */}
+          <SortableHead label="RAKE" col="rake" {...sortProps} />
           {/* Transport Mode sortable */}
           <SortableHead label="Transport Mode" col="transport_mode" {...sortProps} />
           {/* Actions column — no label, fixed narrow width */}
@@ -235,6 +239,11 @@ export function CustomerCodeTable({
             {/* Ship-To City */}
             <TableCell className="text-sm text-muted-foreground">
               {cc.ship_to_city ?? <span className="text-muted-foreground">—</span>}
+            </TableCell>
+
+            {/* RAKE */}
+            <TableCell className="text-sm text-muted-foreground">
+              {cc.rake ?? <span className="text-muted-foreground">—</span>}
             </TableCell>
 
             {/* Transport Mode */}

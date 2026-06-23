@@ -16,7 +16,7 @@
  */
 
 import { useState } from "react"
-import { Building2, DownloadIcon, FileSpreadsheet, PlusIcon, UploadIcon } from "lucide-react"
+import { Building2, DownloadIcon, FileSpreadsheet, Loader2Icon, PlusIcon, UploadIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
@@ -62,6 +62,8 @@ export function CustomerCodeManagementPage() {
 
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [isBulkDeleting, setIsBulkDeleting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
   const selectedCount = selectedIds.size
 
   function openBulkDelete() { setBulkDeleteOpen(true) }
@@ -76,6 +78,25 @@ export function CustomerCodeManagementPage() {
       clearSelection()
     } finally {
       setIsBulkDeleting(false)
+    }
+  }
+
+  async function handleSingleDelete() {
+    if (!dialogCustomerCode) return
+    setIsDeleting(true)
+    try {
+      await actions.remove(dialogCustomerCode.id)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  async function handleExport() {
+    setIsExporting(true)
+    try {
+      await exportCustomerCodes(query)
+    } finally {
+      setIsExporting(false)
     }
   }
 
@@ -178,11 +199,16 @@ export function CustomerCodeManagementPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => { void exportCustomerCodes(query) }}
+            onClick={() => { void handleExport() }}
+            disabled={loading || isExporting}
             aria-label="Export customer codes to Excel"
             className="gap-1.5"
           >
-            <FileSpreadsheet className="size-3.5" aria-hidden />
+            {isExporting ? (
+              <Loader2Icon className="size-3.5 animate-spin" aria-hidden />
+            ) : (
+              <FileSpreadsheet className="size-3.5" aria-hidden />
+            )}
             Export
           </Button>
           <Button
@@ -278,10 +304,8 @@ export function CustomerCodeManagementPage() {
             ? `${dialogCustomerCode.code} – ${dialogCustomerCode.customer}`
             : ""
         }
-        onConfirm={() => {
-          if (!dialogCustomerCode) return
-          void actions.remove(dialogCustomerCode.id)
-        }}
+        isLoading={isDeleting}
+        onConfirm={() => { void handleSingleDelete() }}
       />
 
       {/* Confirm: bulk delete */}

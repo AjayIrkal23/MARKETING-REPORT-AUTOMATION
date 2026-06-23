@@ -128,7 +128,7 @@ export interface JvmlStock {
  * Query params for GET /jvml-stock.
  * All filtering is server-driven — no client-side filtering.
  * Keys must match backend JvmlStockListQuery exactly (snake_case).
- * Exactly 6 filters: single `date` ("dd-MM-yyyy") + 5 per-field filters.
+ * 7 filters: single `date` ("dd-MM-yyyy") + 5 per-field filters + region.
  */
 export interface JvmlStockListQuery extends PageQuery {
   sortBy?: JvmlStockSortBy
@@ -140,4 +140,6 @@ export interface JvmlStockListQuery extends PageQuery {
   customer_name?: string
   sales_office?: string
   nco_declared?: string
+  // Region filter — restricts rows to parties linked to this region_id.
+  region?: string
 }

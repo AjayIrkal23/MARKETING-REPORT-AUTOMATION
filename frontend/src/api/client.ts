@@ -14,7 +14,7 @@
 import type { ApiSuccess, PaginatedResult, PaginationMeta } from "@/types/api/envelope"
 import type { ApiErrorBody } from "@/types/api/error"
 
-const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "/api"
+export const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "/api"
 
 /** Runtime error carrying the backend's `{ code, message, details }` body. */
 export class ApiError extends Error {

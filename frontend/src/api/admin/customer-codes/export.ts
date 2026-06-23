@@ -1,15 +1,11 @@
 /**
  * `GET /admin/customer-codes/export` — download matching rows as .xlsx.
  *
- * This function intentionally uses raw `fetch` instead of `apiClient` because
- * the endpoint returns a binary `.xlsx` stream, not a JSON envelope.
- *
- * It reuses the same filter params as `listCustomerCodes` but ignores
- * pagination/sort so the export contains every matching row.
+ * Uses the shared `downloadFromFetch` helper because the endpoint returns a
+ * binary `.xlsx` stream rather than the standard JSON envelope.
  */
 
-import { ApiError } from "@/api/client"
-import type { ApiErrorBody } from "@/types/api/error"
+import { downloadFromFetch } from "@/lib/download"
 import type { CustomerCodeListQuery } from "@/types/admin/customer-code"
 
 const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "/api"
@@ -21,7 +17,7 @@ const FILENAME = "customer_codes_export.xlsx"
  *
  * @param query - Current list query (filters, search, region). Pagination and
  *                sort keys are ignored by the export endpoint.
- * @throws {ApiError} When the server responds with a non-2xx status.
+ * @throws {import("@/api/client").ApiError} When the server responds with a non-2xx status.
  */
 export async function exportCustomerCodes(query: CustomerCodeListQuery): Promise<void> {
   const params = new URLSearchParams()
@@ -41,31 +37,5 @@ export async function exportCustomerCodes(query: CustomerCodeListQuery): Promise
   const queryString = params.toString()
   const url = `${BASE_URL}/admin/customer-codes/export${queryString ? `?${queryString}` : ""}`
 
-  const res = await fetch(url, {
-    method: "GET",
-    credentials: "include",
-  })
-
-  if (!res.ok) {
-    const json: unknown = await res.json().catch(() => null)
-    const envelope = json as { error?: ApiErrorBody } | null
-    const body: ApiErrorBody = envelope?.error ?? {
-      code: "UNKNOWN",
-      message: res.statusText || "Export failed",
-    }
-    throw new ApiError(body, res.status)
-  }
-
-  const blob = await res.blob()
-  const objectUrl = URL.createObjectURL(blob)
-
-  const anchor = document.createElement("a")
-  anchor.href = objectUrl
-  anchor.download = FILENAME
-
-  document.body.appendChild(anchor)
-  anchor.click()
-  document.body.removeChild(anchor)
-
-  URL.revokeObjectURL(objectUrl)
+  await downloadFromFetch(url, FILENAME)
 }

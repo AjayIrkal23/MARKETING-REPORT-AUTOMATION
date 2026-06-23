@@ -1,7 +1,7 @@
 # West-Central Customer Codes (Account Master / Mapping)
 
 **File:** `macro_files/west  central customer codes.xlsx` (legacy 12-col)  
-**Updated workbook:** `~/Downloads/west  central customer codes_updated_ship_tp.xlsx` · **Sheet:** `Sheet1` · **Data rows:** 77 · **Columns:** 15  
+**Updated workbook:** `~/Downloads/west  central customer codes_updated_ship_tp.xlsx` · **Sheet:** `Sheet1` · **Data rows:** 77 · **Columns:** 15 (source) → **13 (portal template)**  
 
 **Source:** Manually maintained regional customer master for the West-Central zone.
 
@@ -12,32 +12,29 @@
 ### Important notes / data-quality flags
 - PRIMARY mapping table: 'code' ↔ customer name ↔ CAM/Head/Route/Segment.
 - Casing is NOT normalized (e.g. 'oem' and 'OEM' both appear; cities lower/upper mixed).
-- The updated workbook contains **duplicate headers**: two columns named `SHIP TO` and two named `SHIP TO CUSTOMER`. The importer resolves them by position:
-  - first pair → `ship_to` / `ship_to_customer`
-  - second pair → `ship_to_2` / `ship_to_customer_2`
-- New columns in the 15-col workbook: `SHIP TO CITY`, `RAKE`, `TRANSPORT MODE`.
-- Row 50 in the updated workbook has a blank `Segment`; the importer now falls back to the string `unknown` instead of rejecting the row.
+- The portal import template uses a **single** `SHIP TO` / `SHIP TO CUSTOMER` pair and **rejects** the duplicate columns present in the client's updated workbook.
+- New columns kept in the portal template: `SHIP TO CITY`, `RAKE`, `TRANSPORT MODE`.
+- The portal template contains a hidden fingerprint sheet (`_JSW_MRA_TEMPLATE_`) so the importer accepts only official portal-generated workbooks.
+- Row 50 in the updated workbook has a blank `Segment`; the importer falls back to the string `unknown` instead of rejecting the row.
 - Small codes (8451-8499) are JSW internal stock-transfer yards, not external customers.
 
-## Column summary
+## Column summary (portal import template)
 
-| # | Column | Type | Fill % | Distinct | Description |
-|---|--------|------|-------:|---------:|-------------|
-| 1 | Segment | text | 100.0* | 7 | Business segment of the account. Missing values become `unknown`. |
-| 2 | code | number | 100.0 | 74 | SAP customer code. |
-| 3 | Customer | text | 100.0 | 70 | Customer name (free text; some entries abbreviated/duplicated). |
-| 4 | Destination | text | 100.0 | 16 | Destination city/location for the customer. |
-| 5 | CAM | text | 93.5 | 24 | Customer Account Manager — the JSW sales person who owns the account. (Header may have trailing space.) |
-| 6 | MOB No. | number/text | 89.6 | 20 | Mobile/contact number for the CAM or account. |
-| 7 | Head | text | 92.2 | 9 | Regional / zonal sales head the account rolls up to. |
-| 8 | ROUTE | text | 100.0 | 20 | Default logistics route code for the account. |
-| 9 | SHIP TO | text | 5.2 | 4 | First ship-to party code (sparse override). |
-| 10 | SHIP TO CUSTOMER | text | 5.2 | 4 | First ship-to party name (sparse override). |
-| 11 | SHIP TO | text | 100.0 | 74 | Second ship-to party code — mapped to `ship_to_2`. |
-| 12 | SHIP TO CUSTOMER | text | 100.0 | 71 | Second ship-to party name — mapped to `ship_to_customer_2`. |
-| 13 | SHIP TO CITY | text | 100.0 | 25 | City associated with the ship-to party. |
-| 14 | RAKE | text | 100.0 | 8 | Rake identifier. |
-| 15 | TRANSPORT MODE | text | 100.0 | 3 | Transport mode (`RAKE`, `ROAD`, `ROAD/RAKE`). |
+| # | Column | Type | Description |
+|---|--------|------|-------------|
+| 1 | Segment | text | Business segment of the account. Missing values become `unknown`. |
+| 2 | code | number | SAP customer code. |
+| 3 | Customer | text | Customer name (free text; some entries abbreviated/duplicated). |
+| 4 | Destination | text | Destination city/location for the customer. |
+| 5 | CAM | text | Customer Account Manager — the JSW sales person who owns the account. (Header may have trailing space.) |
+| 6 | MOB No. | number/text | Mobile/contact number for the CAM or account. |
+| 7 | Head | text | Regional / zonal sales head the account rolls up to. |
+| 8 | ROUTE | text | Default logistics route code for the account. |
+| 9 | SHIP TO | text | Ship-to party code (sparse override). |
+| 10 | SHIP TO CUSTOMER | text | Ship-to party name (sparse override). |
+| 11 | SHIP TO CITY | text | City associated with the ship-to party. |
+| 12 | RAKE | text | Rake identifier. |
+| 13 | TRANSPORT MODE | text | Transport mode (`RAKE`, `ROAD`, `ROAD/RAKE`). |
 
 ## Columns in detail (with up to 50 unique sample values)
 
@@ -85,37 +82,27 @@ Default logistics route code for the account (e.g. KAT036, KAR139).
 
 **Type:** text · **Fill:** 100.0% (77/77) · **Distinct values:** 20
 
-### 9. SHIP TO (first occurrence)
-Override / alternate ship-to party code (sparse — only ~5% of rows). Mapped to `ship_to`.
+### 9. SHIP TO
+Ship-to party code (sparse — only ~5% of rows in the source workbook). Mapped to `ship_to`.
 
 **Type:** text · **Fill:** 5.2% (4/77) · **Distinct values:** 4
 
-### 10. SHIP TO CUSTOMER (first occurrence)
-Override / alternate ship-to party name. Mapped to `ship_to_customer`.
+### 10. SHIP TO CUSTOMER
+Ship-to party name. Mapped to `ship_to_customer`.
 
 **Type:** text · **Fill:** 5.2% (4/77) · **Distinct values:** 4
 
-### 11. SHIP TO (second occurrence)
-Primary ship-to party code for the account. Mapped to `ship_to_2`.
-
-**Type:** text · **Fill:** 100.0% (77/77) · **Distinct values:** 74
-
-### 12. SHIP TO CUSTOMER (second occurrence)
-Primary ship-to party name for the account. Mapped to `ship_to_customer_2`.
-
-**Type:** text · **Fill:** 100.0% (77/77) · **Distinct values:** 71
-
-### 13. SHIP TO CITY
+### 11. SHIP TO CITY
 City associated with the ship-to party (casing inconsistent).
 
 **Type:** text · **Fill:** 100.0% (77/77) · **Distinct values:** 25
 
-### 14. RAKE
+### 12. RAKE
 Rake identifier / loading point.
 
 **Type:** text · **Fill:** 100.0% (77/77) · **Distinct values:** 8
 
-### 15. TRANSPORT MODE
+### 13. TRANSPORT MODE
 Transport mode for the account.
 
 **Type:** text · **Fill:** 100.0% (77/77) · **Distinct values:** 3  

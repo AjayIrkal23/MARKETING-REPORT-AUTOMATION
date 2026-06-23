@@ -18,7 +18,7 @@ class CreditReport(Document):
     """A single row from the SAP Credit Management Excel workbook (33 data cols + 4 meta cols).
 
     Collection ``credit_report``. Ingested by the APScheduler poll job; queried by
-    the Credit Report List page. Scoped to Credit Control Areas JV0H / VJ0H only.
+    the Credit Report List page. Scoped to Credit Control Areas JV0H, VJ0H and 1000.
     No customer-mapping join — ``customer_name`` is native to the source report.
     """
 

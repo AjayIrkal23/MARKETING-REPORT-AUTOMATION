@@ -3,7 +3,7 @@ import { useEffect } from "react"
 import { getMe } from "@/api/auth/me"
 import { ApiError } from "@/api/client"
 import { useAppDispatch } from "@/app/hooks"
-import { loginSuccess, logout } from "@/store/auth/slice"
+import { finishBootstrap, loginSuccess, logout } from "@/store/auth/slice"
 import { toSessionUser } from "@/store/auth/session-user"
 
 /**
@@ -22,6 +22,7 @@ export function AuthBootstrap() {
       .catch((err) => {
         if (err instanceof ApiError && err.status === 401) dispatch(logout())
       })
+      .finally(() => dispatch(finishBootstrap()))
   }, [dispatch])
 
   return null

@@ -98,7 +98,6 @@ _STRIP_FIELDS = (
     "segment", "code", "customer", "destination", "region_id",
     "cam", "mob", "head", "route",
     "ship_to", "ship_to_customer",
-    "ship_to_2", "ship_to_customer_2",
     "ship_to_city", "rake", "transport_mode",
 )
 
@@ -128,8 +127,6 @@ class CustomerCodeCreate(BaseModel):
     route: str | None = Field(default=None, max_length=200)
     ship_to: str | None = Field(default=None, max_length=200)
     ship_to_customer: str | None = Field(default=None, max_length=200)
-    ship_to_2: str | None = Field(default=None, max_length=200)
-    ship_to_customer_2: str | None = Field(default=None, max_length=200)
     ship_to_city: str | None = Field(default=None, max_length=200)
     rake: str | None = Field(default=None, max_length=200)
     transport_mode: str | None = Field(default=None, max_length=200)
@@ -176,8 +173,6 @@ class CustomerCodeUpdate(BaseModel):
     route: str | None = Field(default=None, max_length=200)
     ship_to: str | None = Field(default=None, max_length=200)
     ship_to_customer: str | None = Field(default=None, max_length=200)
-    ship_to_2: str | None = Field(default=None, max_length=200)
-    ship_to_customer_2: str | None = Field(default=None, max_length=200)
     ship_to_city: str | None = Field(default=None, max_length=200)
     rake: str | None = Field(default=None, max_length=200)
     transport_mode: str | None = Field(default=None, max_length=200)
@@ -219,8 +214,6 @@ class CustomerCodePublic(BaseModel):
     route: str | None
     ship_to: str | None
     ship_to_customer: str | None
-    ship_to_2: str | None
-    ship_to_customer_2: str | None
     ship_to_city: str | None
     rake: str | None
     transport_mode: str | None

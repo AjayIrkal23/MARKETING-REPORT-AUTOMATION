@@ -13,7 +13,32 @@
 - All amounts are in **INR**.
 - ~11% of rows are blank/footer rows (fill on most columns is ~88.7%) — filter out empty 'Customer Name' rows.
 - 'Validity Period End' contains an Excel error value '#VALUE!' in at least one row — guard against it.
+- Many rows use `9999-12-31` (or an equivalent Excel serial) as an open-ended validity date. These sentinel dates are dropped during ingestion because the UI does not use these columns and they can break timezone conversions.
 - 'Credit Balance' negative = customer is OVER their sanctioned limit.
+
+## Ingestion and query rules
+
+### Allowed credit-control areas (CCA)
+Only rows with a non-empty `Customer Name` **and** one of the following CCA codes are ingested:
+
+| CCA code | Plant / entity |
+|----------|----------------|
+| `VJ0H`   | JSW Steel Vijayanagar |
+| `1000`   | JSW Steel corporate/default |
+| `JV0H`   | JSW VML (JVML) |
+
+All other CCA codes are dropped at ingestion time.
+
+### Plant filter in the UI / API
+The list endpoint supports a `plant` query parameter that groups the allowed CCAs:
+
+| `plant` value | Included CCA codes | UI label |
+|---------------|--------------------|----------|
+| `all`         | `VJ0H`, `1000`, `JV0H` | All plants |
+| `jsw`         | `VJ0H`, `1000` | JSW (VJ0H + 1000) |
+| `jvml`        | `JV0H` | JVML (JV0H) |
+
+The default is `all`.
 
 ## Column summary
 

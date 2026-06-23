@@ -1,10 +1,11 @@
 # app/utils/credit_report/query.py
 """Query helpers for the credit_report domain (filter + sort building).
 
-Filter surface (per SPEC §4): exactly 6 filters — an optional ``date`` (exact
+Filter surface (per SPEC §4): exactly 7 filters — an optional ``date`` (exact
 match on the stored ``report_date`` string), four per-field exact-match filters
 (customer_name, city, customer, cca_description), one ``blocked`` enum
-(blocked/unblocked), and one ``credit_balance_sign`` enum (positive/negative).
+(blocked/unblocked), one ``credit_balance_sign`` enum (positive/negative), and
+one ``plant`` enum (jsw/jvml/all) that groups credit control areas.
 No free-text ``q``, no dateFrom/dateTo range.
 """
 from __future__ import annotations
@@ -19,6 +20,13 @@ from ...schemas.credit_report import CreditReportListQuery
 
 # 4 fields exposed as per-field exact-match filter params.
 _FILTER_FIELDS = ("customer_name", "city", "customer", "cca_description")
+
+# Plant → credit-control-area mapping.  Stored as strings because the source
+# Excel stores the column as text ("1000" is not ingested as a number).
+_PLANT_CCA_MAP: dict[str, list[str]] = {
+    "jsw": ["VJ0H", "1000"],
+    "jvml": ["JV0H"],
+}
 
 
 # ---------------------------------------------------------------------------
@@ -54,6 +62,9 @@ def build_credit_report_filter(query: CreditReportListQuery) -> dict[str, Any]:
         filt["credit_balance"] = {"$lt": 0}
     elif query.credit_balance_sign == "positive":
         filt["credit_balance"] = {"$gte": 0}
+
+    if query.plant in _PLANT_CCA_MAP:
+        filt["credit_control_area"] = {"$in": _PLANT_CCA_MAP[query.plant]}
 
     return filt
 

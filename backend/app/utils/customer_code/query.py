@@ -2,11 +2,10 @@
 
 ``build_customer_code_filter`` applies ``re.escape`` to all user-supplied string
 inputs before any ``$regex`` construction (ReDoS guard, OWASP A05).
-Free-text search (``q``) uses ``$or`` across all fifteen text fields:
+Free-text search (``q``) uses ``$or`` across all thirteen text fields:
 ``segment``, ``code``, ``customer``, ``destination``, ``cam``, ``mob``,
 ``head``, ``route``, ``ship_to``, ``ship_to_customer``,
-``ship_to_2``, ``ship_to_customer_2``, ``ship_to_city``, ``rake``,
-``transport_mode``.
+``ship_to_city``, ``rake``, ``transport_mode``.
 Per-field exact-match filters apply to nine fields:
 ``segment``, ``code``, ``customer``, ``destination``, ``cam``, ``mob``,
 ``ship_to_city``, ``rake``, ``transport_mode``.
@@ -34,8 +33,6 @@ _TEXT_FIELDS = (
     "route",
     "ship_to",
     "ship_to_customer",
-    "ship_to_2",
-    "ship_to_customer_2",
     "ship_to_city",
     "rake",
     "transport_mode",

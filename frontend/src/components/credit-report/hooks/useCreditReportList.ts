@@ -11,16 +11,18 @@
  *
  * Default view: `date` is seeded to TODAY ("dd-MM-yyyy", local day) on mount so
  * the list opens showing only today's report; the user can change or clear it.
- * Filters: a single report-`date` (exact match on report_date) + 6 filters —
+ * Filters: a single report-`date` (exact match on report_date) + 7 filters —
  *   4 async-select (customer_name, city, customer, cca_description)
  *   + blocked enum (""|"blocked"|"unblocked")
- *   + credit_balance_sign enum (""|"positive"|"negative").
+ *   + credit_balance_sign enum (""|"positive"|"negative")
+ *   + plant enum ("all"|"jsw"|"jvml").
  * NO q-search, NO dateFrom/dateTo range.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { format } from "date-fns"
 
+import { exportCreditReport } from "@/api/credit-report/export"
 import { listCreditReport } from "@/api/credit-report/list"
 
 import type { PaginationMeta } from "@/types/api/envelope"
@@ -51,6 +53,8 @@ const DEFAULT_QUERY: CreditReportQueryState = {
   cca_description: "",
   blocked: "",
   credit_balance_sign: "",
+  plant: "all",
+  region: "",
 }
 
 // ---------------------------------------------------------------------------
@@ -64,6 +68,8 @@ const FILTER_KEYS = [
   "cca_description",
   "blocked",
   "credit_balance_sign",
+  "plant",
+  "region",
 ] as const satisfies ReadonlyArray<keyof Pick<
   CreditReportQueryState,
   | "customer_name"
@@ -72,6 +78,8 @@ const FILTER_KEYS = [
   | "cca_description"
   | "blocked"
   | "credit_balance_sign"
+  | "plant"
+  | "region"
 >>
 
 // ---------------------------------------------------------------------------
@@ -88,6 +96,7 @@ export function useCreditReportList(): UseCreditReportListResult {
   const [rows, setRows] = useState<CreditReport[]>([])
   const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [loading, setLoading] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dialog, setDialog] = useState<CreditReportDialogState>({ type: "none" })
 
@@ -116,6 +125,8 @@ export function useCreditReportList(): UseCreditReportListResult {
         ...(q.cca_description    ? { cca_description: q.cca_description }       : {}),
         ...(q.blocked            ? { blocked: q.blocked }                       : {}),
         ...(q.credit_balance_sign ? { credit_balance_sign: q.credit_balance_sign } : {}),
+        ...(q.plant && q.plant !== "all" ? { plant: q.plant }                   : {}),
+        ...(q.region              ? { region: q.region }                         : {}),
       }
       const result = await listCreditReport(params)
       if (id !== fetchIdRef.current) return
@@ -153,7 +164,7 @@ export function useCreditReportList(): UseCreditReportListResult {
     [],
   )
 
-  /** Single setter covering all 6 per-field filters; resets page to 1. */
+  /** Single setter covering all 8 filters; resets page to 1. */
   const setFilter = useCallback(
     (patch: Partial<Pick<CreditReportQueryState,
       | "customer_name"
@@ -162,6 +173,8 @@ export function useCreditReportList(): UseCreditReportListResult {
       | "cca_description"
       | "blocked"
       | "credit_balance_sign"
+      | "plant"
+      | "region"
     >>) =>
       setQuery((q) => ({ ...q, ...patch, page: 1 })),
     [],
@@ -173,13 +186,40 @@ export function useCreditReportList(): UseCreditReportListResult {
     [],
   )
 
-  /** Reset all 6 per-field filters to "" AND the date to null; resets page to 1. */
+  /** Reset all 8 filters to "" / "all" AND the date to null; resets page to 1. */
   const clearFilters = useCallback(() => {
     const cleared = Object.fromEntries(
-      FILTER_KEYS.map((k) => [k, ""]),
+      FILTER_KEYS.map((k) => [k, k === "plant" ? "all" : ""]),
     ) as Pick<CreditReportQueryState, typeof FILTER_KEYS[number]>
     setQuery((q) => ({ ...q, ...cleared, date: null, page: 1 }))
   }, [])
+
+  const exportRows = useCallback(
+    async (filename?: string) => {
+      setExporting(true)
+      try {
+        const params: CreditReportListQuery = {
+          page: query.page,
+          limit: query.limit,
+          sortBy: query.sortBy,
+          sortOrder: query.sortOrder,
+          ...(query.date               ? { date: query.date }                             : {}),
+          ...(query.customer_name      ? { customer_name: query.customer_name }           : {}),
+          ...(query.city               ? { city: query.city }                             : {}),
+          ...(query.customer           ? { customer: query.customer }                     : {}),
+          ...(query.cca_description    ? { cca_description: query.cca_description }       : {}),
+          ...(query.blocked            ? { blocked: query.blocked }                       : {}),
+          ...(query.credit_balance_sign ? { credit_balance_sign: query.credit_balance_sign } : {}),
+          ...(query.plant && query.plant !== "all" ? { plant: query.plant }               : {}),
+          ...(query.region             ? { region: query.region }                         : {}),
+        }
+        await exportCreditReport(params, filename)
+      } finally {
+        setExporting(false)
+      }
+    },
+    [query],
+  )
 
   // Trigger re-fetch without changing params (identity change → useEffect fires).
   const refetch = useCallback(() => setQuery((q) => ({ ...q })), [])
@@ -202,6 +242,8 @@ export function useCreditReportList(): UseCreditReportListResult {
     rows,
     meta,
     loading,
+    exporting,
+    exportRows,
     error,
     dialog,
     openDialog,

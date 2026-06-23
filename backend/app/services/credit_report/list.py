@@ -14,6 +14,7 @@ from math import ceil
 
 from ...core.responses import PaginationMeta
 from ...models.credit_report import CreditReport
+from ...models.customer_code import CustomerCode
 from ...schemas.credit_report import CreditReportListQuery
 from ...schemas.credit_report_record import CreditReportPublic
 from ...utils.credit_report.query import build_credit_report_filter, build_sort
@@ -39,6 +40,11 @@ async def list_credit_report(
         page and ``meta`` carries pagination bookkeeping for the frontend.
     """
     filt = build_credit_report_filter(query)
+
+    if query.region:
+        region_docs = await CustomerCode.find({"region_id": query.region}).to_list()
+        region_codes = [doc.code for doc in region_docs if doc.code is not None]
+        filt["customer"] = {"$in": region_codes if region_codes else [""]}
 
     total = await CreditReport.find(filt).count()
 

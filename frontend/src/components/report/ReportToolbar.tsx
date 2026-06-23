@@ -2,11 +2,12 @@
  * ReportToolbar — the Report JSW/JVML input row.
  *
  * Date (DatePicker) · report type (JSW/JVML segmented) · region (optional
- * AsyncCombobox; empty ⇒ all regions) · days (aging) Select · Generate button.
+ * AsyncCombobox; empty ⇒ all regions) · days (aging) Select · Generate button ·
+ * Export button.
  * Purely presentational — all state lives in `useReport`.
  */
 
-import { Play } from "lucide-react"
+import { DownloadIcon, Loader2Icon, Play } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -33,18 +34,22 @@ const REPORT_TYPES: { value: ReportType; label: string }[] = [
 export interface ReportToolbarProps {
   inputs: ReportInputs
   loading: boolean
+  exporting: boolean
   canGenerate: boolean
   onDate: (d: string | null) => void
   onReportType: (t: ReportType) => void
   onRegion: (id: string | null) => void
   onDays: (d: DaysFilter) => void
   onGenerate: () => void
+  onExport: () => void
 }
 
 export function ReportToolbar({
-  inputs, loading, canGenerate,
-  onDate, onReportType, onRegion, onDays, onGenerate,
+  inputs, loading, exporting, canGenerate,
+  onDate, onReportType, onRegion, onDays, onGenerate, onExport,
 }: ReportToolbarProps) {
+  const busy = loading || exporting
+
   return (
     <div
       role="toolbar"
@@ -56,6 +61,7 @@ export function ReportToolbar({
         value={inputs.date}
         onChange={onDate}
         placeholder="Report date"
+        disabled={busy}
         aria-label="Report date"
         className="shrink-0"
       />
@@ -69,9 +75,10 @@ export function ReportToolbar({
               key={t.value}
               type="button"
               onClick={() => onReportType(t.value)}
+              disabled={busy}
               aria-pressed={active}
               className={cn(
-                "rounded px-3 py-1 text-sm font-medium transition-colors",
+                "rounded px-3 py-1 text-sm font-medium transition-colors disabled:opacity-50",
                 active
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
@@ -91,13 +98,14 @@ export function ReportToolbar({
           fetchOptions={searchRegionOptions}
           placeholder="All regions"
           emptyText="No regions."
+          disabled={busy}
           allowClear
           aria-label="Filter by region"
         />
       </div>
 
       {/* Days (aging) */}
-      <Select value={inputs.days} onValueChange={(v) => onDays(v as DaysFilter)}>
+      <Select value={inputs.days} onValueChange={(v) => onDays(v as DaysFilter)} disabled={busy}>
         <SelectTrigger className="w-[210px] shrink-0" aria-label="QA-hold aging day filter">
           <SelectValue />
         </SelectTrigger>
@@ -115,8 +123,29 @@ export function ReportToolbar({
         disabled={!canGenerate || loading}
         className="shrink-0 gap-1.5"
       >
-        <Play className={loading ? "size-3.5 animate-pulse" : "size-3.5"} />
+        {loading ? (
+          <Loader2Icon className="size-3.5 animate-spin" />
+        ) : (
+          <Play className="size-3.5" />
+        )}
         {loading ? "Generating…" : "Generate"}
+      </Button>
+
+      {/* Export */}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={onExport}
+        disabled={!canGenerate || busy}
+        className="h-9 gap-1.5"
+      >
+        {exporting ? (
+          <Loader2Icon className="size-4 animate-spin" />
+        ) : (
+          <DownloadIcon className="size-4" />
+        )}
+        Export
       </Button>
     </div>
   )

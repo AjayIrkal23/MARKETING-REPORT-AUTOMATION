@@ -1,12 +1,14 @@
 # Project Codex — Marketing Report Automation
 
-_Last updated: 2026-06-01 | Sessions: 2 | Auto-maintained by agent sessions_
+_Last updated: 2026-06-23 | Sessions: 3 | Auto-maintained by agent sessions_
 
 > **AGENTS: Read this file FIRST before any code work.** It captures live architectural decisions, failure history, and fragile areas. After reading, check Memory MCP (`mcp__memory__search_nodes("frontend#bd1f58419d")`) for session-level entities, then read domain docs in `macro_docs/`.
 
 ---
 
 ## Architecture Decisions
+
+- **[2026-06-23]** **Report JSW/JVML pivot enriched with RAKE and Mode of Transport from CustomerCode.** `ReportParty` now exposes `rake` and `transport_mode`, both sourced from the `CustomerCode` master and resolved in the same enrichment map as `route` and `ship_to_party`. The MongoDB stock aggregation is unchanged. The frontend table gained two columns, **RAKE** and **Mode of Transport**, placed between **Route Desc** and **Total**; Excel export includes the same columns and the existing AutoFilter covers them. Subtotal/grand-total label colSpans were updated to span the seven leading columns. Backend pytest passes; frontend `tsc -b` and `vite build` green.
 
 - **[2026-06-20]** **Report JSW/JVML pivot enriched with Route and Ship-To Party from CustomerCode.** `ReportParty` now exposes `route` (sourced from `CustomerCode.route`) and `ship_to_party` (sourced from `CustomerCode.ship_to_customer`, falling back to `CustomerCode.ship_to`). The report service loads the `CustomerCode` master for the selected region once and builds an in-memory enrichment map; the MongoDB aggregation is unchanged. The frontend table gained two columns: **Ship-To Party** and **Route**, placed between **Sold To Party** and **Route Desc**; subtotal/grand-total label colSpans were updated to span the five leading columns.
 
@@ -103,6 +105,8 @@ _Last updated: 2026-06-01 | Sessions: 2 | Auto-maintained by agent sessions_
 ---
 
 ## Session Log (last 10 sessions)
+
+- **[2026-06-23]** Added **RAKE** and **Mode of Transport** columns to the Report JSW/JVML pivot. Backend: extended `ReportParty` schema, updated `services/report/generate.py` enrichment map to carry `(route, ship_to_party, rake, transport_mode)`, and added the two columns to `services/report/export.py` (headers, party rows, subtotals, grand total). Frontend: added `rake`/`transport_mode` to `types/report/report.ts`, rendered the two columns in `ReportTable`/`ReportPartyRow`, and updated `ReportSubtotalRow` colSpan from 5 → 7. Tests: updated `test_report_enrichment.py` (4-tuple map assertions + whitespace stripping) and `test_report_export.py` (fake party includes RAKE/Mode of Transport). Verified full backend pytest passes, frontend `tsc -b` + `vite build` green, eslint clean on touched report files. Updated `CODEX.md` and `backend/app/services/report/CLAUDE.md`.
 
 - **[2026-06-20]** Updated **Customer Code Management** to the new 15-column ship-to workbook and added **multi-select + bulk delete**: added `ship_to_2`, `ship_to_customer_2`, `ship_to_city`, `rake`, `transport_mode`; converted create/import to case-insensitive upsert on `(code, ship_to, region_id)`; added `GET /admin/customer-codes/export`; added row-selection checkboxes, a "Delete selected" toolbar button, and `POST /admin/customer-codes/bulk-delete` (up to 100 ids). Verified import→upsert→export round-trip on the real workbook, backend pytest passes, `npm run build` green, eslint clean on touched files. Updated `CODEX.md`, `macro_docs/west-central-customer-codes.md`, and local `CLAUDE.md` files.
 

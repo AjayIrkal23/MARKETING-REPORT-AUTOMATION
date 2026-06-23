@@ -23,7 +23,13 @@ def _serialize_value(value: Any) -> str:
     else uses ``str()``.
     """
     if isinstance(value, datetime):
-        return value.astimezone(timezone.utc).isoformat()
+        try:
+            return value.astimezone(timezone.utc).isoformat()
+        except (ValueError, OverflowError, OSError):
+            # Near-year-9999 naive datetimes can overflow during local-timezone
+            # conversion on some platforms. Hash them as naive ISO strings so
+            # ingestion still completes deterministically.
+            return value.isoformat()
     return str(value)
 
 
