@@ -104,6 +104,14 @@ config_router.add_api_route(
 )
 
 config_router.add_api_route(
+    "/run-now/{region_id}",
+    cfg_ctrl.run_now_zone_controller,
+    methods=["POST"],
+    response_model=SuccessEnvelope[CreditReportStatusPublic],
+    summary="Trigger credit report poll for one region zone",
+)
+
+config_router.add_api_route(
     "/cleanup-duplicates",
     cfg_ctrl.cleanup_duplicates_controller,
     methods=["POST"],

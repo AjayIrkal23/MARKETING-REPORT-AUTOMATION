@@ -19,6 +19,7 @@ type BadgeVariant = "default" | "secondary" | "destructive" | "outline"
 
 const STATUS_LABELS: Record<string, { label: string; variant: BadgeVariant }> = {
   ingested: { label: "Ingested", variant: "default" },
+  partial: { label: "Partial", variant: "outline" },
   pending: { label: "Pending", variant: "secondary" },
   missing: { label: "Missing", variant: "outline" },
   alerted: { label: "Alerted", variant: "destructive" },

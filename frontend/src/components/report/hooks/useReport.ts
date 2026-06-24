@@ -13,6 +13,7 @@ import { exportReport } from "@/api/report/export"
 import { generateReport } from "@/api/report/generate"
 import {
   DEFAULT_REPORT_COLS,
+  REPORT_OPTIONAL_COLS,
   type ReportColKey,
   type ReportColVisibility,
 } from "@/components/report/report-format"
@@ -107,15 +108,18 @@ export function useReport(): UseReportResult {
     }
     setExporting(true)
     setError(null)
+    // Export honours the same optional-column toggles as the on-screen table.
+    const columns = REPORT_OPTIONAL_COLS.filter((c) => visibleCols[c.key]).map((c) => c.key).join(",")
     exportReport({
       date: inputs.date,
       report_type: inputs.report_type,
       region_id: inputs.region_id ?? undefined,
       days: inputs.days,
+      columns,
     })
       .catch(() => setError("Failed to export the report. Please try again."))
       .finally(() => setExporting(false))
-  }, [inputs])
+  }, [inputs, visibleCols])
 
   return {
     inputs,

@@ -31,7 +31,7 @@ RAKE-column pivot, credit augmentation, and final assembly.
 | `generate.py` | Region → customer codes → pivot → credit → `ReportResponse` |
 | `pivot.py` | MongoDB `$group` aggregation for the row fields |
 | `credit.py` | Credit-report lookup + required-credit calculation |
-| `export.py` | Export the report as a **grouped** .xlsx pivot — repeated parent cells blanked + per-group Distr.Channel (`{channel} Total`) subtotal rows + Grand Total (no Party Code subtotal) |
+| `export.py` | Export the report as a **grouped** .xlsx pivot — repeated parent cells blanked + per-group Distr.Channel (`{channel} Total`) subtotal rows + Grand Total (no Party Code subtotal). Honours the `ReportQuery.columns` CSV filter (visible optional-column keys: 3 detail + 6 trailing incl. **Total**); only the 5 fixed cols + RAKE are always written. `columns=None` ⇒ all; `""` ⇒ none |
 
 ## Gotchas / fragile spots
 

@@ -34,7 +34,7 @@ whitelist so unknown sort keys are rejected at parse time.
 | `coil_price.py` | Coil price query/mutation/response DTOs. |
 | `region.py` | Region query/mutation/response/options DTOs. |
 | `customer_code.py` | Customer-code query/mutation/import/response DTOs. |
-| `credit_report.py` / `credit_report_record.py` | Credit report query and public row DTOs. |
+| `credit_report.py` / `credit_report_record.py` / `credit_report_config.py` | Credit report query, row, config, status, and zone-run DTOs. |
 | `jsw_stock.py` / `jsw_stock_record.py` | JSW stock query and public row DTOs. |
 | `jvml_stock.py` / `jvml_stock_record.py` | JVML stock query and public row DTOs. |
 | `report.py` | RAKE pivot report query/response DTOs. |
@@ -48,6 +48,8 @@ whitelist so unknown sort keys are rejected at parse time.
 - Customer-code schemas import `AsyncOption` from `.admin_user` only.
 - Export routes bypass `response_model`, so the public record DTOs are used by
   services directly for serialization.
+- Credit-report status includes today's `zones[]` and `dup_party_count`; row
+  list/export DTOs intentionally do not expose provenance filtering knobs.
 
 ## Up / down
 

@@ -75,7 +75,17 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return <p className="text-[0.6875rem] font-semibold uppercase tracking-wider text-muted-foreground">{children}</p>
 }
 
-export function StockConfigPanel({ domain, ctl }: { domain: StockConfigDomain; ctl: StockConfigController }) {
+export function StockConfigPanel({
+  domain,
+  ctl,
+  children,
+  showRunNow = true,
+}: {
+  domain: StockConfigDomain
+  ctl: StockConfigController
+  children?: React.ReactNode
+  showRunNow?: boolean
+}) {
   const { config, status, isLoading, isSaving, isRunning, error, save, runNow } = ctl
   const [form, setForm] = useState<StockConfigValues>(EMPTY_FORM)
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({})
@@ -159,7 +169,10 @@ export function StockConfigPanel({ domain, ctl }: { domain: StockConfigDomain; c
                 ? <FieldError id={id("file-name-err")}>{fieldErrors.file_name}</FieldError>
                 : <p id={id("file-name-hint")} className="text-xs text-muted-foreground">{domain.fileNameHint}</p>}
             </Field>
-            <ResolvedPathPreview values={form} />
+            <ResolvedPathPreview
+              values={form}
+              zoneLayout={domain.key === "credit_report"}
+            />
           </section>
 
           <section className="flex flex-col gap-3">
@@ -203,6 +216,12 @@ export function StockConfigPanel({ domain, ctl }: { domain: StockConfigDomain; c
           <div className="mt-auto border-t border-border/60 pt-4">
             <StockLastRun status={status} isLoading={isLoading} />
           </div>
+
+          {children && (
+            <div className="border-t border-border/60 pt-4">
+              {children}
+            </div>
+          )}
         </CardContent>
 
         <CardFooter className="gap-2 border-t py-3.5">
@@ -210,10 +229,12 @@ export function StockConfigPanel({ domain, ctl }: { domain: StockConfigDomain; c
             {!pristine ? <span className="font-medium text-foreground">Unsaved changes</span>
               : config?.updated_at ? "All changes saved" : "Not configured yet"}
           </p>
-          <Button type="button" variant="outline" size="sm" onClick={() => void runNow()}
-            disabled={busy || isLoading} aria-busy={isRunning || undefined}>
-            {isRunning ? <><Loader2 className="size-4 animate-spin" aria-hidden />Running</> : "Run check now"}
-          </Button>
+          {showRunNow && (
+            <Button type="button" variant="outline" size="sm" onClick={() => void runNow()}
+              disabled={busy || isLoading} aria-busy={isRunning || undefined}>
+              {isRunning ? <><Loader2 className="size-4 animate-spin" aria-hidden />Running</> : "Run check now"}
+            </Button>
+          )}
           <Button type="submit" size="sm" form={domain.formId} disabled={busy || isLoading || pristine} aria-busy={isSaving || undefined}>
             {isSaving ? <><Loader2 className="size-4 animate-spin" aria-hidden />Saving</> : "Save"}
           </Button>

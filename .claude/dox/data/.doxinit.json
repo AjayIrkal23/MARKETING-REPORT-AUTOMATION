@@ -1,7 +1,7 @@
 {
   "autoManaged": true,
   "version": 2,
-  "fingerprint": "3ecc25f3fdbf13e8",
+  "fingerprint": "b571f48990f13173",
   "documentedDirs": [
     "backend",
     "backend/app",
@@ -140,7 +140,9 @@
     "macro_docs",
     "macro_files",
     "macro_files/20-06-2026",
-    "macro_files/23-06-2026"
+    "macro_files/21-06-2026",
+    "macro_files/23-06-2026",
+    "macro_files/24-06-2026"
   ],
   "missingChildren": []
 }

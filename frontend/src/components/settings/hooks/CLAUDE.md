@@ -11,6 +11,8 @@ Contains one hook per ingestible domain (`useJswStockConfig`, `useJvmlStockConfi
 
 - Each hook is self-contained and consumed by a single card.
 - Save triggers a status refresh to reflect scheduler changes.
+- `useCreditReportConfig` also exposes `runZoneNow(regionId)` and
+  `runningZoneId` for the inline zone buttons.
 
 ## Key files
 

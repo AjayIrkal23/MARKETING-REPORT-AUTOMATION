@@ -30,6 +30,7 @@ project `.env`.
 | `test_credit_report_coerce.py` | Credit-report date coercion edge cases. |
 | `test_credit_report_export.py` | Credit-report export behavior. |
 | `test_credit_report_filters.py` | Credit-report list filters. |
+| `test_credit_report_zone_ingestion.py` | Region-zone ingest helpers and scoped delete behavior. |
 | `test_customer_code_template.py` | Customer-code import template. |
 | `test_ingest_cleanup.py` | Duplicate-row cleanup helper. |
 | `test_jsw_stock_export.py` / `test_jvml_stock_export.py` | Stock export behavior. |

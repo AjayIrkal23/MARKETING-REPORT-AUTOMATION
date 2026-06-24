@@ -6,29 +6,36 @@
 
 ## What lives here
 
-Credit Report ingestion, listing, options, config and status services.
+Credit Report ingestion, listing, options, config and status services. Credit
+ingestion is region-zone aware: active `Region` records drive folders under
+`<base>/<dd-mm-yyyy>/CREDITREPORT/<Region>/`.
 
 ## Local conventions
 
-- `ingest.py` is the only writer for the `credit_report` collection. It deletes
-  all rows for the target `report_date` before inserting, then runs a defensive
-  duplicate-cleanup pass.
+- `ingest.py` is the only writer for the `credit_report` collection. Flat mode
+  deletes a whole date; region mode deletes only `{report_date, region_id}`.
 - Use the shared `services.shared.ingest_cleanup._row_hash` helper; do not invent
   a domain-specific hashing scheme.
+- Stored `CreditReport.region_id` is ingest provenance only. The user-facing
+  list region filter still joins `customer` to `CustomerCode.region_id`.
 
 ## Key files
 
 | File | Role |
 |------|------|
 | `ingest.py` | Parse `credit report.XLSX`, filter to JV0H/VJ0H, bulk insert, dedupe |
-| `poller.py` | Scheduled daily poll + missing-file alert |
+| `poller.py` | Scheduled/manual poll entrypoints |
+| `zone_polling.py` | Active-region folder loop, zone status roll-up, missing-zone alerts |
 | `list.py` / `options.py` / `serialize.py` | Server-driven list, filter options, and response serialization |
 | `config_service.py` / `status.py` | Admin config singleton + ingestion status |
 
 ## Gotchas / fragile spots
 
-- `row_hash` is stored on every document for same-date duplicate cleanup. It is
-  computed from the coerced source fields only (no metadata).
+- `row_hash` is stored on every document for same-date duplicate cleanup. In
+  region mode it must include `region_id` so identical rows in different zones
+  stay distinct.
+- Manual single-zone runs (`run_poll_zone`) bypass the time window and do not
+  send missing-file email. Scheduled/run-all polls send one consolidated alert.
 - `cleanup_duplicates` is called automatically after every ingest; the admin
   endpoint `POST /admin/credit-report/cleanup-duplicates` is available for manual
   repair.

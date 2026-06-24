@@ -46,6 +46,7 @@ export interface UseCreditReportConfigResult {
    * The "Run check now" button shows a spinner and is disabled while true.
    */
   isRunning: boolean
+  runningZoneId: string | null
   /**
    * The last error message from a failed load, save, or run-now call,
    * or null when no error is present. Cleared on the next operation start.
@@ -62,6 +63,8 @@ export interface UseCreditReportConfigResult {
    * On completion (success or error): refreshes `status`.
    */
   runNow: () => Promise<void>
+  /** Trigger one region-zone poll via POST /admin/credit-report/run-now/{regionId}. */
+  runZoneNow: (regionId: string) => Promise<void>
   /**
    * Re-run the initial load (GET config + GET status in parallel).
    * Called after save/runNow to ensure the UI reflects the latest server state.

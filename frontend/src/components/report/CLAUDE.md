@@ -20,7 +20,12 @@ no API calls live here (those are in `src/api/report/`).
   `report-format.ts` — the single shared module imported by the toolbar, table,
   and hook. Don't duplicate column keys/labels anywhere else. Each optional col
   carries a `side`: `"detail"` (left columns — Transport Mode / Destination /
-  ROUTE) or `"credit"` (trailing columns right of Total).
+  ROUTE) or `"credit"` (trailing columns after the RAKE cols — **Total**, Yes+DO,
+  Blocked, Credit Balance, Required Credit, Credit Note). **9 toggles total; Total
+  is optional too** — only the 5 fixed left cols + dynamic RAKE cols are always shown.
+- **The Export honours the same toggles.** `useReport.exportReport()` sends the
+  visible optional-column keys as a `columns` CSV; the backend (`services/report/
+  export.py`) filters the .xlsx to match. Param absent ⇒ all columns; empty ⇒ none.
 - **No client-side filtering of server data.** The only client-side view config
   is column *visibility* (the toolbar "Columns" dropdown → `visibleCols`) and the
   pivot *grouping/subtotals* (`buildRenderRows`) — both are presentation derived

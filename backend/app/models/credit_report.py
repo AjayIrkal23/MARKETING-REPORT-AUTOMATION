@@ -123,8 +123,10 @@ class CreditReport(Document):
     """Deterministic hash of the source row — used for same-date deduplication."""
 
     # ------------------------------------------------------------------
-    # Meta fields (4 total — no party_code_normalized / customer_code_id)
+    # Meta fields (5 total — no party_code_normalized / customer_code_id)
     # ------------------------------------------------------------------
+    region_id:    Annotated[str | None, Indexed()] = None
+    """Ingest provenance: active Region folder this row came from; not the list filter."""
     report_date:  Annotated[str, Indexed()]
     """Source folder date string dd-mm-yyyy (e.g. '31-05-2026')."""
     source_file:  str | None = None

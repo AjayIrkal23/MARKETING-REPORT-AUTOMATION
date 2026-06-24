@@ -15,10 +15,20 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # Keys mirror the audit-category / collection naming for the three domains.
 DashboardReportKey = Literal["jsw_stock", "jvml_stock", "credit_report"]
+
+
+class DashboardZoneStatus(BaseModel):
+    """Today's credit-report status for one active region zone."""
+
+    region_id: str
+    name: str
+    status: str
+    row_count: int
+    found_at: datetime | None
 
 
 class DashboardReportStatus(BaseModel):
@@ -33,6 +43,7 @@ class DashboardReportStatus(BaseModel):
     row_count: int                   # rows ingested today (0 when not ingested)
     found_at: datetime | None        # when today's file was found/ingested
     enabled: bool                    # whether scheduled polling is enabled
+    zones: list[DashboardZoneStatus] = Field(default_factory=list)
 
 
 class DashboardSummary(BaseModel):

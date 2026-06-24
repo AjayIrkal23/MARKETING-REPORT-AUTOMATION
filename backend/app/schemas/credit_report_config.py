@@ -160,6 +160,18 @@ class CreditReportIngestionRow(BaseModel):
     created_at: datetime
 
 
+class CreditReportZoneStatus(BaseModel):
+    """One active region's status for today's credit-report ingestion."""
+
+    region_id: str
+    name: str
+    status: str
+    row_count: int
+    found_at: datetime | None
+    file_path: str | None
+    error: str | None
+
+
 # ---------------------------------------------------------------------------
 # Status DTO
 # ---------------------------------------------------------------------------
@@ -179,4 +191,6 @@ class CreditReportStatusPublic(BaseModel):
     last_found_at: datetime | None
     last_alerted_at: datetime | None
     last_error: str | None
+    dup_party_count: int
+    zones: list[CreditReportZoneStatus]
     recent: list[CreditReportIngestionRow]

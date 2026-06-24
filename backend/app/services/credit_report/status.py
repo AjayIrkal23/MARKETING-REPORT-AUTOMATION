@@ -19,12 +19,46 @@ Notes:
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from ...models.credit_report_config import CreditReportConfig
 from ...models.credit_report_ingestion import CreditReportIngestion
-from ...schemas.credit_report_config import CreditReportIngestionRow, CreditReportStatusPublic
+from ...models.region import Region
+from ...schemas.credit_report_config import (
+    CreditReportIngestionRow,
+    CreditReportStatusPublic,
+    CreditReportZoneStatus,
+)
 
 # Number of recent ingestion records to include in the status response.
 _RECENT_N = 14
+
+
+def _today_local() -> str:
+    return datetime.now().strftime("%d-%m-%Y")
+
+
+def _zone_statuses(
+    doc: CreditReportIngestion | None,
+    active_regions: list[Region],
+) -> list[CreditReportZoneStatus]:
+    existing = {zone.region_id: zone for zone in (doc.zones if doc else [])}
+    zones: list[CreditReportZoneStatus] = []
+    for region in active_regions:
+        region_id = str(region.id)
+        zone = existing.get(region_id)
+        zones.append(
+            CreditReportZoneStatus(
+                region_id=region_id,
+                name=region.name,
+                status=zone.status if zone else "pending",
+                row_count=zone.row_count if zone else 0,
+                found_at=zone.found_at if zone else None,
+                file_path=zone.file_path if zone else None,
+                error=zone.error if zone else None,
+            )
+        )
+    return zones
 
 
 async def get_status() -> CreditReportStatusPublic:
@@ -55,6 +89,11 @@ async def get_status() -> CreditReportStatusPublic:
         .limit(_RECENT_N)
         .to_list()
     )
+    today = _today_local()
+    today_doc = next((doc for doc in recent_docs if doc.report_date == today), None)
+    if today_doc is None:
+        today_doc = await CreditReportIngestion.find_one({"report_date": today})
+    active_regions = await Region.find({"active": True}).sort("+name").to_list()
 
     # ------------------------------------------------------------------
     # Step 3 — latest is the first doc if any (sort is desc)
@@ -86,5 +125,7 @@ async def get_status() -> CreditReportStatusPublic:
         last_found_at=latest.found_at if latest is not None else None,
         last_alerted_at=latest.alerted_at if latest is not None else None,
         last_error=latest.error if latest is not None else None,
+        dup_party_count=today_doc.dup_party_count if today_doc is not None else 0,
+        zones=_zone_statuses(today_doc, active_regions),
         recent=recent,
     )

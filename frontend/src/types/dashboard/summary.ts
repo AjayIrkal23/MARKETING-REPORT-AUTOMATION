@@ -12,9 +12,18 @@ export type DashboardReportRawStatus =
   | "none"
   | "pending"
   | "ingested"
+  | "partial"
   | "missing"
   | "alerted"
   | "error"
+
+export interface DashboardZoneStatus {
+  region_id: string
+  name: string
+  status: string
+  row_count: number
+  found_at: string | null
+}
 
 /** Today's ingestion state for one report domain (one dashboard card). */
 export interface DashboardReportStatus {
@@ -27,6 +36,7 @@ export interface DashboardReportStatus {
   row_count: number
   found_at: string | null              // ISO datetime when ingested, else null
   enabled: boolean
+  zones: DashboardZoneStatus[]
 }
 
 /** Per-report ingestion status for today — drives the dashboard cards. */

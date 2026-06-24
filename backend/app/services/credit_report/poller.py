@@ -1,26 +1,4 @@
-"""Credit Report Excel daily poll — file detection, ingest dispatch, and alert.
-
-Entry point: ``run_poll() -> CreditReportStatusPublic``.
-
-Invariants (all guarded — never raises out of run_poll):
-- Uses ``datetime.now()`` (LOCAL clock) to match config HH:MM window (BE-14).
-- ``today`` is formatted ``dd-mm-yyyy`` to match the folder-name convention.
-- ``os.makedirs(folder, exist_ok=True)`` creates the dated sub-folder on demand.
-- Window: ``now.time() >= start`` is required to enter; polling then continues
-  on every interval tick from start_time onward (no upper-bound gate).
-- Ingestion is idempotent: ``CreditReport.find(report_date=...).delete()`` runs first
-  inside ``ingest_file`` before the bulk insert.
-- Missing-file alert fires on EVERY poll tick while the file is absent (not just
-  once at window end); cadence = the configured ``interval_hours``.
-- Any exception during ingest → mark ``"error"`` + emit ``credit_report.failed`` audit.
-  Never re-raises (``run_poll`` is a top-level job entry point; the ``@audited_job``
-  cron wrapper handles the cron-level audit independently).
-
-Module-level imports are safe here (B-9): ``poller.py`` is below
-``config_service.py`` / ``emails.py`` / ``ingest.py`` / ``status.py`` in the
-import chain — the cycle only exists through ``scheduler.py`` (which uses local
-imports), not through this module.
-"""
+"""Credit Report daily poll entrypoints."""
 
 from __future__ import annotations
 
@@ -29,159 +7,131 @@ import os
 from datetime import datetime
 from datetime import time as dt_time
 
-from ...models.credit_report_ingestion import CreditReportIngestion
+from beanie import PydanticObjectId
+
+from ...core.errors import NotFoundError
+from ...models.credit_report_config import CreditReportConfig
+from ...models.region import Region
 from ...schemas.credit_report_config import CreditReportStatusPublic
 from .config_service import get_config
 from .emails import send_missing_alert
 from .ingest import ingest_file
 from .status import get_status
+from .zone_polling import (
+    active_regions,
+    get_or_create_ingestion,
+    resolve_report_file,
+    run_regions,
+)
 
 logger = logging.getLogger(__name__)
 
 
 def _parse_hhmm(s: str) -> dt_time:
-    """Parse a zero-padded ``HH:MM`` string into a :class:`datetime.time`.
-
-    Caller guarantees the format is valid (validated by ``CreditReportConfigUpdate``).
-    """
     h, m = map(int, s.split(":"))
     return dt_time(h, m)
 
 
-def _resolve_report_file(folder: str, file_name: str) -> str | None:
-    """Return the path to ``<file_name>.xlsx`` inside *folder*, matching the
-    extension **case-insensitively**.
+async def _run_flat(
+    cfg: CreditReportConfig,
+    today: str,
+    *,
+    force: bool,
+    send_alerts: bool,
+) -> None:
+    folder = os.path.join(cfg.base_path, today)
+    os.makedirs(folder, exist_ok=True)
+    ingestion = await get_or_create_ingestion(today)
+    ingestion.zones = []
 
-    SAP exports the credit report as ``credit report.XLSX`` (UPPER-case ext),
-    but the Linux filesystem is case-sensitive, so a hard-coded ``".xlsx"`` would
-    never match. Fast-paths the common case variants, then falls back to a
-    directory scan (stem matched exactly, extension compared lower-cased).
-    Returns ``None`` when no matching file exists.
-    """
-    for ext in (".xlsx", ".XLSX", ".Xlsx"):
-        candidate = os.path.join(folder, file_name + ext)
-        if os.path.isfile(candidate):
-            return candidate
-    try:
-        for entry in os.listdir(folder):
-            stem, ext = os.path.splitext(entry)
-            if stem == file_name and ext.lower() == ".xlsx":
-                return os.path.join(folder, entry)
-    except OSError:
-        pass
-    return None
+    if ingestion.status == "ingested" and not force:
+        return
 
-
-async def run_poll() -> CreditReportStatusPublic:
-    """Detect and ingest today's Credit Report Excel file.
-
-    Returns the current :class:`CreditReportStatusPublic` regardless of outcome so
-    callers (cron job, ``run-now`` endpoint) always receive a meaningful response.
-
-    Raises:
-        Nothing — all exceptions are caught and recorded as ``"error"`` status.
-    """
-    try:
-        # ── 1. Load config singleton ─────────────────────────────────────────
-        cfg = await get_config()
-
-        if not cfg.enabled:
-            logger.debug("run_poll: config disabled — skipping.")
-            return await get_status()
-
-        if not cfg.base_path or not cfg.file_name:
-            logger.warning(
-                "run_poll: base_path=%r or file_name=%r is empty — skipping.",
-                cfg.base_path,
-                cfg.file_name,
-            )
-            return await get_status()
-
-        # ── 2. Time-window check (LOCAL clock — BE-14) ───────────────────────
-        now = datetime.now()  # local clock — intentional (BE-14, note 1c)
-        today = now.strftime("%d-%m-%Y")
-
-        start: dt_time = _parse_hhmm(cfg.start_time)
-
-        if now.time() < start:
-            logger.debug(
-                "run_poll: before window start %s (now=%s, today=%s).",
-                cfg.start_time,
-                now.strftime("%H:%M"),
-                today,
-            )
-            return await get_status()
-
-        # ── 3. Ensure dated folder exists ────────────────────────────────────
-        folder = os.path.join(cfg.base_path, today)
-        os.makedirs(folder, exist_ok=True)
-
-        # ── 4. Get or create today's ingestion record ────────────────────────
-        ingestion = await CreditReportIngestion.find_one({"report_date": today})
-        if ingestion is None:
-            ingestion = CreditReportIngestion(report_date=today, status="pending")
-            await ingestion.insert()
-
-        if ingestion.status == "ingested":
-            logger.debug("run_poll: already ingested for %s.", today)
-            return await get_status()
-
-        # ── 5. Check for the Excel file (case-insensitive ext — SAP ships
-        #       "credit report.XLSX"; Linux fs is case-sensitive) ─────────────
-        fpath = _resolve_report_file(folder, cfg.file_name)
-
-        if fpath is not None:
-            # ── 5a. File found — ingest ──────────────────────────────────────
-            try:
-                count = await ingest_file(fpath, today)
-
-                ingestion.status = "ingested"
-                ingestion.row_count = count
-                ingestion.found_at = datetime.now()
-                ingestion.file_path = fpath
-                ingestion.updated_at = datetime.now()
-                await ingestion.save()
-
-                logger.info(
-                    "run_poll: ingested %d rows for %s from %s.", count, today, fpath
-                )
-
-            except Exception as exc:  # noqa: BLE001
-                # Mark error, emit audit — do NOT re-raise (poller is top-level)
-                from ...services.audit.events import audit_credit_report_event  # noqa: PLC0415
-
-                ingestion.status = "error"
-                ingestion.error = str(exc)
-                ingestion.updated_at = datetime.now()
-                await ingestion.save()
-
-                await audit_credit_report_event(
-                    "credit_report.failed",
-                    f"Ingest failed for {today}: {exc}",
-                    outcome="error",
-                    extra={"report_date": today, "error": str(exc)},
-                )
-                logger.exception("run_poll: ingest_file raised for %s.", today)
-
-        else:
-            # ── 5b. File not found — alert on EVERY poll tick while missing ───
-            # Per user request: send the missing-file alert on every poll where
-            # the file is absent (not just once at window end). Frequency is
-            # governed by the configured interval_hours; send_missing_alert
-            # never raises (transport failures are caught + logged inside it).
+    fpath = resolve_report_file(folder, cfg.file_name)
+    if fpath is None:
+        if send_alerts:
             await send_missing_alert(cfg, today)
-            ingestion.status = "missing"
             ingestion.alerted_at = datetime.now()
-            ingestion.error = f"File not found at {now.strftime('%H:%M')} on {today}"
-            ingestion.updated_at = datetime.now()
-            await ingestion.save()
-            logger.warning(
-                "run_poll: file missing at %s on %s — alert sent (every poll).",
-                now.strftime("%H:%M"),
-                today,
-            )
+        ingestion.status = "missing"
+        ingestion.row_count = 0
+        ingestion.file_path = None
+        ingestion.error = f"File not found at {datetime.now().strftime('%H:%M')} on {today}"
+    else:
+        try:
+            count = await ingest_file(fpath, today)
+            ingestion.status = "ingested"
+            ingestion.row_count = count
+            ingestion.found_at = datetime.now()
+            ingestion.file_path = fpath
+            ingestion.error = None
+        except Exception as exc:  # noqa: BLE001
+            from ...services.audit.events import audit_credit_report_event  # noqa: PLC0415
 
+            ingestion.status = "error"
+            ingestion.error = str(exc)
+            await audit_credit_report_event(
+                "credit_report.failed",
+                f"Ingest failed for {today}: {exc}",
+                outcome="error",
+                extra={"report_date": today, "error": str(exc)},
+            )
+            logger.exception("Credit report flat ingest failed for %s.", today)
+    ingestion.dup_party_count = 0
+    ingestion.updated_at = datetime.now()
+    await ingestion.save()
+
+
+async def run_poll(*, force: bool = False) -> CreditReportStatusPublic:
+    """Run the all-zone poll. Scheduled calls respect the start window."""
+    try:
+        cfg = await get_config()
+        if not cfg.enabled or not cfg.base_path or not cfg.file_name:
+            return await get_status()
+
+        now = datetime.now()
+        today = now.strftime("%d-%m-%Y")
+        if not force and now.time() < _parse_hhmm(cfg.start_time):
+            return await get_status()
+
+        regions = await active_regions()
+        if regions:
+            await run_regions(
+                cfg,
+                today,
+                regions,
+                regions,
+                force=force,
+                send_alerts=True,
+            )
+        else:
+            await _run_flat(cfg, today, force=force, send_alerts=True)
     except Exception:  # noqa: BLE001
         logger.exception("run_poll: unexpected error")
+    return await get_status()
 
+
+async def run_poll_zone(region_id: str) -> CreditReportStatusPublic:
+    """Run one active region zone immediately, bypassing the time window."""
+    cfg = await get_config()
+    if not cfg.enabled or not cfg.base_path or not cfg.file_name:
+        return await get_status()
+
+    try:
+        oid = PydanticObjectId(region_id)
+    except Exception:
+        raise NotFoundError("Active region not found.")
+    region = await Region.get(oid)
+    if region is None or not region.active:
+        raise NotFoundError("Active region not found.")
+
+    today = datetime.now().strftime("%d-%m-%Y")
+    regions = await active_regions()
+    await run_regions(
+        cfg,
+        today,
+        regions,
+        [region],
+        force=True,
+        send_alerts=False,
+    )
     return await get_status()

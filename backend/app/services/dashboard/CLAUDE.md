@@ -14,6 +14,8 @@ Credit Report by reading each domain's ingestion and config collections.
   state without re-implementing business rules.
 - Use `asyncio.gather` to fetch ingestion + config rows concurrently.
 - Match the poller's local-date convention (`dd-mm-yyyy`).
+- Credit Report includes active-region zone statuses; `partial` is treated as
+  needing attention, not as fully extracted.
 
 ## Key files
 

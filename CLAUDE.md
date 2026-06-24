@@ -99,11 +99,7 @@ lines. New dirs are auto-stubbed, but prose is manual — don't leave stubs unto
 
 ## Pointers
 
-- `CODEX.md` — session log & known fragile areas (**read before source files**)
-- `AGENTS.md` — cross-tool pointer to this root
-- `frontend/CLAUDE.md` / `backend/CLAUDE.md` — stack-specific rules
-- `macro_docs/README.md` — domain data dictionary & request-routing table
-- `~/.claude/rules/mandatory-skill-protocol.mdc` — global lifecycle (phases 0–7)
+Read `CODEX.md` first, then relevant `backend/CLAUDE.md`, `frontend/CLAUDE.md`, and `macro_docs/README.md` docs.
 
 ## dox index (children)
 
@@ -246,5 +242,9 @@ lines. New dirs are auto-stubbed, but prose is manual — don't leave stubs unto
 - [`macro_docs/`](macro_docs/CLAUDE.md)
 - [`macro_files/`](macro_files/CLAUDE.md)
   - [`macro_files/20-06-2026/`](macro_files/20-06-2026/CLAUDE.md)
+  - [`macro_files/21-06-2026/`](macro_files/21-06-2026/CLAUDE.md)
   - [`macro_files/23-06-2026/`](macro_files/23-06-2026/CLAUDE.md)
+  - [`macro_files/24-06-2026/`](macro_files/24-06-2026/CLAUDE.md)
+    - [`macro_files/24-06-2026/CREDITREPORT/`](macro_files/24-06-2026/CREDITREPORT/CLAUDE.md)
+      - [`macro_files/24-06-2026/CREDITREPORT/WEST CENTRAL/`](macro_files/24-06-2026/CREDITREPORT/WEST CENTRAL/CLAUDE.md)
 <!-- dox:index:end -->

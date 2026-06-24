@@ -3,7 +3,7 @@
 Flow:
   1. Read bytes from path.
   2. Parse bytes with the raw-zip parser via parse_workbook.
-  3. Delete existing docs for *report_date* (idempotency).
+  3. Delete existing docs for *report_date* + optional region provenance.
   4. Build CreditReport documents — only rows passing should_keep_row
      (non-empty customer_name AND credit_control_area in {JV0H, VJ0H, 1000}).
   5. Insert in chunks of 1 000; track count via len(chunk).
@@ -51,11 +51,24 @@ def _now_utc() -> datetime:
 # ---------------------------------------------------------------------------
 
 
-async def ingest_file(path: str, report_date: str) -> int:
+async def purge_legacy_flat_rows(report_date: str | None = None) -> None:
+    """Delete old credit rows that have no region provenance.
+
+    Used during the region-zone rollout so legacy flat data does not coexist
+    with the new per-region rows.
+    """
+    filt: dict[str, Any] = {"region_id": None}
+    if report_date is not None:
+        filt["report_date"] = report_date
+    await CreditReport.find(filt).delete()
+
+
+async def ingest_region(path: str, report_date: str, region_id: str | None) -> int:
     """Parse *path* and bulk-insert credit report rows into ``credit_report``.
 
-    Idempotent: deletes all existing documents whose ``report_date`` matches
-    before inserting the new batch.  Safe to re-run if the file changes.
+    Idempotent: flat mode deletes the whole date; zoned mode deletes only the
+    target ``{report_date, region_id}`` batch after clearing old no-region rows.
+    Safe to re-run if a region file changes.
 
     Inserts in chunks of 1 000 so the BSON wire size stays bounded.
 
@@ -79,8 +92,14 @@ async def ingest_file(path: str, report_date: str) -> int:
     # ── 2. Parse workbook ─────────────────────────────────────────────────────
     rows: list[dict[str, Any]] = parse_workbook(raw_bytes)
 
-    # ── 3. Idempotent delete (single await is correct) ────────────────────────
-    await CreditReport.find({"report_date": report_date}).delete()
+    # ── 3. Idempotent delete ─────────────────────────────────────────────────
+    if region_id is None:
+        await CreditReport.find({"report_date": report_date}).delete()
+    else:
+        await purge_legacy_flat_rows(report_date)
+        await CreditReport.find(
+            {"report_date": report_date, "region_id": region_id}
+        ).delete()
 
     # ── 4. Build CreditReport documents (only rows passing the ingestion gate) ─
     now = _now_utc()
@@ -101,9 +120,10 @@ async def ingest_file(path: str, report_date: str) -> int:
         docs.append(
             CreditReport(
                 **coerced,
+                region_id=region_id,
                 report_date=report_date,
                 source_file=path,
-                row_hash=_row_hash(coerced),
+                row_hash=_row_hash({**coerced, "region_id": region_id}),
                 created_at=now,
                 updated_at=now,
             )
@@ -128,8 +148,14 @@ async def ingest_file(path: str, report_date: str) -> int:
             "report_date": report_date,
             "row_count": inserted,
             "source_file": path,
+            "region_id": region_id,
         },
     )
 
     # ── 8. Return count ───────────────────────────────────────────────────────
     return inserted
+
+
+async def ingest_file(path: str, report_date: str) -> int:
+    """Flat-mode compatibility wrapper for legacy/no-region ingestion."""
+    return await ingest_region(path, report_date, region_id=None)

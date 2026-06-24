@@ -11,6 +11,8 @@ Status cards and analytics placeholders for the `/home` route. Data comes from `
 
 - Cards are config-driven via `report-card-config.ts`.
 - Analytics sections are currently placeholders.
+- The Credit Report card renders active-region zone statuses when the dashboard
+  summary includes them.
 
 ## Key files
 

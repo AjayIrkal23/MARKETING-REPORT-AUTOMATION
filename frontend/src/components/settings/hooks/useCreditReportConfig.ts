@@ -23,6 +23,7 @@ import { getCreditReportConfig } from "@/api/settings/credit-report-config/get"
 import { updateCreditReportConfig } from "@/api/settings/credit-report-config/update"
 import { getCreditReportStatus } from "@/api/settings/credit-report-config/status"
 import { runCreditReportCheckNow } from "@/api/settings/credit-report-config/runNow"
+import { runCreditReportZoneNow } from "@/api/settings/credit-report-config/runNowZone"
 import type {
   CreditReportConfig,
   CreditReportConfigInput,
@@ -36,6 +37,7 @@ export function useCreditReportConfig(): UseCreditReportConfigResult {
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
+  const [runningZoneId, setRunningZoneId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   // Race-safe: ignore stale responses if load() is re-entered or component unmounts.
@@ -110,7 +112,7 @@ export function useCreditReportConfig(): UseCreditReportConfigResult {
     try {
       const stat = await runCreditReportCheckNow()
       setStatus(stat)
-      toast.success("Check triggered — status updated.")
+      toast.success("All zones check triggered. Status updated.")
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Failed to trigger check."
@@ -118,6 +120,23 @@ export function useCreditReportConfig(): UseCreditReportConfigResult {
       toast.error(msg)
     } finally {
       setIsRunning(false)
+    }
+  }, [])
+
+  const runZoneNow = useCallback(async (regionId: string) => {
+    setRunningZoneId(regionId)
+    setError(null)
+    try {
+      const stat = await runCreditReportZoneNow(regionId)
+      setStatus(stat)
+      toast.success("Zone check triggered. Status updated.")
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : "Failed to trigger zone check."
+      setError(msg)
+      toast.error(msg)
+    } finally {
+      setRunningZoneId(null)
     }
   }, [])
 
@@ -131,9 +150,11 @@ export function useCreditReportConfig(): UseCreditReportConfigResult {
     isLoading,
     isSaving,
     isRunning,
+    runningZoneId,
     error,
     save,
     runNow,
+    runZoneNow,
     refetch: load,
   }
 }

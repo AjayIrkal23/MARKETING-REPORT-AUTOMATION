@@ -39,6 +39,9 @@ class ReportQuery(BaseModel):
     report_type: ReportType
     region_id: str | None = Field(default=None, max_length=64)
     days: DaysFilter = "include"
+    # Export only: CSV of visible optional-column keys (e.g. "total,route,blocked").
+    # None ⇒ every optional column; "" ⇒ none. Ignored by /generate.
+    columns: str | None = Field(default=None, max_length=256)
 
 
 class ReportPivotRow(BaseModel):

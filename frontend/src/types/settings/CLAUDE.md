@@ -11,6 +11,8 @@ Contains config, input, status, and UI types for JSW Stock, JVML Stock, and Cred
 
 - Each domain has its own config/status file pair.
 - Config objects are singletons and have no `id`.
+- Credit Report status carries `zones[]` and `dup_party_count` in addition to
+  the shared last-run fields.
 
 ## Key files
 
@@ -20,6 +22,7 @@ Contains config, input, status, and UI types for JSW Stock, JVML Stock, and Cred
 | `jsw-stock-config-ui.ts` | JSW Stock config hook result types. |
 | `jvml-stock-config.ts` | JVML Stock config and status types. |
 | `credit-report-config.ts` | Credit Report config and status types. |
+| `credit-report-config-ui.ts` | Credit Report settings hook UI contract. |
 
 ## Gotchas / fragile spots
 

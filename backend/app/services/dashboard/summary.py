@@ -21,11 +21,12 @@ from ...models.jsw_stock_config import JswStockConfig
 from ...models.jsw_stock_ingestion import JswStockIngestion
 from ...models.jvml_stock_config import JvmlStockConfig
 from ...models.jvml_stock_ingestion import JvmlStockIngestion
-from ...schemas.dashboard import DashboardReportStatus, DashboardSummary
+from ...models.region import Region
+from ...schemas.dashboard import DashboardReportStatus, DashboardSummary, DashboardZoneStatus
 
 # Raw ingestion-status values → dashboard booleans.
 _EXTRACTED_STATUS = "ingested"
-_MISSING_STATUSES = frozenset({"missing", "alerted"})
+_MISSING_STATUSES = frozenset({"missing", "alerted", "partial"})
 
 # (key, label, ingestion_model, config_model) — order = card display order.
 _DOMAINS = (
@@ -33,6 +34,27 @@ _DOMAINS = (
     ("jvml_stock", "JVML Stock Excel", JvmlStockIngestion, JvmlStockConfig),
     ("credit_report", "Credit Report Excel", CreditReportIngestion, CreditReportConfig),
 )
+
+
+def _credit_zone_statuses(
+    ingestion: CreditReportIngestion | None,
+    active_regions: list[Region],
+) -> list[DashboardZoneStatus]:
+    existing = {zone.region_id: zone for zone in (ingestion.zones if ingestion else [])}
+    zones: list[DashboardZoneStatus] = []
+    for region in active_regions:
+        region_id = str(region.id)
+        zone = existing.get(region_id)
+        zones.append(
+            DashboardZoneStatus(
+                region_id=region_id,
+                name=region.name,
+                status=zone.status if zone else "pending",
+                row_count=zone.row_count if zone else 0,
+                found_at=zone.found_at if zone else None,
+            )
+        )
+    return zones
 
 
 def _today_local() -> str:
@@ -51,6 +73,7 @@ async def _report_status(
     ingestion_model: type,
     config_model: type,
     today: str,
+    active_regions: list[Region],
 ) -> DashboardReportStatus:
     """Build one domain's today-status card payload.
 
@@ -75,6 +98,9 @@ async def _report_status(
         row_count=ingestion.row_count if ingestion is not None else 0,
         found_at=ingestion.found_at if ingestion is not None else None,
         enabled=config.enabled if config is not None else False,
+        zones=_credit_zone_statuses(ingestion, active_regions)
+        if key == "credit_report"
+        else [],
     )
 
 
@@ -86,10 +112,18 @@ async def get_dashboard_summary() -> DashboardSummary:
         ``DashboardReportStatus`` per domain in display order.
     """
     today = _today_local()
+    active_regions = await Region.find({"active": True}).sort("+name").to_list()
 
     reports = await asyncio.gather(
         *(
-            _report_status(key, label, ingestion_model, config_model, today)
+            _report_status(
+                key,
+                label,
+                ingestion_model,
+                config_model,
+                today,
+                active_regions,
+            )
             for key, label, ingestion_model, config_model in _DOMAINS
         )
     )

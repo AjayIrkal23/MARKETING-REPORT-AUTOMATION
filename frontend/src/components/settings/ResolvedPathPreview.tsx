@@ -17,7 +17,13 @@ type PreviewValues = Pick<
   "base_path" | "file_name" | "start_time" | "end_time" | "interval_hours"
 >
 
-export function ResolvedPathPreview({ values }: { values: PreviewValues }) {
+export function ResolvedPathPreview({
+  values,
+  zoneLayout = false,
+}: {
+  values: PreviewValues
+  zoneLayout?: boolean
+}) {
   const [copied, setCopied] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current) }, [])
@@ -25,7 +31,8 @@ export function ResolvedPathPreview({ values }: { values: PreviewValues }) {
   const dateFolder = format(new Date(), "dd-MM-yyyy")
   const base = values.base_path.trim() || "<base_path>"
   const file = values.file_name.trim() || "<file_name>"
-  const fullPath = `${base}/${dateFolder}/${file}.xlsx`
+  const middle = zoneLayout ? `${dateFolder}/CREDITREPORT/<Region>` : dateFolder
+  const fullPath = `${base}/${middle}/${file}.xlsx`
 
   function copyPath() {
     void navigator.clipboard?.writeText(fullPath)
@@ -40,6 +47,13 @@ export function ResolvedPathPreview({ values }: { values: PreviewValues }) {
         <span className="text-muted-foreground">{base}/</span>
         <span className="text-primary">{dateFolder}</span>
         <span className="text-muted-foreground">/</span>
+        {zoneLayout && (
+          <>
+            <span className="text-muted-foreground">CREDITREPORT/</span>
+            <span className="text-primary">&lt;Region&gt;</span>
+            <span className="text-muted-foreground">/</span>
+          </>
+        )}
         <span className="font-medium text-foreground">{file}</span>
         <span className="text-muted-foreground">.xlsx</span>
         <button

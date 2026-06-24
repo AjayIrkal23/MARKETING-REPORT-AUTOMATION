@@ -5,7 +5,7 @@ HTTP wrappers for the `/admin/credit-report` scheduler settings.
 
 ## What lives here
 
-Load, update, status, and run-now for the Credit Report ingestion scheduler. Mirrors the JSW/JVML config modules.
+Load, update, status, run-all, and run-one-zone for the Credit Report ingestion scheduler.
 
 ## Local conventions
 
@@ -20,10 +20,11 @@ Load, update, status, and run-now for the Credit Report ingestion scheduler. Mir
 | `update.ts` | `PUT /admin/credit-report/config`. |
 | `status.ts` | `GET /admin/credit-report/status`. |
 | `runNow.ts` | `POST /admin/credit-report/run-now`. |
+| `runNowZone.ts` | `POST /admin/credit-report/run-now/{regionId}`. |
 
 ## Gotchas / fragile spots
 
-- Keep the shape identical to the JSW/JVML config modules where possible.
+- Credit Report is region-zone aware; do not mirror the JSW/JVML global-run UI blindly.
 
 ## Up / down
 

@@ -117,6 +117,12 @@ Third scheduled-ingestion domain — cloned from `jvml_stock` for `macro_files/c
 under `/credit-report` (non-admin list `get_current_user`) + `/admin/credit-report` (admin config).
 Differences from the stock domains:
 
+- **Region-zone ingestion:** active `Region` records drive folders under
+  `<base>/<dd-mm-yyyy>/CREDITREPORT/<Region>/`. `POST /admin/credit-report/run-now`
+  runs all zones; `POST /admin/credit-report/run-now/{region_id}` runs one zone.
+  Status includes `zones[]` and `dup_party_count`; single-zone manual runs do
+  not send missing-file email.
+
 - **No customer mapping.** The file has a native `Customer Name` column, so there is NO
   Party-Code→`CustomerCode` lookup: no `customer_map.py`, no `party_code_normalized`/`customer_code_id`
   fields. `services/credit_report/ingest.py` parses → coerces all 33 columns → applies the gate →

@@ -31,9 +31,9 @@ so `core.database` can register them in `DOCUMENT_MODELS`.
 | `jsw_stock.py` / `jvml_stock.py` | Stock row collections (`jsw_stock`, `jvml_stock`). |
 | `jsw_stock_config.py` / `jvml_stock_config.py` | Singleton scheduler configs. |
 | `jsw_stock_ingestion.py` / `jvml_stock_ingestion.py` | Per-date ingestion status. |
-| `credit_report.py` | `CreditReport` collection (`credit_report`). |
+| `credit_report.py` | `CreditReport` collection (`credit_report`) with `region_id` ingest provenance. |
 | `credit_report_config.py` | Singleton credit-report scheduler config. |
-| `credit_report_ingestion.py` | Per-date credit-report ingestion status. |
+| `credit_report_ingestion.py` | Per-date credit-report ingestion status plus embedded zone runs. |
 
 ## Gotchas / fragile spots
 
@@ -43,6 +43,8 @@ so `core.database` can register them in `DOCUMENT_MODELS`.
   sync with `utils/jsw_stock/columns.py` and `utils/jvml_stock/columns.py`.
 - Stock/credit parsers are raw-zip readers (not `openpyxl`) because the source
   files contain malformed numeric cells.
+- Credit-report `region_id` is provenance from the drop folder; it is separate
+  from customer-code region filtering.
 
 ## Up / down
 

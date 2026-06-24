@@ -11,6 +11,8 @@ Scheduler config cards for JSW Stock, JVML Stock, and Credit Report ingestion. E
 
 - Cards are rendered via the domain-agnostic `StockConfigPanel`.
 - `config-domains.ts` defines the descriptor for each domain.
+- Credit Report embeds zone-level Run buttons inside its existing config card;
+  JSW/JVML keep the global Run check button.
 
 ## Key files
 
@@ -19,6 +21,7 @@ Scheduler config cards for JSW Stock, JVML Stock, and Credit Report ingestion. E
 | `JswStockConfigCard.tsx` | JSW Stock scheduler config card. |
 | `JvmlStockConfigCard.tsx` | JVML Stock scheduler config card. |
 | `CreditReportConfigCard.tsx` | Credit Report scheduler config card. |
+| `CreditReportZonesPanel.tsx` | Inline active-region zone statuses and per-zone Run buttons for Credit Report. |
 | `StockConfigPanel.tsx` | Domain-agnostic config/status/run-now UI. |
 | `StockLastRun.tsx` | Last-run status display. |
 | `ResolvedPathPreview.tsx` | Preview of the resolved file path. |

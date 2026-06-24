@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import logging
 import textwrap
+from html import escape
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,7 @@ def render_missing_email(
     report_date: str,
     file_name: str,
     base_path: str,
+    missing_zones: list[str] | None = None,
 ) -> tuple[str, str, str]:
     """Return ``(subject, plain_text, html)`` for the missing-file alert.
 
@@ -48,17 +50,33 @@ def render_missing_email(
     """
     subject = f"⚠ CREDIT REPORT EXCEL not found — {report_date}"
 
-    expected_path = f"{base_path}/{report_date}/{file_name}.xlsx"
+    if missing_zones:
+        zone_lines = "\n".join(f"        - {zone}" for zone in missing_zones)
+        expected_path = f"{base_path}/{report_date}/CREDITREPORT/<Region>/{file_name}.xlsx"
+        zone_text = f"\n        Missing zones:\n{zone_lines}\n"
+        zone_html = "".join(f"<li>{escape(zone)}</li>" for zone in missing_zones)
+        zone_row_html = textwrap.dedent(f"""\
+            <tr>
+              <td style="padding:6px 0;color:#64748b">Missing zones</td>
+              <td style="padding:6px 0">
+                <ul style="margin:0;padding-left:18px">{zone_html}</ul>
+              </td>
+            </tr>
+        """)
+    else:
+        expected_path = f"{base_path}/{report_date}/{file_name}.xlsx"
+        zone_text = ""
+        zone_row_html = ""
 
     text = textwrap.dedent(f"""\
-        The CREDIT REPORT EXCEL file was not found by the end of the monitoring window.
+        The CREDIT REPORT EXCEL file was not found during the monitoring check.
 
         Expected file : {expected_path}
         Report date   : {report_date}
+{zone_text}
 
         Please upload the file or check the source system.
-        This alert is sent once per day when the file is still missing at the
-        configured end_time.
+        This alert is sent on each scheduled check while files are missing.
     """)
 
     html = textwrap.dedent(f"""\
@@ -79,16 +97,17 @@ def render_missing_email(
                              font-size:.875rem;word-break:break-all">{expected_path}</code>
               </td>
             </tr>
+            {zone_row_html}
           </table>
           <p style="color:#334155">
-            The file was not found by the end of the configured monitoring window.
+            The file was not found during the configured monitoring check.
             Please upload the file or investigate the source system.
           </p>
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0">
           <p style="color:#94a3b8;font-size:.75rem">
-            This alert is sent once per day when the CREDIT REPORT EXCEL file is still
-            missing at the configured <em>end_time</em>. To silence future alerts
-            for today, upload the file or adjust the configuration in the admin panel.
+            This alert is sent on each scheduled check while CREDIT REPORT EXCEL
+            files are missing. To silence future alerts for today, upload the files
+            or adjust the configuration in the admin panel.
           </p>
         </body>
         </html>
@@ -102,7 +121,11 @@ def render_missing_email(
 # ---------------------------------------------------------------------------
 
 
-async def send_missing_alert(config: object, report_date: str) -> None:
+async def send_missing_alert(
+    config: object,
+    report_date: str,
+    missing_zones: list[str] | None = None,
+) -> None:
     """Send the missing-file alert email to every address in ``config.notify_emails``.
 
     Behaviour:
@@ -131,6 +154,7 @@ async def send_missing_alert(config: object, report_date: str) -> None:
         report_date=report_date,
         file_name=config.file_name,  # type: ignore[attr-defined]
         base_path=config.base_path,  # type: ignore[attr-defined]
+        missing_zones=missing_zones,
     )
 
     notify_emails: list[str] = getattr(config, "notify_emails", []) or []
@@ -173,6 +197,7 @@ async def send_missing_alert(config: object, report_date: str) -> None:
             outcome="success",
             extra={
                 "report_date": report_date,
+                "missing_zones": missing_zones or [],
                 "recipient_count": len(notify_emails),
                 "sent_count": sent_count,
             },

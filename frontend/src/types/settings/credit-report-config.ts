@@ -101,6 +101,16 @@ export interface CreditReportIngestionRow {
   created_at: string
 }
 
+export interface CreditReportZoneStatus {
+  region_id: string
+  name: string
+  status: string
+  row_count: number
+  found_at: string | null
+  file_path: string | null
+  error: string | null
+}
+
 // ---------------------------------------------------------------------------
 // Status — GET /admin/credit-report/status response
 // ---------------------------------------------------------------------------
@@ -143,6 +153,8 @@ export interface CreditReportStatus {
    * or null if the last attempt did not produce an error.
    */
   last_error: string | null
+  dup_party_count: number
+  zones: CreditReportZoneStatus[]
   /**
    * The most recent N ingestion rows (up to 14), sorted newest-first.
    * Used to render the recent-runs table in the status panel.

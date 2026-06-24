@@ -83,10 +83,19 @@ async def run_now_controller(
     that the config is correct without waiting for the next scheduled interval.
     Returns the updated status after the poll completes (or fails).
     """
-    from ..services.credit_report.poller import run_poll  # noqa: PLC0415 — avoid cycle if poller imports scheduler
+    from ..services.credit_report.poller import run_poll  # noqa: PLC0415
 
-    await run_poll()
-    return success(await get_status(), message="Poll triggered")
+    return success(await run_poll(force=True), message="All zones poll triggered")
+
+
+async def run_now_zone_controller(
+    region_id: str,
+    _admin: AuthUser = Depends(get_current_admin),
+) -> SuccessEnvelope[CreditReportStatusPublic]:
+    """``POST /admin/credit-report/run-now/{region_id}`` — poll one region zone."""
+    from ..services.credit_report.poller import run_poll_zone  # noqa: PLC0415
+
+    return success(await run_poll_zone(region_id), message="Zone poll triggered")
 
 
 async def cleanup_duplicates_controller(

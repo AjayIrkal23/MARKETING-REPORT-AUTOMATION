@@ -53,10 +53,11 @@ export interface ReportResponse {
   grand_required_credit: number | null
 }
 
-/** Query params for GET /report/generate (date is "dd-MM-yyyy"). */
+/** Query params for GET /report/generate + /report/export (date is "dd-MM-yyyy"). */
 export interface ReportQueryParams {
   date: string
   report_type: ReportType
   region_id?: string
   days: DaysFilter
+  columns?: string                  // export only: CSV of visible optional-column keys
 }

@@ -33,6 +33,8 @@ JSW Stock ingestion, listing, options, config and status services.
 - `cleanup_duplicates` is called automatically after every ingest; the admin
   endpoint `POST /admin/jsw-stock/cleanup-duplicates` is available for manual
   repair.
+- `export.py::_cell_value` strips tzinfo from datetimes — Mongo returns tz-aware
+  values (`tz_aware=True`) and openpyxl rejects them on `wb.save`.
 
 ## Up / down
 

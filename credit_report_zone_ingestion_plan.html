@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Credit Report — Per-Zone (Region) Folder Ingestion · Implementation Plan</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d2129; --ink:#e6e9ef; --muted:#9aa3b2;
+    --line:#2a2f3a; --accent:#ff7a00; --accent2:#4ea1ff; --ok:#3fce8f; --warn:#f0b429; --bad:#ff5d5d;
+    --code:#0b0d11; --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1040px;margin:0 auto;padding:40px 24px 96px}
+  header.h{border-bottom:1px solid var(--line);padding-bottom:24px;margin-bottom:8px}
+  .tag{display:inline-block;font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:6px 12px}
+  h1{font-size:30px;margin:16px 0 6px;letter-spacing:-.02em}
+  h2{font-size:22px;margin:48px 0 14px;padding-top:14px;border-top:1px solid var(--line);letter-spacing:-.01em}
+  h3{font-size:17px;margin:26px 0 8px;color:var(--accent2)}
+  .sub{color:var(--muted);font-size:14px}
+  p{margin:10px 0}
+  code{font-family:var(--mono);font-size:.88em;background:var(--panel2);padding:2px 6px;border-radius:5px;color:#ffd9b0}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:16px;overflow:auto;font-family:var(--mono);font-size:13px;line-height:1.5}
+  pre code{background:none;padding:0;color:#d6e2f0}
+  .muted{color:var(--muted)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:16px 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  td code{font-size:12px}
+  .callout{border-left:3px solid var(--accent);background:var(--panel2);border-radius:0 10px 10px 0;padding:14px 18px;margin:16px 0}
+  .callout.bad{border-color:var(--bad)}
+  .callout.ok{border-color:var(--ok)}
+  .callout.warn{border-color:var(--warn)}
+  .callout b{color:#fff}
+  .pill{display:inline-block;font:600 11px/1 var(--mono);padding:3px 8px;border-radius:6px;border:1px solid var(--line)}
+  .pill.ok{color:var(--ok);border-color:var(--ok)}
+  .pill.warn{color:var(--warn);border-color:var(--warn)}
+  .pill.bad{color:var(--bad);border-color:var(--bad)}
+  .pill.new{color:var(--accent);border-color:var(--accent)}
+  ul,ol{margin:10px 0;padding-left:22px}
+  li{margin:5px 0}
+  .toc{columns:2;column-gap:32px;font-size:14px}
+  .toc a{color:var(--accent2);text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+  .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:var(--accent);color:#000;border-radius:6px;font:700 12px/22px var(--mono);margin-right:8px}
+  .tree{font-family:var(--mono);font-size:13px;color:#cdd6e3;white-space:pre;line-height:1.55}
+  .tree .z{color:var(--accent)}
+  .tree .f{color:var(--ok)}
+  .tree .old{color:var(--muted)}
+  .kbd{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  hr{border:0;border-top:1px solid var(--line);margin:28px 0}
+  .legend span{margin-right:16px;font-size:12.5px}
+  a.ref{color:var(--accent2);text-decoration:none;font-family:var(--mono);font-size:12px}
+  .mock{font-family:var(--mono);font-size:12.5px;color:#cdd6e3;white-space:pre;line-height:1.6;background:var(--code);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .mock .btn{color:#000;background:var(--accent);padding:1px 6px;border-radius:4px}
+  .mock .ok{color:var(--ok)} .mock .warn{color:var(--warn)} .mock .mut{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="h">
+  <span class="tag">Implementation Plan · v2 · Region-driven</span>
+  <h1>Credit Report — Per-Zone Folder Ingestion</h1>
+  <p class="sub">Marketing Report Automation · backend <code>credit_report</code> domain · revised 2026-06-24</p>
+  <p class="sub">Each <b>zone</b> (= an existing <b>Region</b>) gets its own folder; its employees paste their own credit-report Excel there. Every zone has its <b>own Run button</b> and ingests independently — without changing parsing, the row gate, dedup, or region query-filtering.</p>
+</header>
+
+<div class="callout warn" style="margin-top:18px">
+<b>What changed from v1.</b> Two corrections per your feedback: (1) zones are the <b>existing Regions</b> (the "Zone/Region Management" screen) — <b>no new config field</b>; (2) <b>one Run button per zone</b>, each ingesting independently. This is achieved by scoping the delete to <code>{report_date, region_id}</code> instead of the whole date — which also <b>eliminates the v1 "one giant delete" trap.</b>
+</div>
+
+<div class="panel">
+  <b>Contents</b>
+  <div class="toc">
+    <a href="#tldr">0 · TL;DR</a><br>
+    <a href="#now">1 · How it works today</a><br>
+    <a href="#zones">2 · Zones = Regions</a><br>
+    <a href="#layout">3 · Folder layout</a><br>
+    <a href="#model">4 · Persistence model change</a><br>
+    <a href="#dedup">5 · Merge vs separate</a><br>
+    <a href="#ui">6 · Per-zone Run buttons (UI)</a><br>
+    <a href="#edges">7 · Edge cases</a><br>
+    <a href="#changes">8 · File-by-file changes</a><br>
+    <a href="#code">9 · Core code sketch</a><br>
+    <a href="#phases">10 · Phased rollout</a><br>
+    <a href="#tests">11 · Testing</a><br>
+    <a href="#risk">12 · Risk register</a><br>
+  </div>
+</div>
+
+<!-- ───────────────────────── TL;DR ───────────────────────── -->
+<h2 id="tldr">0 · TL;DR</h2>
+<ul>
+  <li><b>Zones come from Region Management</b> (active <code>Region</code> docs). Folder name = region name. No new config knob.</li>
+  <li><b>Layout:</b> <code>&lt;base_path&gt;/&lt;dd-mm-yyyy&gt;/CREDITREPORT/&lt;Region Name&gt;/credit report.XLSX</code></li>
+  <li><b>Persistence flips from per-date to per-(date, region):</b> <code>delete({report_date, region_id})</code> then insert that region's rows. Each zone is fully independent → safe to re-run one zone without touching others. The v1 wipe-all trap is gone.</li>
+  <li><b>Per-zone Run button.</b> New endpoint <code>POST /admin/credit-report/run-now/{region_id}</code> ingests one zone. The existing no-arg <code>run-now</code> becomes "run all zones".</li>
+  <li><b>Same company in two zones?</b> <span class="pill ok">Keep separate, keyed by region</span> — never merge. Exact dup <i>within</i> a zone still auto-collapses.</li>
+  <li><b>Untouched:</b> the parser, the <code>should_keep_row</code> gate, the customer-code→region <i>query filter</i> in <code>list.py</code>. Additive only.</li>
+  <li><b>Scope:</b> ~9 backend edits (only <code>poller.py</code> + <code>ingest.py</code> carry logic), a new frontend zone panel + 1 api fn + types, tests, docs.</li>
+</ul>
+
+<!-- ───────────────────────── NOW ───────────────────────── -->
+<h2 id="now">1 · How it works today <span class="sub">(audited)</span></h2>
+<div class="tree">macro_files/
+└── <span class="z">24-06-2026/</span>            <span class="old">← &lt;base_path&gt;/&lt;dd-mm-yyyy&gt; (local clock)</span>
+    └── <span class="f">credit report.XLSX</span>  <span class="old">← single file = cfg.file_name + ext</span></div>
+<table>
+  <tr><th>Stage</th><th>Today</th><th>Where</th></tr>
+  <tr><td>Trigger</td><td>Interval poll (<code>interval_hours</code>) + daily deadline cron + <b>one</b> manual "Run check now" button.</td><td><a class="ref">poller.py</a>, settings UI</td></tr>
+  <tr><td>Discover</td><td><code>_resolve_report_file(folder, file_name)</code>, case-insensitive on extension.</td><td><a class="ref">poller.py:116,131</a></td></tr>
+  <tr><td>Persist</td><td><b>Wipe whole date</b>: <code>delete({report_date})</code> → insert all rows → <code>cleanup_duplicates</code>.</td><td><a class="ref">ingest.py:82,112,120</a></td></tr>
+  <tr><td>Dedup</td><td>SHA-256 content hash per row, scoped to one <code>report_date</code>.</td><td><a class="ref">shared/ingest_cleanup.py</a></td></tr>
+  <tr><td>Status</td><td>One <code>CreditReportIngestion</code> per date → dashboard "extracted/missing" + <code>StockLastRun</code> panel.</td><td><a class="ref">models/credit_report_ingestion.py</a></td></tr>
+  <tr><td>Region filter</td><td><b>Read-time only</b>: row's <code>customer</code> code ↔ <code>CustomerCode.region_id</code>. Rows carry no region.</td><td><a class="ref">list.py:44–47</a></td></tr>
+  <tr><td>Run-now UI</td><td>Single button in shared <code>StockConfigPanel</code> → <code>POST /admin/credit-report/run-now</code> → returns <code>CreditReportStatus</code>.</td><td><a class="ref">StockConfigPanel.tsx:213</a>, <a class="ref">api/.../runNow.ts</a></td></tr>
+</table>
+
+<div class="callout">
+<b>"Zone Management" is the Region screen.</b> The app labels it <b>"Region Management"</b> at <code>/admin/regions</code>; a <code>Region</code> has only <code>name</code>, <code>emails[]</code>, <code>active</code> (no folder/path field). Your "zones" = these regions. We drive the per-zone folders straight off the active regions.
+</div>
+
+<!-- ───────────────────────── ZONES ───────────────────────── -->
+<h2 id="zones">2 · Zones = Regions <span class="sub">(no new config field)</span></h2>
+<ul>
+  <li>The poller queries <code>Region.find({active: True})</code> and builds one folder per region, named by <code>region.name</code>.</li>
+  <li>The row stores <code>region_id</code> as <b>ingest provenance</b> — "this row came from the &lt;X&gt; region folder". Stable across renames.</li>
+  <li><b>This is a different axis from the existing query-time region filter</b> and we keep both:
+    <ul>
+      <li><span class="pill new">NEW</span> <b>provenance</b> <code>region_id</code> stored on the row (which folder it was pasted into) — used for per-zone delete-scoping &amp; display.</li>
+      <li><span class="pill ok">UNCHANGED</span> <b>query filter</b> in <code>list.py</code> — still derives region from the SAP <code>customer</code> code via <code>CustomerCode</code>.</li>
+    </ul>
+  </li>
+</ul>
+<div class="callout warn">
+<b>Folder name safety.</b> Region names may contain spaces (fine) or, rarely, path separators. Build the folder via a small <code>_safe_dir(name)</code> that rejects/replaces <code>/ \ ..</code>. The row keys off the <b>stable <code>region_id</code></b>, not the name, so a later rename never orphans data — only the on-disk folder moves (employees paste into the new-name folder going forward).
+</div>
+
+<!-- ───────────────────────── LAYOUT ───────────────────────── -->
+<h2 id="layout">3 · Folder layout</h2>
+<div class="tree">macro_files/
+└── <span class="z">24-06-2026/</span>
+    └── CREDITREPORT/                  <span class="old">← fixed segment (constant _REPORT_SUBDIR)</span>
+        ├── <span class="z">North/</span>                    <span class="old">← region "North"  (active)</span>
+        │   └── <span class="f">credit report.XLSX</span>
+        ├── <span class="z">South/</span>                    <span class="old">← region "South"  (active)</span>
+        │   └── <span class="f">credit report.XLSX</span>
+        └── <span class="z">West Central/</span>             <span class="old">← region "West Central" (active, no file yet → "missing")</span></div>
+<p class="muted">Poller auto-creates each active region's folder (<code>makedirs(exist_ok=True)</code>) so employees always have a paste target. <code>CREDITREPORT</code> is a constant; the filename stays single (<code>cfg.file_name</code>), one per zone folder. Backward-compatible: if <b>no active regions</b> exist, the poller falls back to the old flat <code>folder/file</code> behavior.</p>
+
+<!-- ───────────────────────── MODEL ───────────────────────── -->
+<h2 id="model">4 · Persistence model change <span class="sub">(the heart of it)</span></h2>
+<div class="grid2">
+  <div class="panel">
+    <h3 style="margin-top:0">Before (v1 / today)</h3>
+    <pre><code>delete({report_date})        # whole date
+insert(all rows)
+cleanup(report_date)</code></pre>
+    <p class="muted">One file → one delete. Multiple zones in a loop would wipe each other. Per-zone re-run impossible.</p>
+  </div>
+  <div class="panel">
+    <h3 style="margin-top:0">After (region-scoped)</h3>
+    <pre><code>delete({report_date, region_id})   # one zone only
+insert(this zone's rows, region_id=…)
+cleanup(report_date)</code></pre>
+    <p class="muted">Each zone independent. Re-running North never touches South. Full poll = loop active regions, each scoped. Flat mode = <code>region_id=None</code> → scoped delete equals whole-date (unchanged).</p>
+  </div>
+</div>
+<div class="callout ok">
+<b>Why this is strictly better than v1.</b> Scoping the delete to the region removes the need for any "collect-all-then-single-delete" gymnastics, <i>and</i> it's the exact primitive a per-zone Run button needs. One change solves both requirements.
+</div>
+<div class="callout">
+<b>Hash consistency note.</b> <code>cleanup_duplicates</code> recomputes the row hash over all stored fields except meta (<code>id, report_date, source_file, created_at, …</code>). Since <code>region_id</code> is a data field (not meta), it's included — so the <b>insert-time</b> hash must also include it: <code>row_hash = _row_hash({**coerced, "region_id": region_id})</code>. This keeps cross-zone identical rows distinct while collapsing true within-zone duplicates.
+</div>
+
+<!-- ───────────────────────── DEDUP ───────────────────────── -->
+<h2 id="dedup">5 · Merge vs separate <span class="sub">(your question)</span></h2>
+<div class="grid2">
+  <div class="panel">
+    <h3 style="margin-top:0">Within a zone — exact duplicate</h3>
+    <p><span class="pill ok">Auto-collapsed (existing)</span></p>
+    <p class="muted">Re-poll or double-paste of identical rows → same hash → collapsed. Per-zone re-runs stay idempotent.</p>
+  </div>
+  <div class="panel">
+    <h3 style="margin-top:0">Same company across two zones</h3>
+    <p><span class="pill warn">Keep both, keyed by region_id</span></p>
+    <p class="muted">Different <code>region_id</code> → different hash → both kept. Credit figures can't be safely merged (no "winner", can't sum limits). Surface a "<code>N parties seen in &gt;1 zone</code>" count on the ingestion record for human review — never auto-merge.</p>
+  </div>
+</div>
+
+<!-- ───────────────────────── UI ───────────────────────── -->
+<h2 id="ui">6 · Per-zone Run buttons (UI)</h2>
+<p>The Credit Report config card keeps the shared <code>StockConfigPanel</code> (base path, filename, schedule, emails, + a global "Run all zones"). Below it, a new <b><code>CreditReportZonesPanel</code></b> lists each active region with its own status + Run button. <span class="muted">We do not bloat the shared panel — JSW/JVML don't have zones.</span></p>
+<div class="mock">Credit Report Excel                                   <span class="ok">● Active</span>
+ ───────────────────────────────────────────────────────────
+ Source file   Base path  [ /data/credit-report      ]
+               File name  [ credit report      ].xlsx
+ Schedule      08:00 → 20:00   every [1h]
+ Emails        [ ops@jsw.in ×] [+]
+ ───────────────────────────────────────────────────────────
+ [ <span class="btn">Run all zones</span> ]                                  [ Save ]
+
+ Zones (today · 24-06-2026)
+ ───────────────────────────────────────────────────────────
+ North           <span class="ok">ingested</span>   1,204 rows  · 09:12   [ <span class="btn">Run</span> ]
+ South           <span class="ok">ingested</span>     980 rows  · 09:40   [ <span class="btn">Run</span> ]
+ West Central    <span class="warn">missing</span>        —          —      [ <span class="btn">Run</span> ]
+ ───────────────────────────────────────────────────────────
+ <span class="mut">⚠ 1 zone missing · 3 parties seen in &gt;1 zone — review</span></div>
+<ul>
+  <li><b>New api fn</b> <code>runCreditReportZoneNow(regionId)</code> → <code>POST /admin/credit-report/run-now/{regionId}</code>; returns updated status.</li>
+  <li>Per-zone status comes from a <code>zones[]</code> array on the date's status payload (see §8). Each row: zone name · status badge · row count · found-at · Run.</li>
+  <li>"Run all zones" = existing no-arg <code>run-now</code> (now loops active regions).</li>
+</ul>
+
+<!-- ───────────────────────── EDGES ───────────────────────── -->
+<h2 id="edges">7 · Edge cases</h2>
+<table>
+  <tr><th>#</th><th>Case</th><th>Handling</th></tr>
+  <tr><td>E1</td><td>Re-run one zone</td><td>Scoped <code>delete({date, region_id})</code> rebuilds only that zone. Others untouched. (This is the whole point.)</td></tr>
+  <tr><td>E2</td><td>Zone folder missing on disk</td><td><code>makedirs(exist_ok=True)</code> creates it; file treated as missing for that zone.</td></tr>
+  <tr><td>E3</td><td>Zone present, no file yet</td><td>That zone → <code>missing</code>; others ingest → date status <code>partial</code>.</td></tr>
+  <tr><td>E4</td><td>Staggered arrival</td><td>Each poll only ingests zones whose file is present and not yet ingested today (per-zone short-circuit). Re-running a zone fully rebuilds just that zone.</td></tr>
+  <tr><td>E5</td><td>Corrupt/empty zone file</td><td>That zone marked <code>error</code>; other zones unaffected (per-zone try/except).</td></tr>
+  <tr><td>E6</td><td>Region renamed</td><td>Row keys on stable <code>region_id</code> → no data loss; new-name folder is created on next poll; old folder goes stale (ops note).</td></tr>
+  <tr><td>E7</td><td>Region deactivated / deleted</td><td>Dropped from the poll loop &amp; the zone list. Its already-ingested rows for past dates remain (keyed by <code>region_id</code>) until that date is re-run.</td></tr>
+  <tr><td>E8</td><td>Region name with <code>/ \ ..</code></td><td><code>_safe_dir()</code> rejects/replaces separators; folder built safely.</td></tr>
+  <tr><td>E9</td><td>Employee pastes into wrong zone</td><td>Tagged by folder; can't auto-detect. The "&gt;1 zone" party count helps surface obvious cases.</td></tr>
+  <tr><td>E10</td><td>Per-zone Run before the daily window</td><td>Explicit admin click <b>bypasses</b> the time-window (otherwise the button would silently no-op in the morning). The scheduled poll still respects the window.</td></tr>
+  <tr><td>E11</td><td>No active regions</td><td>Flat legacy path — unchanged behavior.</td></tr>
+  <tr><td>E12</td><td>Switching a date flat→zone</td><td>First zone run deletes <code>{date, region_id:None}</code> (old flat rows) only when that zone is run; mixed state possible mid-transition. Ops note: re-drop into zone folders.</td></tr>
+  <tr><td>E13</td><td>Run "all zones" with some files absent</td><td>Ingest present zones, mark absent ones missing, one consolidated alert listing missing zones.</td></tr>
+</table>
+
+<!-- ───────────────────────── CHANGES ───────────────────────── -->
+<h2 id="changes">8 · File-by-file changes</h2>
+<p class="legend"><span><span class="pill new">NEW</span></span><span><span class="pill warn">EDIT</span></span><span><span class="pill ok">SAME</span> verify only</span></p>
+<table>
+  <tr><th>File</th><th>Change</th></tr>
+  <tr><td><code>models/credit_report.py</code></td><td><span class="pill new">NEW</span> add <code>region_id: str | None = Indexed()</code> (ingest provenance / scope key)</td></tr>
+  <tr><td><b><code>services/credit_report/ingest.py</code></b></td><td><span class="pill warn">EDIT</span> <code>ingest_file</code> → <code>ingest_region(path, report_date, region_id)</code>: scoped <code>delete({report_date, region_id})</code>, tag <code>region_id</code>, hash with region_id, insert, cleanup. Keep thin <code>ingest_file</code> wrapper (<code>region_id=None</code>).</td></tr>
+  <tr><td><b><code>services/credit_report/poller.py</code></b></td><td><span class="pill warn">EDIT</span> <code>run_poll()</code>: load active regions, loop per region (makedirs, resolve, per-zone ingest, per-zone status); add <code>run_poll_zone(region_id)</code> for single-zone; add <code>_REPORT_SUBDIR</code> + <code>_safe_dir()</code>. Relax the "already ingested" early-return to per-zone.</td></tr>
+  <tr><td><code>models/credit_report_ingestion.py</code></td><td><span class="pill new">NEW</span> embed <code>zones: list[ZoneRun]</code> (<code>region_id, name, status, row_count, found_at</code>); allow status <code>partial</code>; add <code>dup_party_count: int</code></td></tr>
+  <tr><td><code>controllers/credit_report_config.py</code></td><td><span class="pill new">NEW</span> <code>run_now_zone_controller(region_id)</code>; keep <code>run_now_controller</code> = run all zones</td></tr>
+  <tr><td><code>routes/credit_report.py</code></td><td><span class="pill new">NEW</span> route <code>POST /admin/credit-report/run-now/{region_id}</code> (literal <code>run-now</code> stays registered before the param route)</td></tr>
+  <tr><td><code>services/credit_report/status.py</code> + <code>schemas/credit_report_config.py</code></td><td><span class="pill warn">EDIT</span> include <code>zones[]</code> in <code>CreditReportStatusPublic</code></td></tr>
+  <tr><td><code>services/credit_report/emails.py</code></td><td><span class="pill warn">EDIT</span> <code>send_missing_alert</code> lists missing zone names</td></tr>
+  <tr><td><code>services/dashboard/summary.py</code></td><td><span class="pill warn">EDIT</span> treat <code>partial</code> (recommend: extracted only when all active zones in)</td></tr>
+  <tr><td><code>services/credit_report/list.py</code></td><td><span class="pill ok">verify / UNCHANGED</span> customer-code→region query filter stays. (Optional: add a <code>region_id</code>-provenance filter later.)</td></tr>
+  <tr><td>FE <code>api/settings/credit-report-config/runNowZone.ts</code></td><td><span class="pill new">NEW</span> <code>runCreditReportZoneNow(regionId)</code></td></tr>
+  <tr><td>FE <code>components/settings/CreditReportZonesPanel.tsx</code> + hook</td><td><span class="pill new">NEW</span> per-zone list + Run buttons + status; rendered inside <code>CreditReportConfigCard</code> below <code>StockConfigPanel</code></td></tr>
+  <tr><td>FE <code>types/settings/credit-report-config.ts</code></td><td><span class="pill new">NEW</span> add <code>zones[]</code> to <code>CreditReportStatus</code></td></tr>
+  <tr><td><code>tests/test_credit_report_*</code> + docs</td><td><span class="pill new">NEW</span> §11 tests; update <code>credit_report/CLAUDE.md</code> + <code>CODEX.md</code> (zone layout, scoped delete, provenance≠filter)</td></tr>
+</table>
+
+<!-- ───────────────────────── CODE ───────────────────────── -->
+<h2 id="code">9 · Core code sketch</h2>
+<h3>9.1 — <code>ingest.py</code>: region-scoped ingest</h3>
+<pre><code>async def ingest_region(path: str, report_date: str, region_id: str | None) -&gt; int:
+    with open(path, "rb") as fh:
+        rows = parse_workbook(fh.read())
+
+    await CreditReport.find({"report_date": report_date,
+                             "region_id": region_id}).delete()      # ← SCOPED
+
+    now, docs = _now_utc(), []
+    for row in rows:
+        coerced = {f: coerce_value(f, row.get(f)) for _, f, _ in COLUMNS}
+        if not should_keep_row(coerced):
+            continue
+        docs.append(CreditReport(
+            **coerced, report_date=report_date, source_file=path, region_id=region_id,
+            row_hash=_row_hash({**coerced, "region_id": region_id}),  # ← region in hash
+            created_at=now, updated_at=now,
+        ))
+    for i in range(0, len(docs), _CHUNK_SIZE):
+        await CreditReport.insert_many(docs[i:i + _CHUNK_SIZE])
+    await cleanup_duplicates(CreditReport, report_date)
+    return len(docs)
+
+async def ingest_file(path: str, report_date: str) -&gt; int:        # flat-mode wrapper
+    return await ingest_region(path, report_date, region_id=None)</code></pre>
+
+<h3>9.2 — <code>poller.py</code>: loop active regions / single zone</h3>
+<pre><code>_REPORT_SUBDIR = "CREDITREPORT"
+
+async def _ingest_one_zone(cfg, folder, today, region, ingestion, *, force=False):
+    zdir = os.path.join(folder, _REPORT_SUBDIR, _safe_dir(region.name))
+    os.makedirs(zdir, exist_ok=True)
+    zpath = _resolve_report_file(zdir, cfg.file_name)
+    if zpath is None:
+        _mark_zone(ingestion, region, status="missing"); return
+    try:
+        n = await ingest_region(zpath, today, str(region.id))
+        _mark_zone(ingestion, region, status="ingested", row_count=n, path=zpath)
+    except Exception as exc:                                  # E5: isolate per zone
+        _mark_zone(ingestion, region, status="error", error=str(exc))
+
+async def run_poll() -&gt; CreditReportStatusPublic:           # "run all zones"
+    cfg = await get_config()
+    # ... enabled / base_path / window checks (window applies to scheduled poll) ...
+    regions = await Region.find({"active": True}).to_list()
+    if not regions:
+        return await _legacy_flat_poll(cfg, ...)              # E11 unchanged
+    folder = os.path.join(cfg.base_path, today); os.makedirs(folder, exist_ok=True)
+    ingestion = await _get_or_create_ingestion(today)
+    for region in regions:
+        if _zone_already_ingested(ingestion, region): continue   # E4 short-circuit
+        await _ingest_one_zone(cfg, folder, today, region, ingestion)
+    _roll_up_status(ingestion)                                # ingested | partial | missing
+    if _missing_zones(ingestion):
+        await send_missing_alert(cfg, today, _missing_zones(ingestion))
+    await ingestion.save()
+    return await get_status()
+
+async def run_poll_zone(region_id: str) -&gt; CreditReportStatusPublic:   # per-zone button
+    cfg = await get_config()
+    region = await Region.get(region_id)                      # 404 if gone/inactive
+    today = datetime.now().strftime("%d-%m-%Y")               # explicit click → bypass window (E10)
+    folder = os.path.join(cfg.base_path, today); os.makedirs(folder, exist_ok=True)
+    ingestion = await _get_or_create_ingestion(today)
+    await _ingest_one_zone(cfg, folder, today, region, ingestion, force=True)
+    _roll_up_status(ingestion); await ingestion.save()
+    return await get_status()</code></pre>
+
+<h3>9.3 — route + controller</h3>
+<pre><code># routes/credit_report.py  (literal /run-now already registered before this param route)
+config_router.add_api_route("/run-now/{region_id}", cfg_ctrl.run_now_zone_controller,
+    methods=["POST"], response_model=SuccessEnvelope[CreditReportStatusPublic],
+    summary="Trigger credit report poll for one zone (region)")
+
+# controllers/credit_report_config.py
+async def run_now_zone_controller(region_id: str, _admin=Depends(get_current_admin)):
+    from ..services.credit_report.poller import run_poll_zone
+    return success(await run_poll_zone(region_id), message="Zone poll triggered")</code></pre>
+
+<h3>9.4 — frontend api</h3>
+<pre><code>// api/settings/credit-report-config/runNowZone.ts
+export function runCreditReportZoneNow(regionId: string): Promise&lt;CreditReportStatus&gt; {
+  return postData&lt;CreditReportStatus&gt;(`/admin/credit-report/run-now/${regionId}`, {})
+}</code></pre>
+
+<!-- ───────────────────────── PHASES ───────────────────────── -->
+<h2 id="phases">10 · Phased rollout</h2>
+<ol>
+  <li><span class="num">1</span><b>Model (additive).</b> <code>region_id</code> on rows; <code>zones[]</code> on ingestion. Deploy — no behavior change (no active regions ⇒ flat mode).</li>
+  <li><span class="num">2</span><b>Region-scoped ingest.</b> <code>ingest_file</code>→<code>ingest_region</code> + flat wrapper. Existing tests stay green.</li>
+  <li><span class="num">3</span><b>Poller loop + single-zone.</b> <code>run_poll</code> over active regions, <code>run_poll_zone</code>, <code>_safe_dir</code>, partial status, zone-aware alert.</li>
+  <li><span class="num">4</span><b>Endpoint.</b> <code>run-now/{region_id}</code> + controller + status <code>zones[]</code>.</li>
+  <li><span class="num">5</span><b>Frontend.</b> <code>CreditReportZonesPanel</code> + per-zone Run + api fn + types.</li>
+  <li><span class="num">6</span><b>Go-live.</b> Ensure regions are active; poller auto-creates folders; employees paste per zone. No data migration.</li>
+</ol>
+
+<!-- ───────────────────────── TESTS ───────────────────────── -->
+<h2 id="tests">11 · Testing</h2>
+<table>
+  <tr><th>Test</th><th>Asserts</th></tr>
+  <tr><td>flat fallback</td><td>no active regions → behaves exactly as today.</td></tr>
+  <tr><td>scoped delete</td><td>re-running North leaves South's rows intact; only North's deleted+rebuilt.</td></tr>
+  <tr><td>provenance tag</td><td>each row carries the correct <code>region_id</code>.</td></tr>
+  <tr><td>within-zone dup</td><td>identical rows in one zone file → collapsed.</td></tr>
+  <tr><td>cross-zone same company</td><td>same company in North &amp; South → both kept; <code>dup_party_count</code>=1.</td></tr>
+  <tr><td>partial day</td><td>1 of 3 zones present → status <code>partial</code>; missing zones listed; alert sent.</td></tr>
+  <tr><td>per-zone endpoint</td><td><code>run-now/{id}</code> ingests only that zone; window bypassed.</td></tr>
+  <tr><td>corrupt zone</td><td>one zone errors; others still ingest.</td></tr>
+  <tr><td>name safety</td><td><code>_safe_dir("a/b..")</code> never escapes <code>CREDITREPORT/</code>.</td></tr>
+  <tr><td>region filter intact</td><td><code>list.py</code> region filter (customer-code join) still returns the same rows.</td></tr>
+</table>
+
+<!-- ───────────────────────── RISK ───────────────────────── -->
+<h2 id="risk">12 · Risk register</h2>
+<table>
+  <tr><th>Risk</th><th>Likelihood</th><th>Mitigation</th></tr>
+  <tr><td>Provenance <code>region_id</code> confused with query-filter region</td><td><span class="pill warn">Medium</span></td><td>Distinct concept, documented in CLAUDE.md/CODEX.md; <code>list.py</code> untouched.</td></tr>
+  <tr><td>Hash mismatch (region_id in cleanup but not insert)</td><td><span class="pill warn">Medium</span></td><td>Insert hashes <code>{**coerced, region_id}</code>; covered by the scoped-delete + dup tests (§4 note).</td></tr>
+  <tr><td>Region rename orphans on-disk folder</td><td><span class="pill ok">Low</span></td><td>Rows keyed by stable <code>region_id</code>; folder recreated; ops note.</td></tr>
+  <tr><td>Path traversal via region name</td><td><span class="pill ok">Low</span></td><td><code>_safe_dir()</code> guard.</td></tr>
+  <tr><td>Parser/gate drift</td><td><span class="pill ok">Low</span></td><td>Reused verbatim, not edited.</td></tr>
+  <tr><td>Alert spam (one per zone)</td><td><span class="pill ok">Low</span></td><td>One consolidated email listing missing zones.</td></tr>
+</table>
+
+<hr>
+<p class="muted" style="font-size:13px">Audit basis (backend): <code>poller.py</code>, <code>ingest.py</code>, <code>shared/ingest_cleanup.py</code>, <code>utils/credit_report/{excel,columns,filters}.py</code>, <code>models/{credit_report,credit_report_config,credit_report_ingestion,region}.py</code>, <code>controllers/credit_report_config.py</code>, <code>routes/credit_report.py</code>, <code>services/credit_report/{config_service,status,list}.py</code>, <code>dashboard/summary.py</code>. Frontend: <code>pages/admin/regions/*</code>, <code>components/admin/regions/*</code>, <code>components/settings/{StockConfigPanel,CreditReportConfigCard,StockLastRun}.tsx</code> + hooks + <code>api/settings/credit-report-config/*</code>. "Zone Management" = the in-app "Region Management" screen; no "zone" string or folder field exists today.</p>
+
+</div>
+</body>
+</html>

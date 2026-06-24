@@ -20,8 +20,10 @@ from ..schemas.report import ReportQuery, ReportResponse
 from ..services.report.export import export_report
 from ..services.report.generate import generate_report
 
-# Unknown-key rejection (backend-api-standards, OWASP A04): exactly 4 keys.
+# Unknown-key rejection (backend-api-standards, OWASP A04).
 _ALLOWED_GENERATE_KEYS = frozenset({"date", "report_type", "region_id", "days"})
+# /export accepts the same params plus the optional `columns` filter.
+_ALLOWED_EXPORT_KEYS = frozenset({"date", "report_type", "region_id", "days", "columns"})
 
 
 async def generate_report_controller(
@@ -50,9 +52,10 @@ async def export_report_controller(
 ) -> StreamingResponse:
     """``GET /report/export`` — export the generated report as .xlsx.
 
-    Accepts the same query parameters as ``/report/generate``.
+    Accepts the same query parameters as ``/report/generate`` plus an optional
+    ``columns`` CSV of visible optional-column keys.
     """
-    unknown = set(request.query_params.keys()) - _ALLOWED_GENERATE_KEYS
+    unknown = set(request.query_params.keys()) - _ALLOWED_EXPORT_KEYS
     if unknown:
         raise ValidationError(
             f"Unknown query parameter(s): {', '.join(sorted(unknown))}"

@@ -14,6 +14,7 @@ export async function exportReport(params: ReportQueryParams): Promise<void> {
   query.set("report_type", params.report_type)
   query.set("days", params.days)
   if (params.region_id) query.set("region_id", params.region_id)
+  if (params.columns !== undefined) query.set("columns", params.columns)
 
   const filename = `report_${params.report_type}_${params.date}.xlsx`
   await downloadFromFetch(`${BASE_URL}/report/export?${query.toString()}`, filename)

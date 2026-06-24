@@ -9,9 +9,10 @@ import { CheckCircle2, AlertTriangle, Circle } from "lucide-react"
 import { format } from "date-fns"
 
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { REPORT_ICONS } from "./report-card-config"
-import type { DashboardReportStatus } from "@/types/dashboard/summary"
+import type { DashboardReportStatus, DashboardZoneStatus } from "@/types/dashboard/summary"
 
 // ── Status line (presentation-only derivation) ─────────────────────────────────
 
@@ -24,8 +25,16 @@ const TONE_TEXT: Record<Tone, string> = {
   muted: "text-muted-foreground",
 }
 
+const ZONE_STATUS: Record<string, { label: string; tone: Tone; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  ingested: { label: "Done", tone: "emerald", variant: "outline" },
+  pending: { label: "Pending", tone: "amber", variant: "secondary" },
+  missing: { label: "Missing", tone: "red", variant: "outline" },
+  error: { label: "Error", tone: "red", variant: "destructive" },
+}
+
 function statusNote(r: DashboardReportStatus): { text: string; tone: Tone } {
   if (r.status === "error") return { text: "Ingestion error today", tone: "red" }
+  if (r.status === "partial") return { text: "Some zones need attention", tone: "amber" }
   if (r.extracted) {
     const at = r.found_at ? ` · ${format(new Date(r.found_at), "HH:mm")}` : ""
     return { text: `Extracted today${at}`, tone: "emerald" }
@@ -69,6 +78,27 @@ function StatPill({ label, active, tone, detail, ActiveIcon }: StatPillProps) {
       >
         {detail}
       </span>
+    </div>
+  )
+}
+
+function ZoneStatusRow({ zone }: { zone: DashboardZoneStatus }) {
+  const meta = ZONE_STATUS[zone.status] ?? {
+    label: zone.status,
+    tone: "muted" as const,
+    variant: "outline" as const,
+  }
+  return (
+    <div className="flex items-center justify-between gap-3 py-1 text-xs">
+      <div className="min-w-0">
+        <p className="truncate font-medium text-foreground">{zone.name}</p>
+        <p className="mt-0.5 text-muted-foreground">
+          {zone.row_count > 0 ? `${zone.row_count.toLocaleString()} rows` : "No rows"}
+        </p>
+      </div>
+      <Badge variant={meta.variant} className={cn("shrink-0 text-[10px]", TONE_TEXT[meta.tone])}>
+        {meta.label}
+      </Badge>
     </div>
   )
 }
@@ -133,6 +163,19 @@ export function ReportStatusCard({ report }: { report: DashboardReportStatus }) 
           />
           {note.text}
         </p>
+
+        {report.key === "credit_report" && report.zones.length > 0 && (
+          <div className="border-t border-border/60 pt-2">
+            <p className="mb-1 text-[0.625rem] font-semibold uppercase tracking-wider text-muted-foreground">
+              Zones
+            </p>
+            <div className="flex flex-col">
+              {report.zones.map((zone) => (
+                <ZoneStatusRow key={zone.region_id} zone={zone} />
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

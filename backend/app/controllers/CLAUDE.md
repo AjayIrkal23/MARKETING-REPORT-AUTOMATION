@@ -31,7 +31,7 @@ live here.
 | `auth.py` | Login, logout, account-status, OTP setup, session cookie set/clear. |
 | `coil_price.py` | Coil price admin CRUD endpoints. |
 | `credit_report.py` | Credit report list/options/export for authenticated users. |
-| `credit_report_config.py` | Credit report scheduler config, status, run-now, cleanup. |
+| `credit_report_config.py` | Credit report scheduler config, status, run-all, run-zone, cleanup. |
 | `customer_code.py` | Customer code CRUD, import, template, export endpoints. |
 | `dashboard.py` | Today's ingestion status summary endpoint. |
 | `jsw_stock.py` / `jvml_stock.py` | Stock list/options/export endpoints. |

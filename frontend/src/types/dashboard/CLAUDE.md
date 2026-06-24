@@ -10,6 +10,8 @@ Contains the ingestion summary contract returned by `/dashboard/summary`.
 ## Local conventions
 
 - Summary types mirror the backend dashboard service schema.
+- Credit Report summary rows may include `zones[]` for active-region ingestion
+  progress.
 
 ## Key files
 
