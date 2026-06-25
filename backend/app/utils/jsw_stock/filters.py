@@ -10,9 +10,10 @@ below (JSW/JVML stock ingestion rules, 2026-06):
   3. Blocked — keep only when the Blocked quantity is exactly 0.
   4. Sales Order Type — drop ``ZAUF``, ``ZVSR``, and any ``ZRE<number>``
      (ZRE1, ZRE2, … ZREn).
-  5. NCO Declared — keep ``No``; keep ``Yes`` ONLY when a DO No. exists;
-     drop ``Yes`` with an empty DO No.
-  6. Usage Decision — drop ``NCO`` and ``COMMERCIAL`` (case-insensitive exact).
+  5. NCO Declared — keep ``No``; keep ``Yes`` ONLY when a real DO No. exists
+     (length > 2, not a null placeholder like "NA"/"N/A"); drop ``Yes`` without.
+  6. Usage Decision — drop ``NCO`` and ``COMMERCIAL``, EXCEPT rows that passed
+     gate 5 as NCO=Yes+DO (those are kept for the NCO+DO report bucket).
 
 Pure / transport-free — ``customer_map`` is resolved once in ingest.py and
 passed in, so this module performs no I/O (``service-layer-standards``).
@@ -32,6 +33,14 @@ _ZRE_NUMBERED = re.compile(r"ZRE\d+")
 
 # Usage Decision denylist (drop NCO / COMMERCIAL — non-prime / commercial stock).
 _DENY_USAGE_DECISIONS = frozenset({"NCO", "COMMERCIAL"})
+
+# Null-like DO No strings that are not real delivery order references.
+_NULL_DO_STRINGS = frozenset({"na", "n/a", "none", "nil", "-", "n.a."})
+
+
+def _is_valid_do_no(raw: Any) -> bool:
+    s = str(raw).strip() if raw is not None else ""
+    return len(s) > 2 and s.lower() not in _NULL_DO_STRINGS
 
 
 def should_keep_row(
@@ -69,16 +78,18 @@ def should_keep_row(
     if order_type in _DENY_ORDER_TYPES or _ZRE_NUMBERED.fullmatch(order_type):
         return False
 
-    # 5. NCO logic: keep "No"; keep "Yes" only with a DO No.; drop "Yes" w/o DO.
+    # 5. NCO logic: keep "No"; keep "Yes" only with a real DO No.; drop "Yes" w/o DO.
     nco = (coerced.get("nco_declared") or "").strip().lower()
+    nco_yes_with_do = False
     if nco == "yes":
-        do_no = coerced.get("do_no")
-        if not (do_no and str(do_no).strip()):
+        if not _is_valid_do_no(coerced.get("do_no")):
             return False
+        nco_yes_with_do = True
 
-    # 6. Usage Decision denylist — drop NCO / COMMERCIAL (case-insensitive exact).
-    usage = (coerced.get("usage_decision") or "").strip().upper()
-    if usage in _DENY_USAGE_DECISIONS:
-        return False
+    # 6. Usage Decision denylist — drop NCO / COMMERCIAL, but spare NCO+DO rows.
+    if not nco_yes_with_do:
+        usage = (coerced.get("usage_decision") or "").strip().upper()
+        if usage in _DENY_USAGE_DECISIONS:
+            return False
 
     return True

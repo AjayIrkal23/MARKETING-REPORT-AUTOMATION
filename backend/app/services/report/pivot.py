@@ -92,7 +92,13 @@ async def aggregate_pivot(
     }
     match.update(qa_hold_match(days))
 
-    is_nco_yes = {"$eq": ["$nco_declared", "Yes"]}
+    # NCO+DO: nco_declared=="Yes" AND do_no has a real value (length > 2).
+    is_nco_yes_with_do = {
+        "$and": [
+            {"$eq": ["$nco_declared", "Yes"]},
+            {"$gt": [{"$strLenCP": {"$ifNull": ["$do_no", ""]}}, 2]},
+        ]
+    }
     pipeline: list[dict[str, Any]] = [
         {"$match": match},
         {
@@ -107,9 +113,9 @@ async def aggregate_pivot(
                 },
                 "total": {"$sum": "$stock_quantity"},
                 "nco_yes_do": {
-                    "$sum": {"$cond": [is_nco_yes, "$stock_quantity", 0]}
+                    "$sum": {"$cond": [is_nco_yes_with_do, "$stock_quantity", 0]}
                 },
-                "nco_yes_do_count": {"$sum": {"$cond": [is_nco_yes, 1, 0]}},
+                "nco_yes_do_count": {"$sum": {"$cond": [is_nco_yes_with_do, 1, 0]}},
             }
         },
     ]
