@@ -39,7 +39,9 @@ _NULL_DO_STRINGS = frozenset({"na", "n/a", "none", "nil", "-", "n.a."})
 
 
 def _is_valid_do_no(raw: Any) -> bool:
-    s = str(raw).strip() if raw is not None else ""
+    if raw is None:
+        return False
+    s = str(raw).strip()
     return len(s) > 2 and s.lower() not in _NULL_DO_STRINGS
 
 

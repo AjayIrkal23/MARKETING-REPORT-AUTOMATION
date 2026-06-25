@@ -53,7 +53,7 @@ export function useReport(): UseReportResult {
     date: format(new Date(), "dd-MM-yyyy"),
     report_type: "jsw",
     region_id: null,
-    days: "include",
+    days: "exclude",
   }))
   const [data, setData] = useState<ReportResponse | null>(null)
   const [loading, setLoading] = useState(false)

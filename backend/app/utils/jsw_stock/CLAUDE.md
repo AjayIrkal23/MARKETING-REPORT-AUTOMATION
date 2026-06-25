@@ -35,6 +35,11 @@ source file contains malformed numeric cells.
   (e.g. `RECIEVING POINT`).
 - `lc_exp_date` is intentionally kept as a verbatim string, not a datetime.
 - The parser clears elements during iterparse to keep memory low for large files.
+- `filters.py` gate 5 (NCO) and gate 6 (Usage Decision) are coupled: rows with
+  `nco_declared=="Yes"` and a real DO No (`_is_valid_do_no`) set `nco_yes_with_do=True`,
+  which causes gate 6 to skip the NCO/COMMERCIAL denylist for those rows. This keeps
+  NCO+DO rows in the NCO+DO report bucket. DO No validity: `len > 2` AND not in
+  `_NULL_DO_STRINGS` (rejects "NA", "N/A", "none", "nil", etc.).
 
 ## Up / down
 

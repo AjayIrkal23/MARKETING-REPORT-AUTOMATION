@@ -93,10 +93,11 @@ async def aggregate_pivot(
     match.update(qa_hold_match(days))
 
     # NCO+DO: nco_declared=="Yes" AND do_no has a real value (length > 2).
+    # $toString normalises any legacy non-string do_no BSON types before $strLenCP.
     is_nco_yes_with_do = {
         "$and": [
             {"$eq": ["$nco_declared", "Yes"]},
-            {"$gt": [{"$strLenCP": {"$ifNull": ["$do_no", ""]}}, 2]},
+            {"$gt": [{"$strLenCP": {"$toString": {"$ifNull": ["$do_no", ""]}}}, 2]},
         ]
     }
     pipeline: list[dict[str, Any]] = [

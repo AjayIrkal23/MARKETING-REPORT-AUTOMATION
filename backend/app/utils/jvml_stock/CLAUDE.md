@@ -31,6 +31,8 @@ Parser utilities for `JVML Stock (99).xlsx` plus the query builder consumed by
 
 - Mirrors `utils/jsw_stock`; keep the two in sync when ingestion rules change.
 - Malformed numeric cells are kept verbatim instead of raising.
+- `filters.py` NCO+DO logic: see `utils/jsw_stock/CLAUDE.md` — identical rule
+  applies here (gate 5/gate 6 coupling via `nco_yes_with_do` flag).
 
 ## Up / down
 

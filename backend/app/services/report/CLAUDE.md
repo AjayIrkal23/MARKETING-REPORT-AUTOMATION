@@ -67,6 +67,11 @@ RAKE-column pivot, credit augmentation, and final assembly.
   `coil_price_per_qty` is shared. Re-sort by `_ROW_SORT_KEYS` keeps SO-org groups
   contiguous for both the export walker and the client walker.
 
+- **`nco_yes_do` pivot condition requires DO No.** `pivot.py::aggregate_pivot` uses
+  `is_nco_yes_with_do` (`nco_declared=="Yes"` AND `strLenCP(do_no) > 2`) so only rows
+  with a real delivery-order number count toward the NCO+DO bucket. This guards against
+  old data ingested before the gate-5/gate-6 fix (2026-06-25).
+
 ## Up / down
 
 - Parent: [`../CLAUDE.md`](../CLAUDE.md)
