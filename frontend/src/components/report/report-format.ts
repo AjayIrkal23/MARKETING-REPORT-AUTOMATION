@@ -24,14 +24,18 @@ export function signClass(n: number | null | undefined): string {
 
 // ---------------------------------------------------------------------------
 // Optional (toggleable) columns — controlled by the "Columns" dropdown in the
-// toolbar (Detail + Credit groups). The fixed left cols, dynamic RAKE cols, and
-// "Total" are always shown. Each optional col carries a `side`:
+// toolbar (Detail + RAKE + Credit groups). Only the fixed left cols are always
+// shown. Each optional col carries a `side`:
 //   "detail" → left columns, between the fixed cols and the RAKE columns
+//   "rake"   → the whole block of dynamic RAKE columns (one toggle, all of them)
 //   "credit" → trailing columns, right of Total
 // ---------------------------------------------------------------------------
 
 /** Toggleable left "detail" columns (drawn from the CustomerCode mapping). */
 export type ReportDetailColKey = "transport_mode" | "destination" | "route"
+
+/** Single toggle that shows/hides the whole dynamic RAKE column block. */
+export type ReportRakeColKey = "rake"
 
 /** Toggleable trailing columns (after the RAKE columns). "total" is first. */
 export type ReportCreditColKey =
@@ -42,9 +46,9 @@ export type ReportCreditColKey =
   | "required_credit"
   | "credit_note"
 
-export type ReportColKey = ReportDetailColKey | ReportCreditColKey
+export type ReportColKey = ReportDetailColKey | ReportRakeColKey | ReportCreditColKey
 
-export type ReportColSide = "detail" | "credit"
+export type ReportColSide = "detail" | "rake" | "credit"
 
 export type ReportColVisibility = Record<ReportColKey, boolean>
 
@@ -58,6 +62,8 @@ export const REPORT_OPTIONAL_COLS: {
   { key: "transport_mode", label: "Transport Mode", side: "detail" },
   { key: "destination", label: "Destination", side: "detail" },
   { key: "route", label: "ROUTE", side: "detail" },
+  // rake (the dynamic RAKE column block — one switch for all of them)
+  { key: "rake", label: "RAKE columns", side: "rake" },
   // credit (trailing, after the RAKE columns) — "Total" leads the group
   { key: "total", label: "Total", side: "credit" },
   { key: "yes_do", label: "Yes+DO", side: "credit" },
@@ -72,6 +78,7 @@ export const DEFAULT_REPORT_COLS: ReportColVisibility = {
   transport_mode: true,
   destination: true,
   route: true,
+  rake: true,
   total: true,
   yes_do: true,
   blocked: true,

@@ -139,6 +139,18 @@ export function ReportToolbar({
               {c.label}
             </DropdownMenuCheckboxItem>
           ))}
+          <DropdownMenuLabel>RAKE columns</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {REPORT_OPTIONAL_COLS.filter((c) => c.side === "rake").map((c) => (
+            <DropdownMenuCheckboxItem
+              key={c.key}
+              checked={visibleCols[c.key]}
+              onCheckedChange={() => onToggleCol(c.key)}
+              onSelect={(e) => e.preventDefault()}
+            >
+              {c.label}
+            </DropdownMenuCheckboxItem>
+          ))}
           <DropdownMenuLabel>Credit columns</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {REPORT_OPTIONAL_COLS.filter((c) => c.side === "credit").map((c) => (

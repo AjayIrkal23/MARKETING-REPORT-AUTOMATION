@@ -57,8 +57,9 @@ _TRAILING_HEADERS = [
 
 # Optional-column key aligned to each header position (None ⇒ always shown). The
 # export `columns` filter (the same keys the UI toggles) gates the non-None ones:
-# the 5 fixed left cols and the dynamic RAKE cols are always shown; the 3 detail
-# cols + the 6 trailing cols (Total included) are toggleable.
+# the 5 fixed left cols are always shown; the 3 detail cols, the dynamic RAKE
+# block (one shared "rake" key, see _kept_indices), and the 6 trailing cols
+# (Total included) are toggleable.
 _FIXED_OPT_KEYS: list[str | None] = [None, None, None, None, None, "transport_mode", "destination", "route"]
 _TRAILING_OPT_KEYS: list[str | None] = ["total", "yes_do", "blocked", "credit_balance", "required_credit", "credit_note"]
 
@@ -76,7 +77,9 @@ def _kept_indices(
     rake_n: int, visible: set[str] | None, fixed_opt_keys: list[str | None]
 ) -> list[int]:
     """Column indices to keep. visible=None ⇒ all columns; else always-on + visible keys."""
-    keys = fixed_opt_keys + [None] * rake_n + _TRAILING_OPT_KEYS
+    # RAKE columns share one "rake" toggle key, so the `columns` filter hides the
+    # whole block when it's off (visible=None still keeps them for old clients).
+    keys = fixed_opt_keys + ["rake"] * rake_n + _TRAILING_OPT_KEYS
     if visible is None:
         return list(range(len(keys)))
     return [i for i, k in enumerate(keys) if k is None or k in visible]

@@ -88,3 +88,5 @@ class ReportResponse(BaseModel):
     grand_total: float
     grand_nco_yes_do: float
     grand_required_credit: float | None
+    rake_totals: dict[str, float] = {}          # RAKE → Σ stock_quantity
+    transport_mode_totals: dict[str, float] = {}  # transport_mode → Σ stock_quantity

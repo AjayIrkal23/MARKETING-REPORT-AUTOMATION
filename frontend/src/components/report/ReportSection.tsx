@@ -1,16 +1,15 @@
 /**
- * ReportSection — renders the report block: summary line, the no-stock empty
- * state / no-credit banner, and the pivot table.
- *
- * For the "both" selection the backend returns one merged response, so this is
- * still a single section — `groupBySoOrg` just switches the table to an SO Sales
- * Org-led, SO-Org-grouped layout.
+ * ReportSection — renders the report block with two tabs:
+ *   "Branch Wise Report" (the RAKE pivot table, default)
+ *   "Total Rake Report"  (RAKE totals + Transport Mode totals)
  */
 
 import { Info, FileX2 } from "lucide-react"
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { ReportResponse } from "@/types/report/report"
 import { ReportPivotTable } from "./ReportPivotTable"
+import { RakeTotalsTab } from "./RakeTotalsTab"
 import { fmtINR, type ReportColVisibility } from "./report-format"
 
 export function ReportSection({
@@ -51,7 +50,20 @@ export function ReportSection({
             </div>
           )}
 
-          <ReportPivotTable report={report} visibleCols={visibleCols} groupBySoOrg={groupBySoOrg} />
+          <Tabs defaultValue="branch">
+            <TabsList className="mb-1">
+              <TabsTrigger value="branch">Branch Wise Report</TabsTrigger>
+              <TabsTrigger value="rake">Total Rake Report</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="branch">
+              <ReportPivotTable report={report} visibleCols={visibleCols} groupBySoOrg={groupBySoOrg} />
+            </TabsContent>
+
+            <TabsContent value="rake">
+              <RakeTotalsTab report={report} />
+            </TabsContent>
+          </Tabs>
         </>
       )}
     </div>

@@ -121,6 +121,8 @@ export function ReportPivotTable({
     .map((c) => c.key as TrailingKey)
   const fixedCols = groupBySoOrg ? [SO_ORG_COL, ...FIXED_COLS] : FIXED_COLS
   const leftColSpan = fixedCols.length + detailKeys.length
+  // One toggle hides the whole dynamic RAKE block (default on).
+  const rakeCols = visibleCols.rake ? report.rake_columns : []
   const grandAgg: ReportAgg = {
     rake_quantities: {},
     total: report.grand_total,
@@ -140,7 +142,7 @@ export function ReportPivotTable({
           {detailKeys.map((k) => (
             <TableHead key={k} className={cn(TH_STICKY, DETAIL_META[k].thClass)}>{DETAIL_META[k].label}</TableHead>
           ))}
-          {report.rake_columns.map((col) => (
+          {rakeCols.map((col) => (
             <TableHead key={col} className={cn(TH_STICKY, "text-right min-w-[80px]")}>{col}</TableHead>
           ))}
           {trailingKeys.map((k) => (
@@ -154,7 +156,7 @@ export function ReportPivotTable({
           rr.kind === "subtotal" ? (
             <TableRow key={`sub-${idx}`} className="bg-muted/50 font-medium hover:bg-muted/50">
               <TableCell colSpan={leftColSpan} className="text-right text-xs text-foreground">{rr.label}</TableCell>
-              {report.rake_columns.map((col) => rakeAggCell(col, rr.agg))}
+              {rakeCols.map((col) => rakeAggCell(col, rr.agg))}
               {trailingKeys.map((k) => (
                 <Fragment key={k}>{aggTrailingCell(k, rr.agg)}</Fragment>
               ))}
@@ -167,7 +169,7 @@ export function ReportPivotTable({
               {detailKeys.map((k) => (
                 <TableCell key={k} className="text-xs text-muted-foreground">{rr.row[k] ?? "—"}</TableCell>
               ))}
-              {report.rake_columns.map((col) => (
+              {rakeCols.map((col) => (
                 <TableCell key={col} className="text-right tabular-nums text-xs">
                   {rr.row.rake_quantities[col] ? fmtQty(rr.row.rake_quantities[col]) : "—"}
                 </TableCell>
@@ -183,7 +185,7 @@ export function ReportPivotTable({
       <TableFooter>
         <TableRow className="sticky bottom-0 z-20 bg-muted font-semibold hover:bg-transparent">
           <TableCell colSpan={leftColSpan} className="text-right text-sm text-foreground">Grand Total</TableCell>
-          {report.rake_columns.map((col) => (
+          {rakeCols.map((col) => (
             <TableCell key={col} />
           ))}
           {trailingKeys.map((k) => (

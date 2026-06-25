@@ -53,6 +53,8 @@ export interface ReportResponse {
   grand_total: number
   grand_nco_yes_do: number
   grand_required_credit: number | null
+  rake_totals: Record<string, number>            // RAKE → Σ stock_quantity
+  transport_mode_totals: Record<string, number>  // transport_mode → Σ stock_quantity
 }
 
 /** Query params for GET /report/generate + /report/export (date is "dd-MM-yyyy"). */

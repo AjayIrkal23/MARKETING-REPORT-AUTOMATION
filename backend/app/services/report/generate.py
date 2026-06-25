@@ -138,6 +138,21 @@ def _augment_credit(
     }
 
 
+def _compute_totals(
+    rows: list[ReportPivotRow],
+) -> tuple[dict[str, float], dict[str, float]]:
+    """Compute RAKE totals and transport-mode totals from pivot rows."""
+    rake_totals: dict[str, float] = {}
+    tm_totals: dict[str, float] = {}
+    for row in rows:
+        for rake, qty in row.rake_quantities.items():
+            if qty:
+                rake_totals[rake] = rake_totals.get(rake, 0.0) + qty
+        tm = row.transport_mode or "Unknown"
+        tm_totals[tm] = tm_totals.get(tm, 0.0) + row.total
+    return rake_totals, tm_totals
+
+
 def _filter_used_rakes(
     rows: list[ReportPivotRow], rake_columns: list[str]
 ) -> list[str]:
@@ -245,6 +260,7 @@ async def _generate_single(report_type: str, query: ReportQuery) -> ReportRespon
     grand_req = [
         r.required_credit for r in pivot_rows if r.required_credit is not None
     ]
+    rake_totals, tm_totals = _compute_totals(pivot_rows)
     return ReportResponse(
         date=query.date,
         report_type=report_type,
@@ -260,6 +276,8 @@ async def _generate_single(report_type: str, query: ReportQuery) -> ReportRespon
         grand_total=sum(r.total for r in pivot_rows),
         grand_nco_yes_do=sum(r.nco_yes_do for r in pivot_rows),
         grand_required_credit=sum(grand_req) if grand_req else None,
+        rake_totals=rake_totals,
+        transport_mode_totals=tm_totals,
     )
 
 
@@ -276,6 +294,7 @@ def _merge_reports(query: ReportQuery, parts: list[ReportResponse]) -> ReportRes
     rake_columns = sorted({c for p in parts for c in p.rake_columns})
     grand_req = [r.required_credit for r in rows if r.required_credit is not None]
     coil = next((p.coil_price_per_qty for p in parts if p.coil_price_per_qty is not None), None)
+    rake_totals, tm_totals = _compute_totals(rows)
 
     return ReportResponse(
         date=query.date,
@@ -292,6 +311,8 @@ def _merge_reports(query: ReportQuery, parts: list[ReportResponse]) -> ReportRes
         grand_total=sum(r.total for r in rows),
         grand_nco_yes_do=sum(r.nco_yes_do for r in rows),
         grand_required_credit=sum(grand_req) if grand_req else None,
+        rake_totals=rake_totals,
+        transport_mode_totals=tm_totals,
     )
 
 
