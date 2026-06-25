@@ -12,7 +12,8 @@ admin endpoints; they do **not** depend on FastAPI request/response types.
 
 ## Local conventions
 
-- Keep I/O confined to `parser.py` (raw XLSX zip/XML parsing) and `excel.py`.
+- Workbook parsing lives in the shared parser (`utils/shared/excel.py`); the
+  local `excel.py` is a thin shim binding the column map.
 - Filtering logic belongs in `filters.py`; query building for MongoDB belongs in
   `query.py`.
 - Use `Decimal` for monetary amounts during parsing; cast to `float` before
@@ -24,8 +25,8 @@ admin endpoints; they do **not** depend on FastAPI request/response types.
 
 | File | Role |
 |------|------|
-| `parser.py` | Low-level XLSX zip/XML reader that returns raw string rows. |
-| `excel.py` | Maps raw rows to `CreditReportCreate` dicts, coerces types, handles dates. |
+| `columns.py` | 33-column map, header normalization, type coercion (`coerce_value`). |
+| `excel.py` | Thin shim: binds the column map to `utils/shared/excel.parse_workbook` (xlsx/xlsm/xlsb). |
 | `filters.py` | Ingestion-time row gate: keeps rows with a customer name and an allowed CCA. |
 | `query.py` | Builds MongoDB filters from `CreditReportListQuery`, including the `plant` filter. |
 

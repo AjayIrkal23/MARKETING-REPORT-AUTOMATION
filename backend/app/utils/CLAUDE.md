@@ -12,14 +12,17 @@ HTTP/transport layer. Each subdirectory owns one domain concern.
 ## Local conventions
 
 - Keep utils transport-free and stateless.
-- Import ``openpyxl`` lazily inside Excel helpers so ``app.main`` can import
-  without the package installed.
+- Import ``openpyxl`` / ``pyxlsb`` lazily inside Excel helpers so ``app.main``
+  can import without the packages installed (``pyxlsb`` loads only on the
+  ``.xlsb`` parse path).
 - Every file ≤250 lines; split early.
 
 ## Key files
 
 | File | Role |
 |------|------|
+| `shared/excel.py` | Format-agnostic `parse_workbook` (xlsx/xlsm/xlsb) shared by all report domains. |
+| `shared/resolve.py` | `resolve_report_file` — extension-agnostic report-file finder. |
 | `shared/export_style.py` | Shared Excel styling helpers (headers, auto-size, metadata, filters). |
 | `customer_code/excel.py` | Customer-code template headers, fingerprint, and workbook parser. |
 | `customer_code/query.py` | Customer-code filter builder used by list/export services. |
@@ -27,7 +30,7 @@ HTTP/transport layer. Each subdirectory owns one domain concern.
 ## Gotchas / fragile spots
 
 - Excel utility modules are imported by services that may load before the full
-  dependency stack is present; keep ``openpyxl`` imports inside functions.
+  dependency stack is present; keep ``openpyxl`` / ``pyxlsb`` imports inside functions.
 
 ## Up / down
 
