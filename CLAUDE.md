@@ -64,7 +64,7 @@ Override backend URL: `VITE_API_URL=http://...` (see `vite.config.ts` proxy conf
 
 ## Domain data gotchas (summary)
 
-- `ZSD_CURRSTK_HR.xlsx` cannot be read with `openpyxl` (malformed numeric cell `"1.057.000"`); the backend uses a raw-zip parser.
+- Report ingestion is **format-agnostic**: a shared content-detecting parser (`backend/app/utils/shared/excel.py`) reads `.xlsx`/`.xlsm` via raw-zip (`openpyxl` crashes on the malformed numeric cell `"1.057.000"`) and `.xlsb` via `pyxlsb`. Detection is by file content, not extension; file lookup (`utils/shared/resolve.py`) matches the configured stem against any Excel extension, so a `.xlsb` export is no longer reported "missing".
 - Customer-codes filename has **two spaces**: `west  central customer codes.xlsx`. An updated 15-column workbook (`west  central customer codes_updated_ship_tp.xlsx`) adds a second `SHIP TO` / `SHIP TO CUSTOMER` pair plus `SHIP TO CITY`, `RAKE`, and `TRANSPORT MODE`.
 - Many ZSD numeric columns are stored as TEXT; cast before math. `LC Exp Date` is `dd.mm.yyyy` text.
 - Credit report has `#VALUE!` errors and trailing blank/footer rows.
@@ -145,7 +145,11 @@ Read `CODEX.md` first, then relevant `backend/CLAUDE.md`, `frontend/CLAUDE.md`, 
       - [`backend/app/utils/shared/`](backend/app/utils/shared/CLAUDE.md)
       - [`backend/app/utils/user/`](backend/app/utils/user/CLAUDE.md)
   - [`backend/tests/`](backend/tests/CLAUDE.md)
+    - [`backend/tests/fixtures/`](backend/tests/fixtures/CLAUDE.md)
 - [`backend_docs/`](backend_docs/CLAUDE.md)
+- [`docs/`](docs/CLAUDE.md)
+  - [`docs/superpowers/`](docs/superpowers/CLAUDE.md)
+    - [`docs/superpowers/plans/`](docs/superpowers/plans/CLAUDE.md)
 - [`frontend/`](frontend/CLAUDE.md)
   - [`frontend/public/`](frontend/public/CLAUDE.md)
   - [`frontend/src/`](frontend/src/CLAUDE.md)
