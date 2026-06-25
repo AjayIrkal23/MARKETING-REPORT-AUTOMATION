@@ -1,10 +1,11 @@
 /**
  * ResolvedPathPreview — live preview of the daily file the poller resolves.
  *
- * Renders `<base>/<dd-mm-yyyy>/<file>.xlsx` (the path the scheduler looks for),
+ * Renders `<base>/<dd-mm-yyyy>/<file>` plus the accepted extensions (the path the
+ * scheduler looks for — it matches the stem against .xlsx / .xlsm / .xlsb),
  * updating as the form is edited, with a copy button and a one-line cadence
  * summary. Extracted from the old StatusRail so it can sit inline beneath the
- * source-file inputs it describes. Shared by both stock config panels.
+ * source-file inputs it describes. Shared by all three config panels.
  */
 import { useEffect, useRef, useState } from "react"
 import { format } from "date-fns"
@@ -32,7 +33,9 @@ export function ResolvedPathPreview({
   const base = values.base_path.trim() || "<base_path>"
   const file = values.file_name.trim() || "<file_name>"
   const middle = zoneLayout ? `${dateFolder}/CREDITREPORT/<Region>` : dateFolder
-  const fullPath = `${base}/${middle}/${file}.xlsx`
+  // Extension is resolved by content at ingest (.xlsx / .xlsm / .xlsb), so copy
+  // the folder + stem rather than a specific extension that may not match.
+  const fullPath = `${base}/${middle}/${file}`
 
   function copyPath() {
     void navigator.clipboard?.writeText(fullPath)
@@ -55,7 +58,7 @@ export function ResolvedPathPreview({
           </>
         )}
         <span className="font-medium text-foreground">{file}</span>
-        <span className="text-muted-foreground">.xlsx</span>
+        <span className="text-muted-foreground">.xlsx / .xlsm / .xlsb</span>
         <button
           type="button"
           onClick={copyPath}

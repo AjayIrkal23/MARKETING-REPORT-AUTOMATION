@@ -65,6 +65,25 @@ renders trailing columns conditionally. The registry of toggleable columns lives
 
 ---
 
+## Settings config forms — file name is a stem, format is auto-detected
+
+The three ingestion scheduler cards (JSW / JVML / Credit Report) share one
+`StockConfigPanel` driven by `config-domains.ts`. The **File name** input stores a
+file *stem only* — no extension. The backend resolves that stem against any Excel
+extension by content, so `.xlsx` / `.xlsm` / `.xlsb` all ingest.
+
+- Do **not** show or require a fixed extension in this UI. The field has no `.xlsx`
+  suffix badge; `ResolvedPathPreview.tsx` renders `<stem>` followed by a muted
+  `.xlsx / .xlsm / .xlsb`, and the copy button copies the folder + stem (the exact
+  extension is resolved at ingest, so a hard-coded one would mislead).
+- The accepted-format copy lives in `config-domains.ts` (`fileNameHint` + the
+  validate error). If the backend's supported extensions change
+  (`backend/app/utils/shared/resolve.py::EXCEL_EXTS`), update this copy to match.
+
+See the cross-layer chain in `PROJECT_LINKAGES.md` → "Report ingestion config".
+
+---
+
 ## Route Page vs Feature Component
 
 The project follows a strict two-layer split enforced by `frontend-structure-standards`.

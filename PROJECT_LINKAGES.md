@@ -48,3 +48,29 @@ checks. On-demand (Generate button) — the pivot+credit join is heavy.
 - **`so_sales_org`** is grouped/sorted on and returned in the payload, but is intentionally not rendered
   in the table nor written to the export. Don't re-add to one without the other.
 - The DTOs in `schemas/report.py` and `types/report/report.ts` are a manual mirror — change them together.
+
+---
+
+## Report ingestion config + format-agnostic parsing (Settings, admin)
+
+The three scheduler config cards (JSW / JVML / Credit) store a base path + a file
+**stem** (no extension). The poller resolves the stem against any Excel extension and
+the parser detects the container by content, so `.xlsx` / `.xlsm` / `.xlsb` all ingest.
+
+| Layer | File | Role |
+|-------|------|------|
+| Settings UI | `frontend/src/components/settings/{StockConfigPanel,ResolvedPathPreview}.tsx`, `config-domains.ts` | File name = stem only; UI shows `.xlsx / .xlsm / .xlsb` auto-detected (no fixed `.xlsx`) |
+| Resolver | `backend/app/utils/shared/resolve.py` | `resolve_report_file(folder, stem)` → xlsx > xlsm > xlsb |
+| Parser | `backend/app/utils/shared/excel.py` | content-detecting `parse_workbook`; OOXML raw-zip + `.xlsb` via pyxlsb |
+| Domain shims | `backend/app/utils/{jsw_stock,jvml_stock,credit_report}/excel.py` | bind the column map → shared parser |
+| Pollers | `backend/app/services/{jsw_stock,jvml_stock}/poller.py`, `credit_report/zone_polling.py` | use the shared resolver |
+| Tests | `backend/tests/test_shared_{excel,resolve}.py` | parser dispatch + resolver priority |
+
+### Change-impact notes
+
+- **Add/drop a supported format** → edit `utils/shared/excel.py` (dispatch) and
+  `resolve.py::EXCEL_EXTS`, then mirror the extension list in the FE copy
+  (`config-domains.ts` hints + `ResolvedPathPreview.tsx`).
+- The settings **File name** field is a *stem* — never show or require a fixed
+  extension in the UI.
+- `.xlsb` is binary (parsed via pyxlsb); `.xls` (OLE2) is intentionally unsupported.

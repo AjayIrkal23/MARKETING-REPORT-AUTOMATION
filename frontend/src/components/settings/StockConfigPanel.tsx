@@ -158,13 +158,10 @@ export function StockConfigPanel({
             </Field>
             <Field data-invalid={Boolean(fieldErrors.file_name) || undefined}>
               <FieldLabel htmlFor={id("file-name")}>File name</FieldLabel>
-              <div className="relative">
-                <Input id={id("file-name")} type="text" placeholder={domain.fileNamePlaceholder} autoComplete="off"
-                  className="pr-12" value={form.file_name} onChange={(e) => patch({ file_name: e.target.value })}
-                  disabled={busy || isLoading} aria-invalid={Boolean(fieldErrors.file_name) || undefined}
-                  aria-describedby={fieldErrors.file_name ? id("file-name-err") : id("file-name-hint")} />
-                <span aria-hidden className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">.xlsx</span>
-              </div>
+              <Input id={id("file-name")} type="text" placeholder={domain.fileNamePlaceholder} autoComplete="off"
+                value={form.file_name} onChange={(e) => patch({ file_name: e.target.value })}
+                disabled={busy || isLoading} aria-invalid={Boolean(fieldErrors.file_name) || undefined}
+                aria-describedby={fieldErrors.file_name ? id("file-name-err") : id("file-name-hint")} />
               {fieldErrors.file_name
                 ? <FieldError id={id("file-name-err")}>{fieldErrors.file_name}</FieldError>
                 : <p id={id("file-name-hint")} className="text-xs text-muted-foreground">{domain.fileNameHint}</p>}
