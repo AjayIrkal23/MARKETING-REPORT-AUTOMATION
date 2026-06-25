@@ -51,6 +51,12 @@ class CustomerCode(Document):
     route:            str | None = None
     """Route code, e.g. ``KAT036``."""
 
+    rake:               Annotated[str | None, Indexed()] = None
+    """RAKE identifier (``RAKE`` column)."""
+
+    transport_mode:     Annotated[str | None, Indexed()] = None
+    """Transport mode (``TRANSPORT MODE`` column)."""
+
     ship_to:          str | None = None
     """Ship-to code (first ``SHIP TO`` column); numeric cells coerced to string on ingest."""
 
@@ -59,12 +65,6 @@ class CustomerCode(Document):
 
     ship_to_city:       str | None = None
     """Ship-to city (``SHIP TO CITY`` column)."""
-
-    rake:               str | None = None
-    """RAKE identifier (``RAKE`` column)."""
-
-    transport_mode:     str | None = None
-    """Transport mode (``TRANSPORT MODE`` column)."""
 
     region_id:        Annotated[str, Indexed()]
     """Foreign key — ObjectId hex string of the parent :class:`~app.models.region.Region`

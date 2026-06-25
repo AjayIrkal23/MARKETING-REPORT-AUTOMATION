@@ -18,7 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 import { useDashboardSummary } from "@/components/dashboard/hooks/useDashboardSummary"
 import { ReportStatusCard } from "@/components/dashboard/ReportStatusCard"
-import { AnalyticsComingSoon } from "@/components/dashboard/AnalyticsComingSoon"
+import { AnalyticsDashboard } from "@/components/analytics/AnalyticsDashboard"
 import { PageLoading } from "@/components/shared/PageLoading"
 
 // ── Loading skeleton card ──────────────────────────────────────────────────────
@@ -112,8 +112,8 @@ export function HomePage() {
         </div>
       )}
 
-      {/* ── Analytics (placeholder) ──────────────────────────────────────── */}
-      <AnalyticsComingSoon />
+      {/* ── Analytics ────────────────────────────────────────────────────── */}
+      <AnalyticsDashboard />
 
     </div>
   )

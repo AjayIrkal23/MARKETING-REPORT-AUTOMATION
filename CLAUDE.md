@@ -241,10 +241,6 @@ Read `CODEX.md` first, then relevant `backend/CLAUDE.md`, `frontend/CLAUDE.md`, 
 - [`frontend_docs/`](frontend_docs/CLAUDE.md)
 - [`macro_docs/`](macro_docs/CLAUDE.md)
 - [`macro_files/`](macro_files/CLAUDE.md)
-  - [`macro_files/20-06-2026/`](macro_files/20-06-2026/CLAUDE.md)
-  - [`macro_files/21-06-2026/`](macro_files/21-06-2026/CLAUDE.md)
-  - [`macro_files/23-06-2026/`](macro_files/23-06-2026/CLAUDE.md)
   - [`macro_files/24-06-2026/`](macro_files/24-06-2026/CLAUDE.md)
     - [`macro_files/24-06-2026/CREDITREPORT/`](macro_files/24-06-2026/CREDITREPORT/CLAUDE.md)
-      - [`macro_files/24-06-2026/CREDITREPORT/WEST CENTRAL/`](macro_files/24-06-2026/CREDITREPORT/WEST CENTRAL/CLAUDE.md)
 <!-- dox:index:end -->

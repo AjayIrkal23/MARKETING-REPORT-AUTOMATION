@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from typing import Annotated
 
 from beanie import Document, Indexed
+from pymongo import IndexModel
 from pydantic import Field
 
 
@@ -111,3 +112,6 @@ class JswStock(Document):
 
     class Settings:
         name = "jsw_stock"
+        indexes = [
+            IndexModel([("report_date", 1), ("customer_code_id", 1)]),
+        ]

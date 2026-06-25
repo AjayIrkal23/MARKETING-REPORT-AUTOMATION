@@ -1,7 +1,7 @@
 {
   "autoManaged": true,
   "version": 2,
-  "fingerprint": "b571f48990f13173",
+  "fingerprint": "50fbba86eef27ef9",
   "documentedDirs": [
     "backend",
     "backend/app",
@@ -139,10 +139,8 @@
     "frontend_docs",
     "macro_docs",
     "macro_files",
-    "macro_files/20-06-2026",
-    "macro_files/21-06-2026",
-    "macro_files/23-06-2026",
-    "macro_files/24-06-2026"
+    "macro_files/24-06-2026",
+    "macro_files/24-06-2026/CREDITREPORT"
   ],
   "missingChildren": []
 }

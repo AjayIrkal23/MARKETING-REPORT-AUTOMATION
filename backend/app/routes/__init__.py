@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from . import (
     admin_user,
+    analytics,
     audit_log,
     auth,
     coil_price,
@@ -37,5 +38,6 @@ api_router.include_router(credit_report.router)
 api_router.include_router(credit_report.config_router)
 api_router.include_router(dashboard.router)
 api_router.include_router(report.router)
+api_router.include_router(analytics.router)
 
 __all__ = ["api_router"]
