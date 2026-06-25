@@ -20,9 +20,13 @@ no API calls live here (those are in `src/api/report/`).
   `report-format.ts` — the single shared module imported by the toolbar, table,
   and hook. Don't duplicate column keys/labels anywhere else. Each optional col
   carries a `side`: `"detail"` (left columns — Transport Mode / Destination /
-  ROUTE) or `"credit"` (trailing columns after the RAKE cols — **Total**, Yes+DO,
-  Blocked, Credit Balance, Required Credit, Credit Note). **9 toggles total; Total
-  is optional too** — only the 5 fixed left cols + dynamic RAKE cols are always shown.
+  ROUTE), `"rake"` (one switch for the whole dynamic RAKE block — key `rake`,
+  label "RAKE columns"), or `"credit"` (trailing columns after the RAKE cols —
+  **Total**, Yes+DO, Blocked, Credit Balance, Required Credit, Credit Note).
+  **10 toggles total; Total and the RAKE block are optional too** — only the 5
+  fixed left cols are always shown. The table reads
+  `const rakeCols = visibleCols.rake ? report.rake_columns : []` and maps that at
+  all 4 sites, so unchecking "RAKE columns" hides the whole block at once.
 - **The Export honours the same toggles.** `useReport.exportReport()` sends the
   visible optional-column keys as a `columns` CSV; the backend (`services/report/
   export.py`) filters the .xlsx to match. Param absent ⇒ all columns; empty ⇒ none.
@@ -38,7 +42,7 @@ no API calls live here (those are in `src/api/report/`).
 | File | Role |
 |------|------|
 | `hooks/useReport.ts` | All page state: 4 inputs (date/type/region/days; `report_type` is `jsw\|jvml\|both`), `generate()`/`exportReport()`, and `visibleCols`/`toggleCol`. **`both` is ONE call** — the backend merges jsw + jvml into a single `data: ReportResponse` (`report_type:"both"`); no client-side fan-out |
-| `ReportToolbar.tsx` | Date · **JSW / JVML / Both** segmented toggle · region combobox · **Columns** dropdown (Detail + Credit groups) · days select · Generate · Export |
+| `ReportToolbar.tsx` | Date · **JSW / JVML / Both** segmented toggle · region combobox · **Columns** dropdown (Detail + RAKE + Credit groups) · days select · Generate · Export |
 | `ReportSection.tsx` | Renders the report block (summary line + no-stock/no-credit states + `ReportPivotTable`). One section always — `both` is a single merged response, so `groupBySoOrg` just switches the table layout (no second table) |
 | `ReportPivotTable.tsx` | The grouped pivot: fixed left cols (repeated parents blanked) + optional Detail cols + dynamic RAKE + Total + optional Credit cols; bounded scroll box with sticky header + grand-total footer. **`groupBySoOrg` prop** (Both mode) prepends an **SO Sales Org** column and subtotals per SO Sales Org instead of Distr.Channel |
 | `report-grouping.ts` | Pure `buildRenderRows(rows, groupBy)` — walks the pre-sorted rows into data rows (with group-first flags) + bottom-of-group subtotals (summing RAKE/Total/Yes+DO/Required Credit). `groupBy` = `"distr_chnl"` (default, single) or `"so_sales_org"` (Both, SO Sales Org leads the blankable chain). No Party Code subtotal — group + grand totals are enough |

@@ -19,3 +19,14 @@ export async function exportReport(params: ReportQueryParams): Promise<void> {
   const filename = `report_${params.report_type}_${params.date}.xlsx`
   await downloadFromFetch(`${BASE_URL}/report/export?${query.toString()}`, filename)
 }
+
+export async function exportRakeTotals(params: Omit<ReportQueryParams, "columns">): Promise<void> {
+  const query = new URLSearchParams()
+  query.set("date", params.date)
+  query.set("report_type", params.report_type)
+  query.set("days", params.days)
+  if (params.region_id) query.set("region_id", params.region_id)
+
+  const filename = `rake_totals_${params.report_type}_${params.date}.xlsx`
+  await downloadFromFetch(`${BASE_URL}/report/export-rake-totals?${query.toString()}`, filename)
+}

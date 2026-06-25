@@ -37,3 +37,11 @@ router.add_api_route(
     methods=["GET"],
     summary="Export the Report JSW/JVML as .xlsx",
 )
+
+# GET /export-rake-totals — download RAKE + transport-mode totals as .xlsx
+router.add_api_route(
+    "/export-rake-totals",
+    ctrl.export_rake_totals_controller,
+    methods=["GET"],
+    summary="Export RAKE totals and transport-mode totals as .xlsx",
+)

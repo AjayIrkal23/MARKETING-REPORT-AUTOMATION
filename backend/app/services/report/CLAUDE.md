@@ -31,7 +31,7 @@ RAKE-column pivot, credit augmentation, and final assembly.
 | `generate.py` | Region → customer codes → pivot → credit → `ReportResponse`. `report_type="both"` runs `_generate_single("jsw")` + `_generate_single("jvml")` and `_merge_reports()` them into one payload (rows re-sorted by `_ROW_SORT_KEYS` → grouped by SO Sales Org; union `rake_columns`; summed grands; concatenated `ccas`) |
 | `pivot.py` | MongoDB `$group` aggregation for the row fields |
 | `credit.py` | Credit-report lookup + required-credit calculation |
-| `export.py` | Export the report as a **grouped** .xlsx pivot — repeated parent cells blanked + per-group subtotal rows + Grand Total (no Party Code subtotal). Single mode groups by Distr.Channel (`{channel} Total`); **`both` leads with an SO Sales Org column and groups by SO Sales Org (`{org} Total`)** via a `group_by_so` branch threaded through the helpers. Honours the `ReportQuery.columns` CSV filter (3 detail + 6 trailing incl. **Total**); the fixed cols + RAKE are always written. `columns=None` ⇒ all; `""` ⇒ none |
+| `export.py` | Export the report as a **grouped** .xlsx pivot — repeated parent cells blanked + per-group subtotal rows + Grand Total (no Party Code subtotal). Single mode groups by Distr.Channel (`{channel} Total`); **`both` leads with an SO Sales Org column and groups by SO Sales Org (`{org} Total`)** via a `group_by_so` branch threaded through the helpers. Honours the `ReportQuery.columns` CSV filter (3 detail + the **`rake`** block + 6 trailing incl. **Total**); only the fixed cols are always written. The whole dynamic RAKE block shares one `"rake"` key in `_kept_indices` — absent from `columns` ⇒ the block is dropped. `columns=None` ⇒ all; `""` ⇒ none |
 
 ## Gotchas / fragile spots
 
