@@ -219,9 +219,9 @@ def _build_pivot_rows(
     return pivot_rows
 
 
-async def generate_report(query: ReportQuery) -> ReportResponse:
-    """Build the full RAKE-pivot Report JSW/JVML payload for *query*."""
-    stock_model, ccas = _REPORT_MAP[query.report_type]
+async def _generate_single(report_type: str, query: ReportQuery) -> ReportResponse:
+    """Build the RAKE-pivot payload for one stock model (``jsw`` or ``jvml``)."""
+    stock_model, ccas = _REPORT_MAP[report_type]
 
     region_name, normalized_codes, customer_map, rake_columns = await _resolve_region_customers(
         query.region_id
@@ -247,7 +247,7 @@ async def generate_report(query: ReportQuery) -> ReportResponse:
     ]
     return ReportResponse(
         date=query.date,
-        report_type=query.report_type,
+        report_type=report_type,
         region_id=query.region_id,
         region_name=region_name,
         days_filter=query.days,
@@ -261,3 +261,48 @@ async def generate_report(query: ReportQuery) -> ReportResponse:
         grand_nco_yes_do=sum(r.nco_yes_do for r in pivot_rows),
         grand_required_credit=sum(grand_req) if grand_req else None,
     )
+
+
+def _merge_reports(query: ReportQuery, parts: list[ReportResponse]) -> ReportResponse:
+    """Merge per-type reports into one ``report_type="both"`` payload.
+
+    Rows from every part are concatenated and re-sorted by the full hierarchy
+    tuple (which starts with ``so_sales_org``), so the frontend/export group by
+    SO Sales Org over the contiguous result. Each row keeps its own already-
+    computed credit columns and RAKE quantities; ``rake_columns`` is the union.
+    """
+    rows: list[ReportPivotRow] = [r for p in parts for r in p.rows]
+    rows.sort(key=lambda r: tuple((getattr(r, k) or "").lower() for k in _ROW_SORT_KEYS))
+    rake_columns = sorted({c for p in parts for c in p.rake_columns})
+    grand_req = [r.required_credit for r in rows if r.required_credit is not None]
+    coil = next((p.coil_price_per_qty for p in parts if p.coil_price_per_qty is not None), None)
+
+    return ReportResponse(
+        date=query.date,
+        report_type="both",
+        region_id=query.region_id,
+        region_name=parts[0].region_name,
+        days_filter=query.days,
+        ccas=[c for p in parts for c in p.ccas],
+        has_stock=any(p.has_stock for p in parts),
+        has_credit_report=all(p.has_credit_report for p in parts),
+        coil_price_per_qty=coil,
+        rake_columns=rake_columns,
+        rows=rows,
+        grand_total=sum(r.total for r in rows),
+        grand_nco_yes_do=sum(r.nco_yes_do for r in rows),
+        grand_required_credit=sum(grand_req) if grand_req else None,
+    )
+
+
+async def generate_report(query: ReportQuery) -> ReportResponse:
+    """Build the RAKE-pivot Report JSW/JVML payload for *query*.
+
+    ``report_type="both"`` runs jsw + jvml and merges them into one response
+    grouped by SO Sales Org; a single type returns that type's report directly.
+    """
+    if query.report_type == "both":
+        jsw = await _generate_single("jsw", query)
+        jvml = await _generate_single("jvml", query)
+        return _merge_reports(query, [jsw, jvml])
+    return await _generate_single(query.report_type, query)

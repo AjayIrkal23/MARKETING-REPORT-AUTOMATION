@@ -6,14 +6,13 @@
  * → ReportPivotTable. All state lives in `useReport`.
  */
 
-import { FileSpreadsheet, AlertCircle, Info, FileX2, Loader2Icon } from "lucide-react"
+import { FileSpreadsheet, AlertCircle, Loader2Icon } from "lucide-react"
 
 import { Separator } from "@/components/ui/separator"
 
 import { useReport } from "@/components/report/hooks/useReport"
 import { ReportToolbar } from "@/components/report/ReportToolbar"
-import { ReportPivotTable } from "@/components/report/ReportPivotTable"
-import { fmtINR } from "@/components/report/report-format"
+import { ReportSection } from "@/components/report/ReportSection"
 
 export function ReportPage() {
   const {
@@ -76,34 +75,12 @@ export function ReportPage() {
         <p className="py-12 text-center text-sm text-muted-foreground">
           Choose a date, report type, region, and aging filter, then press <strong>Generate</strong>.
         </p>
-      ) : !data.has_stock ? (
-        <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-16 text-muted-foreground">
-          <FileX2 className="size-8 opacity-50" aria-hidden />
-          <p className="text-sm font-medium text-foreground">No stock excel for this date selected</p>
-          <p className="text-xs">
-            No {data.report_type.toUpperCase()} stock report was ingested for {data.date}.
-          </p>
-        </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          {/* Summary line */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-            <span><strong className="text-foreground">{data.report_type.toUpperCase()}</strong> · {data.date}</span>
-            <span>Region: <strong className="text-foreground">{data.region_name}</strong></span>
-            <span>CCA: <strong className="text-foreground">{data.ccas.join(", ")}</strong></span>
-            <span>Coil price/qty: <strong className="text-foreground">{fmtINR(data.coil_price_per_qty)}</strong></span>
-          </div>
-
-          {/* No-credit banner */}
-          {!data.has_credit_report && (
-            <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-400">
-              <Info className="size-4 shrink-0" aria-hidden />
-              No credit report was ingested for {data.date} — credit columns show "NO CREDIT REPORT FOUND".
-            </div>
-          )}
-
-          <ReportPivotTable report={data} visibleCols={visibleCols} />
-        </div>
+        <ReportSection
+          report={data}
+          visibleCols={visibleCols}
+          groupBySoOrg={data.report_type === "both"}
+        />
       )}
     </div>
   )

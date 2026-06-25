@@ -39,6 +39,11 @@ import {
   type TrailingKey,
 } from "./report-cells"
 
+// Prepended in Both mode (groupBySoOrg) so rows are visually divided by SO Sales Org.
+const SO_ORG_COL: { key: FixedColKey; label: string; className: string } = {
+  key: "so_sales_org", label: "SO Sales Org", className: "min-w-[110px]",
+}
+
 const FIXED_COLS: { key: FixedColKey; label: string; className: string }[] = [
   { key: "distr_chnl", label: "Distr. Channel", className: "min-w-[110px]" },
   { key: "sold_to_party", label: "Sold To Party", className: "min-w-[160px]" },
@@ -58,6 +63,8 @@ const TH_STICKY = "sticky top-0 z-20 whitespace-nowrap bg-background"
 function fixedBodyCell(key: FixedColKey, row: ReportPivotRow, blanked: boolean) {
   if (blanked) return <TableCell />
   switch (key) {
+    case "so_sales_org":
+      return <TableCell className="text-xs font-medium text-foreground">{row.so_sales_org ?? "—"}</TableCell>
     case "distr_chnl":
       return <TableCell className="text-xs text-foreground">{row.distr_chnl ?? "—"}</TableCell>
     case "sold_to_party":
@@ -87,9 +94,12 @@ function rakeAggCell(col: string, agg: ReportAgg) {
 export function ReportPivotTable({
   report,
   visibleCols,
+  groupBySoOrg = false,
 }: {
   report: ReportResponse
   visibleCols: ReportColVisibility
+  /** Both mode: lead with an SO Sales Org column and subtotal per SO Sales Org. */
+  groupBySoOrg?: boolean
 }) {
   if (report.rows.length === 0) {
     return (
@@ -109,7 +119,8 @@ export function ReportPivotTable({
   const trailingKeys: TrailingKey[] = REPORT_OPTIONAL_COLS
     .filter((c) => c.side === "credit" && visibleCols[c.key])
     .map((c) => c.key as TrailingKey)
-  const leftColSpan = FIXED_COLS.length + detailKeys.length
+  const fixedCols = groupBySoOrg ? [SO_ORG_COL, ...FIXED_COLS] : FIXED_COLS
+  const leftColSpan = fixedCols.length + detailKeys.length
   const grandAgg: ReportAgg = {
     rake_quantities: {},
     total: report.grand_total,
@@ -117,13 +128,13 @@ export function ReportPivotTable({
     required_credit: report.grand_required_credit,
   }
 
-  const renderRows = buildRenderRows(report.rows)
+  const renderRows = buildRenderRows(report.rows, groupBySoOrg ? "so_sales_org" : "distr_chnl")
 
   return (
     <Table containerClassName="max-h-[calc(100vh-17rem)] overflow-auto rounded-lg border">
       <TableHeader>
         <TableRow>
-          {FIXED_COLS.map((h) => (
+          {fixedCols.map((h) => (
             <TableHead key={h.key} className={cn(TH_STICKY, h.className)}>{h.label}</TableHead>
           ))}
           {detailKeys.map((k) => (
@@ -150,7 +161,7 @@ export function ReportPivotTable({
             </TableRow>
           ) : (
             <TableRow key={`row-${idx}-${rr.row.party_code}`}>
-              {FIXED_COLS.map((h) => (
+              {fixedCols.map((h) => (
                 <Fragment key={h.key}>{fixedBodyCell(h.key, rr.row, rr.blank[h.key])}</Fragment>
               ))}
               {detailKeys.map((k) => (

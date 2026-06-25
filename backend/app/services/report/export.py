@@ -72,9 +72,11 @@ _INR_HEADERS = {"Credit Balance", "Required Credit"}
 _CENTER_HEADERS = {"Blocked", "Credit Note"}
 
 
-def _kept_indices(rake_n: int, visible: set[str] | None) -> list[int]:
+def _kept_indices(
+    rake_n: int, visible: set[str] | None, fixed_opt_keys: list[str | None]
+) -> list[int]:
     """Column indices to keep. visible=None ⇒ all columns; else always-on + visible keys."""
-    keys = _FIXED_OPT_KEYS + [None] * rake_n + _TRAILING_OPT_KEYS
+    keys = fixed_opt_keys + [None] * rake_n + _TRAILING_OPT_KEYS
     if visible is None:
         return list(range(len(keys)))
     return [i for i, k in enumerate(keys) if k is None or k in visible]
@@ -113,16 +115,18 @@ def _fmt_num(value: float | None) -> float | str:
 _BLANK_KEYS = ("distr_chnl", "sold_to_party", "sales_office", "party_code", "ship_to_party")
 
 
-def _group_key(row: Any) -> tuple[str, str]:
-    """Channel-group identity: SO Sales Org + Distr.Chnl (a label can recur across orgs)."""
+def _group_key(row: Any, group_by_so: bool) -> tuple[str, ...]:
+    """Group identity. Both mode: SO Sales Org alone; else SO Sales Org + Distr.Chnl."""
+    if group_by_so:
+        return (row.so_sales_org or "",)
     return (row.so_sales_org or "", row.distr_chnl or "")
 
 
-def _blank_flags(row: Any, prev: Any | None) -> dict[str, bool]:
+def _blank_flags(row: Any, prev: Any | None, keys: tuple[str, ...]) -> dict[str, bool]:
     """Blank a leading fixed cell while the whole parent chain above also matches."""
     flags: dict[str, bool] = {}
     parent_same = prev is not None
-    for key in _BLANK_KEYS:
+    for key in keys:
         same = parent_same and prev is not None and getattr(prev, key) == getattr(row, key)
         flags[key] = same
         parent_same = same
@@ -142,9 +146,15 @@ def _add_to_agg(agg: dict[str, Any], row: Any) -> None:
         agg["required_credit"] = (agg["required_credit"] or 0.0) + row.required_credit
 
 
-def _fixed_cells(row: Any, flags: dict[str, bool]) -> list[Any]:
-    """The 8 fixed/detail cells; blanked parents render empty, detail cols always show."""
-    return [
+def _fixed_cells(row: Any, flags: dict[str, bool], group_by_so: bool) -> list[Any]:
+    """The fixed/detail cells; blanked parents render empty, detail cols always show.
+
+    Both mode prepends an SO Sales Org cell (also blanked while it repeats).
+    """
+    cells: list[Any] = []
+    if group_by_so:
+        cells.append("" if flags["so_sales_org"] else (row.so_sales_org or ""))
+    cells += [
         "" if flags["distr_chnl"] else (row.distr_chnl or ""),
         "" if flags["sold_to_party"] else (row.sold_to_party or ""),
         "" if flags["sales_office"] else (row.sales_office or ""),
@@ -154,17 +164,23 @@ def _fixed_cells(row: Any, flags: dict[str, bool]) -> list[Any]:
         row.destination or "",
         row.route or "",
     ]
+    return cells
 
 
 def _append_subtotal(
     ws,
     report: ReportResponse,
     agg: dict[str, Any],
-    channel: str | None,
+    label: str | None,
     kept: list[int],
+    fixed_n: int,
 ) -> None:
-    """Per-channel '{channel} Total' row: label in Distr.Channel col; RAKE/Total/Yes+DO/Required summed."""
-    sub: list[Any] = [f"{channel or '—'} Total"] + [""] * (len(_FIXED_HEADERS) - 1)
+    """Group subtotal row: '{label} Total' in the first fixed col; RAKE/Total/Yes+DO/Required summed.
+
+    *label* is the Distr.Channel (single mode) or SO Sales Org (Both mode);
+    *fixed_n* is the number of leading fixed/detail columns to pad past.
+    """
+    sub: list[Any] = [f"{label or '—'} Total"] + [""] * (fixed_n - 1)
     sub += [agg["rake"].get(col, 0.0) or "" for col in report.rake_columns]
     sub += [
         _fmt_num(agg["total"]),
@@ -179,20 +195,32 @@ def _append_subtotal(
 
 def _write_report(
     ws, report: ReportResponse, visible: set[str] | None
-) -> tuple[list[str], list[str]]:
+) -> tuple[list[str], list[str], int]:
     """Write the grouped pivot to *ws*: title banner + header + data rows (repeated
-    parents blanked) + per-group Distr.Channel subtotal rows + a Grand Total.
+    parents blanked) + per-group subtotal rows + a Grand Total.
 
-    Returns the final list of header labels and the active RAKE column names so
-    the styling pass knows which columns to format.
+    Single mode groups by Distr.Channel; Both mode (``report_type="both"``) leads
+    with an SO Sales Org column and groups by SO Sales Org. Returns the final
+    header labels, the active RAKE column names, and the leading fixed-column
+    count (for the styling pass).
     """
-    kept = _kept_indices(len(report.rake_columns), visible)
-    headers = _FIXED_HEADERS + report.rake_columns + _TRAILING_HEADERS
+    group_by_so = report.report_type == "both"
+    fixed_headers = (["SO Sales Org", *_FIXED_HEADERS]) if group_by_so else _FIXED_HEADERS
+    fixed_opt_keys = ([None, *_FIXED_OPT_KEYS]) if group_by_so else _FIXED_OPT_KEYS
+    fixed_col_count = _FIXED_COL_COUNT + 1 if group_by_so else _FIXED_COL_COUNT
+    blank_keys = ("so_sales_org", *_BLANK_KEYS) if group_by_so else _BLANK_KEYS
+    fixed_n = len(fixed_headers)
+
+    kept = _kept_indices(len(report.rake_columns), visible, fixed_opt_keys)
+    headers = fixed_headers + report.rake_columns + _TRAILING_HEADERS
     filtered_headers = _sel(headers, kept)
     n_cols = len(filtered_headers)
 
     # Title banner occupies rows 1-2; the table starts at row 3.
-    report_label = "JSW" if report.report_type.lower() == "jsw" else "JVML"
+    if group_by_so:
+        report_label = "JSW + JVML"
+    else:
+        report_label = "JSW" if report.report_type.lower() == "jsw" else "JVML"
     title = f"{report_label} Coil Stock Report"
     subtitle = (
         f"Report Date: {report.date}  |  Region: {report.region_name}  |  "
@@ -208,13 +236,14 @@ def _write_report(
     agg = _empty_agg()
 
     for row in report.rows:
-        if prev is not None and _group_key(prev) != _group_key(row):
-            _append_subtotal(ws, report, agg, prev.distr_chnl, kept)
+        if prev is not None and _group_key(prev, group_by_so) != _group_key(row, group_by_so):
+            label = prev.so_sales_org if group_by_so else prev.distr_chnl
+            _append_subtotal(ws, report, agg, label, kept, fixed_n)
             agg = _empty_agg()
             prev = None  # new group → show the full parent chain again
 
         full = (
-            _fixed_cells(row, _blank_flags(row, prev))
+            _fixed_cells(row, _blank_flags(row, prev, blank_keys), group_by_so)
             + [row.rake_quantities.get(col, 0.0) or "" for col in report.rake_columns]
             + [
                 _fmt_num(row.total),
@@ -230,10 +259,11 @@ def _write_report(
         prev = row
 
     if prev is not None:
-        _append_subtotal(ws, report, agg, prev.distr_chnl, kept)
+        label = prev.so_sales_org if group_by_so else prev.distr_chnl
+        _append_subtotal(ws, report, agg, label, kept, fixed_n)
 
     # Grand total row (credit money is intentionally NOT summed).
-    total_row: list[Any] = ["Grand Total"] + [""] * (len(_FIXED_HEADERS) - 1)
+    total_row: list[Any] = ["Grand Total"] + [""] * (fixed_n - 1)
     total_row += [""] * len(report.rake_columns)
     total_row += [
         _fmt_num(report.grand_total),
@@ -245,7 +275,7 @@ def _write_report(
     ]
     ws.append(_sel(total_row, kept))
 
-    return filtered_headers, report.rake_columns
+    return filtered_headers, report.rake_columns, fixed_col_count
 
 
 def _apply_column_formats(
@@ -284,7 +314,9 @@ def _apply_column_formats(
         cell.alignment = ALIGN_LEFT
 
 
-def _style_report(ws: Worksheet, headers: list[str], rake_columns: list[str]) -> None:
+def _style_report(
+    ws: Worksheet, headers: list[str], rake_columns: list[str], fixed_col_count: int
+) -> None:
     """Apply premium styling to the worksheet after all data has been written."""
     n_cols = len(headers)
     header_row = 3
@@ -298,11 +330,11 @@ def _style_report(ws: Worksheet, headers: list[str], rake_columns: list[str]) ->
         first_val = ws.cell(row=row_idx, column=1).value
 
         if first_val == "Grand Total":
-            style_grand_total_row(ws, row_idx, n_cols, _FIXED_COL_COUNT)
+            style_grand_total_row(ws, row_idx, n_cols, fixed_col_count)
             continue
 
         if isinstance(first_val, str) and first_val.endswith(" Total"):
-            style_subtotal_row(ws, row_idx, n_cols, _FIXED_COL_COUNT)
+            style_subtotal_row(ws, row_idx, n_cols, fixed_col_count)
             group_idx += 1
             continue
 
@@ -343,8 +375,8 @@ async def export_report(query: ReportQuery) -> bytes:
     ws = wb.active
     ws.title = "Report"
 
-    headers, rake_columns = _write_report(ws, report, visible)
-    _style_report(ws, headers, rake_columns)
+    headers, rake_columns, fixed_col_count = _write_report(ws, report, visible)
+    _style_report(ws, headers, rake_columns, fixed_col_count)
     setup_print_page(ws, ws.title)
 
     add_premium_metadata_sheet(

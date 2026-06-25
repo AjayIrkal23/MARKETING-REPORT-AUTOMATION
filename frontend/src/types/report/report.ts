@@ -7,6 +7,8 @@
  */
 
 export type ReportType = "jsw" | "jvml"
+/** Toolbar selection — `both` fans out to two API calls (jsw + jvml), grouped by SO Sales Org. */
+export type ReportTypeSelection = ReportType | "both"
 // QA-hold aging day-filter ("aged QA-hold" = in_quality_insp > 0 AND round(aging) > 2):
 //   include = all stock · exclude = all EXCEPT aged QA-hold · only = ONLY aged QA-hold
 export type DaysFilter = "include" | "exclude" | "only"
@@ -38,7 +40,7 @@ export interface ReportPivotRow {
 /** Full report payload (the `data` inside the success envelope). */
 export interface ReportResponse {
   date: string
-  report_type: ReportType
+  report_type: ReportTypeSelection  // "both" ⇒ merged jsw + jvml, grouped by SO Sales Org
   region_id: string | null
   region_name: string
   days_filter: DaysFilter
@@ -56,7 +58,7 @@ export interface ReportResponse {
 /** Query params for GET /report/generate + /report/export (date is "dd-MM-yyyy"). */
 export interface ReportQueryParams {
   date: string
-  report_type: ReportType
+  report_type: ReportTypeSelection  // "both" ⇒ one merged call (jsw + jvml)
   region_id?: string
   days: DaysFilter
   columns?: string                  // export only: CSV of visible optional-column keys

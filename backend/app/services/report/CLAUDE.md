@@ -28,10 +28,10 @@ RAKE-column pivot, credit augmentation, and final assembly.
 
 | File | Role |
 |------|------|
-| `generate.py` | Region → customer codes → pivot → credit → `ReportResponse` |
+| `generate.py` | Region → customer codes → pivot → credit → `ReportResponse`. `report_type="both"` runs `_generate_single("jsw")` + `_generate_single("jvml")` and `_merge_reports()` them into one payload (rows re-sorted by `_ROW_SORT_KEYS` → grouped by SO Sales Org; union `rake_columns`; summed grands; concatenated `ccas`) |
 | `pivot.py` | MongoDB `$group` aggregation for the row fields |
 | `credit.py` | Credit-report lookup + required-credit calculation |
-| `export.py` | Export the report as a **grouped** .xlsx pivot — repeated parent cells blanked + per-group Distr.Channel (`{channel} Total`) subtotal rows + Grand Total (no Party Code subtotal). Honours the `ReportQuery.columns` CSV filter (visible optional-column keys: 3 detail + 6 trailing incl. **Total**); only the 5 fixed cols + RAKE are always written. `columns=None` ⇒ all; `""` ⇒ none |
+| `export.py` | Export the report as a **grouped** .xlsx pivot — repeated parent cells blanked + per-group subtotal rows + Grand Total (no Party Code subtotal). Single mode groups by Distr.Channel (`{channel} Total`); **`both` leads with an SO Sales Org column and groups by SO Sales Org (`{org} Total`)** via a `group_by_so` branch threaded through the helpers. Honours the `ReportQuery.columns` CSV filter (3 detail + 6 trailing incl. **Total**); the fixed cols + RAKE are always written. `columns=None` ⇒ all; `""` ⇒ none |
 
 ## Gotchas / fragile spots
 
@@ -53,10 +53,19 @@ RAKE-column pivot, credit augmentation, and final assembly.
   `rake_quantities` to the survivors — so `rake_columns` is already trimmed and
   the table/export/payload only carry RAKEs that actually moved stock. This is a
   business view rule, so it lives in the service, not the client.
-- **`so_sales_org` is grouped/sorted on but not exported.** The aggregation still
-  groups by `so_sales_org` and returns it per row, but it is intentionally **not**
-  a column in `export.py` (`_FIXED_HEADERS`) nor in the frontend table. Don't add
-  it back to the export headers without also adding the row value.
+- **`so_sales_org` column: hidden in single mode, shown in `both`.** Single
+  jsw/jvml groups/sorts by `so_sales_org` but does **not** render it (not in
+  `_FIXED_HEADERS`, not in the frontend table). `report_type="both"` prepends it as
+  the leading column AND uses it as the group key (`group_by_so`), in both the
+  export and the frontend table. If you add it to single-mode headers, add the row
+  value too.
+- **`both` merge invariants** (`generate.py::_merge_reports`): rows keep each
+  sub-report's own credit columns + RAKE quantities; `rake_columns` is the sorted
+  union (a row missing the other report's RAKE renders "—"/blank, sums stay
+  per-column correct); `has_credit_report = all(parts)` (so the banner over-warns if
+  only one type lacks a credit report — rows are still per-type accurate);
+  `coil_price_per_qty` is shared. Re-sort by `_ROW_SORT_KEYS` keeps SO-org groups
+  contiguous for both the export walker and the client walker.
 
 ## Up / down
 

@@ -1,7 +1,7 @@
 {
   "autoManaged": true,
   "version": 2,
-  "fingerprint": "50fbba86eef27ef9",
+  "fingerprint": "aaf569f1f9b288eb",
   "documentedDirs": [
     "backend",
     "backend/app",
@@ -14,6 +14,7 @@
     "backend/app/scripts",
     "backend/app/services",
     "backend/app/services/admin_user",
+    "backend/app/services/analytics",
     "backend/app/services/audit",
     "backend/app/services/audit_log",
     "backend/app/services/auth",
@@ -53,6 +54,7 @@
     "frontend/src/api/admin/customer-codes",
     "frontend/src/api/admin/regions",
     "frontend/src/api/admin/users",
+    "frontend/src/api/analytics",
     "frontend/src/api/auth",
     "frontend/src/api/auth/setup",
     "frontend/src/api/credit-report",
@@ -79,6 +81,9 @@
     "frontend/src/components/admin/regions/hooks",
     "frontend/src/components/admin/users",
     "frontend/src/components/admin/users/hooks",
+    "frontend/src/components/analytics",
+    "frontend/src/components/analytics/charts",
+    "frontend/src/components/analytics/hooks",
     "frontend/src/components/auth",
     "frontend/src/components/auth/hooks",
     "frontend/src/components/auth/login",
@@ -125,6 +130,7 @@
     "frontend/src/styles",
     "frontend/src/types",
     "frontend/src/types/admin",
+    "frontend/src/types/analytics",
     "frontend/src/types/api",
     "frontend/src/types/auth",
     "frontend/src/types/credit-report",
@@ -138,9 +144,7 @@
     "frontend/src/types/user",
     "frontend_docs",
     "macro_docs",
-    "macro_files",
-    "macro_files/24-06-2026",
-    "macro_files/24-06-2026/CREDITREPORT"
+    "macro_files"
   ],
   "missingChildren": []
 }

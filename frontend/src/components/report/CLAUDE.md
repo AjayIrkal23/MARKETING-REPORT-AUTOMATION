@@ -37,17 +37,22 @@ no API calls live here (those are in `src/api/report/`).
 
 | File | Role |
 |------|------|
-| `hooks/useReport.ts` | All page state: 4 inputs (date/type/region/days), `generate()`/`exportReport()`, and `visibleCols`/`toggleCol` for optional columns |
-| `ReportToolbar.tsx` | Date · JSW/JVML toggle · region combobox · **Columns** dropdown (Detail + Credit groups) · days select · Generate · Export |
-| `ReportPivotTable.tsx` | The grouped pivot: fixed left cols (repeated parents blanked) + optional Detail cols + dynamic RAKE + Total + optional Credit cols; per-group Distr.Channel subtotal rows; bounded scroll box with sticky header + sticky grand-total footer |
-| `report-grouping.ts` | Pure `buildRenderRows(rows)` — walks the pre-sorted rows into data rows (with group-first flags) + bottom-of-group **Distr.Channel** subtotals (summing RAKE/Total/Yes+DO/Required Credit). No Party Code subtotal — channel + grand totals are enough |
+| `hooks/useReport.ts` | All page state: 4 inputs (date/type/region/days; `report_type` is `jsw\|jvml\|both`), `generate()`/`exportReport()`, and `visibleCols`/`toggleCol`. **`both` is ONE call** — the backend merges jsw + jvml into a single `data: ReportResponse` (`report_type:"both"`); no client-side fan-out |
+| `ReportToolbar.tsx` | Date · **JSW / JVML / Both** segmented toggle · region combobox · **Columns** dropdown (Detail + Credit groups) · days select · Generate · Export |
+| `ReportSection.tsx` | Renders the report block (summary line + no-stock/no-credit states + `ReportPivotTable`). One section always — `both` is a single merged response, so `groupBySoOrg` just switches the table layout (no second table) |
+| `ReportPivotTable.tsx` | The grouped pivot: fixed left cols (repeated parents blanked) + optional Detail cols + dynamic RAKE + Total + optional Credit cols; bounded scroll box with sticky header + grand-total footer. **`groupBySoOrg` prop** (Both mode) prepends an **SO Sales Org** column and subtotals per SO Sales Org instead of Distr.Channel |
+| `report-grouping.ts` | Pure `buildRenderRows(rows, groupBy)` — walks the pre-sorted rows into data rows (with group-first flags) + bottom-of-group subtotals (summing RAKE/Total/Yes+DO/Required Credit). `groupBy` = `"distr_chnl"` (default, single) or `"so_sales_org"` (Both, SO Sales Org leads the blankable chain). No Party Code subtotal — group + grand totals are enough |
 | `report-cells.tsx` | Trailing credit/total cell builders (`trailingBodyCell`, `aggTrailingCell`, `TRAILING_META`) — split out to keep the table ≤250 lines |
 | `report-format.ts` | INR/qty formatters, sign colouring, and the side-aware optional-column registry/types |
 
 ## Gotchas / fragile spots
 
-- **SO Sales Org is not shown** here (it is still in the API payload, used for
-  backend grouping/sort). Don't re-add it to the table without a reason.
+- **SO Sales Org is shown only in Both mode** (`groupBySoOrg`) — single JSW/JVML
+  hides it (used only for backend grouping/sort) and subtotals by Distr.Channel.
+  **Both is ONE merged table** (the backend joins jsw + jvml in `generate_report`
+  and returns `report_type:"both"`), grouped/subtotaled by SO Sales Org — JSW orgs
+  and JVML orgs differ, so they naturally fall into separate SO-Org groups in the
+  same table. Don't add SO Sales Org to the single-mode table without a reason.
 - **RAKE columns come pre-filtered from the backend** (`rake_columns` already
   excludes all-zero RAKEs). Render columns from `report.rake_columns`, never a
   hard-coded list, and read values from `row.rake_quantities[col]`.

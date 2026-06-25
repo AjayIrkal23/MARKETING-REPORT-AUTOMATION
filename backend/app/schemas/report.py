@@ -19,6 +19,9 @@ from typing import Literal
 #   jsw  → jsw_stock  + CCAs ["VJ0H", "1000"]
 #   jvml → jvml_stock + CCA ["JV0H"]
 ReportType = Literal["jsw", "jvml"]
+# Toolbar/query selection. "both" merges jsw + jvml into one response, grouped by
+# SO Sales Org (each stock model is still queried as its own ReportType internally).
+ReportTypeSelection = Literal["jsw", "jvml", "both"]
 
 # QA-hold aging day-filter, defined around "aged QA-hold" stock =
 # in_quality_insp > 0 AND round(aging) > 2 (aging rounded to whole days, 2.4→2,
@@ -36,7 +39,7 @@ class ReportQuery(BaseModel):
     """Query params for ``GET /report/generate`` (used via FastAPI ``Depends()``)."""
 
     date: str = Field(pattern=r"^\d{2}-\d{2}-\d{4}$")
-    report_type: ReportType
+    report_type: ReportTypeSelection
     region_id: str | None = Field(default=None, max_length=64)
     days: DaysFilter = "include"
     # Export only: CSV of visible optional-column keys (e.g. "total,route,blocked").
@@ -72,7 +75,7 @@ class ReportResponse(BaseModel):
     """Full report payload — the ``data`` inside the success envelope."""
 
     date: str
-    report_type: ReportType
+    report_type: ReportTypeSelection  # "both" ⇒ merged jsw + jvml, grouped by SO Sales Org
     region_id: str | None
     region_name: str               # resolved name, or "All Regions"
     days_filter: DaysFilter

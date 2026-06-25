@@ -357,3 +357,56 @@ def test_export_pivot_view() -> None:
     # At least one detail row is grouped (outline level 1); subtotal/grand stay 0.
     levels = {ws.row_dimensions[r].outline_level for r in range(4, ws.max_row + 1)}
     assert 1 in levels
+
+
+def test_merge_reports_groups_by_so_org() -> None:
+    """`both` merges jsw + jvml: rows sorted by SO Sales Org, union RAKE cols, summed grands."""
+    from app.services.report.generate import _merge_reports
+
+    jsw = _fake_report()  # org 1001, ccas [VJ0H, 1000]
+    jsw.rows = [_mk_row(channel="OEM", party="40000001", total=10.0, org="1001")]
+    jsw.rake_columns = ["KKU"]
+    jsw.grand_total = 10.0
+
+    jvml = _fake_report()
+    jvml.report_type = "jvml"
+    jvml.ccas = ["JV0H"]
+    jvml_row = _mk_row(channel="OEM", party="40000099", total=7.0, org="1060")
+    jvml_row.rake_quantities = {"CWCJ": 7.0}
+    jvml.rows = [jvml_row]
+    jvml.rake_columns = ["CWCJ"]
+    jvml.grand_total = 7.0
+
+    merged = _merge_reports(ReportQuery(date="23-06-2026", report_type="both"), [jsw, jvml])
+
+    assert merged.report_type == "both"
+    assert merged.rake_columns == ["CWCJ", "KKU"]  # sorted union of both reports
+    assert [r.so_sales_org for r in merged.rows] == ["1001", "1060"]  # grouped by SO org
+    assert merged.ccas == ["VJ0H", "1000", "JV0H"]
+    assert merged.grand_total == 17.0
+    assert merged.has_credit_report is True
+
+
+def test_export_both_leads_with_so_org_column_and_subtotals() -> None:
+    """`both` export: SO Sales Org is the first column with a per-SO-org subtotal row."""
+    report = _fake_report()
+    report.report_type = "both"
+    report.rows = [
+        _mk_row(channel="OEM", party="40000001", total=10.0, org="1001"),
+        _mk_row(channel="OEM", party="40000099", total=7.0, org="1060"),
+    ]
+    report.rake_columns = ["KKU"]
+    report.grand_total = 17.0
+    report.grand_required_credit = 17.0
+
+    with patch(
+        "app.services.report.export.generate_report",
+        new=AsyncMock(return_value=report),
+    ):
+        data = asyncio.run(export_report(ReportQuery(date="23-06-2026", report_type="both")))
+
+    ws = load_workbook(io.BytesIO(data))["Report"]
+    assert [c.value for c in ws[3]][0] == "SO Sales Org"  # header row 3, first col
+    first_col = [ws.cell(row=r, column=1).value for r in range(4, ws.max_row + 1)]
+    assert "1001 Total" in first_col
+    assert "1060 Total" in first_col

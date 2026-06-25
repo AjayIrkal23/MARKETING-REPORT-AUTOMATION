@@ -20,12 +20,12 @@ import {
 import type {
   DaysFilter,
   ReportResponse,
-  ReportType,
+  ReportTypeSelection,
 } from "@/types/report/report"
 
 export interface ReportInputs {
   date: string | null            // "dd-MM-yyyy"
-  report_type: ReportType
+  report_type: ReportTypeSelection
   region_id: string | null
   days: DaysFilter
 }
@@ -33,9 +33,10 @@ export interface ReportInputs {
 export interface UseReportResult {
   inputs: ReportInputs
   setDate: (date: string | null) => void
-  setReportType: (t: ReportType) => void
+  setReportType: (t: ReportTypeSelection) => void
   setRegionId: (id: string | null) => void
   setDays: (d: DaysFilter) => void
+  /** The report payload; for "both" the backend merges jsw + jvml into one. null until generated. */
   data: ReportResponse | null
   loading: boolean
   exporting: boolean
@@ -70,20 +71,22 @@ export function useReport(): UseReportResult {
   )
 
   const setDate = useCallback((date: string | null) => setInputs((p) => ({ ...p, date })), [])
-  const setReportType = useCallback((report_type: ReportType) => setInputs((p) => ({ ...p, report_type })), [])
+  const setReportType = useCallback((report_type: ReportTypeSelection) => setInputs((p) => ({ ...p, report_type })), [])
   const setRegionId = useCallback((region_id: string | null) => setInputs((p) => ({ ...p, region_id })), [])
   const setDays = useCallback((days: DaysFilter) => setInputs((p) => ({ ...p, days })), [])
 
   const generate = useCallback(() => {
-    if (!inputs.date) {
+    const date = inputs.date
+    if (!date) {
       setError("Select a date first.")
       return
     }
     const id = ++fetchIdRef.current
     setLoading(true)
     setError(null)
+    // "both" is one merged call — the backend joins jsw + jvml, grouped by SO Sales Org.
     generateReport({
-      date: inputs.date,
+      date,
       report_type: inputs.report_type,
       region_id: inputs.region_id ?? undefined,
       days: inputs.days,
@@ -102,7 +105,8 @@ export function useReport(): UseReportResult {
   }, [inputs])
 
   const exportReportCallback = useCallback(() => {
-    if (!inputs.date) {
+    const date = inputs.date
+    if (!date) {
       setError("Select a date first.")
       return
     }
@@ -110,8 +114,9 @@ export function useReport(): UseReportResult {
     setError(null)
     // Export honours the same optional-column toggles as the on-screen table.
     const columns = REPORT_OPTIONAL_COLS.filter((c) => visibleCols[c.key]).map((c) => c.key).join(",")
+    // "both" exports one merged .xlsx (jsw + jvml), grouped by SO Sales Org — same as the screen.
     exportReport({
-      date: inputs.date,
+      date,
       report_type: inputs.report_type,
       region_id: inputs.region_id ?? undefined,
       days: inputs.days,

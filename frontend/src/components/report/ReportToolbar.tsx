@@ -21,7 +21,7 @@ import { DatePicker } from "@/components/common/DatePicker"
 import { AsyncCombobox } from "@/components/common/AsyncCombobox"
 import { searchRegionOptions } from "@/api/admin/regions/options"
 import { cn } from "@/lib/utils"
-import type { DaysFilter, ReportType } from "@/types/report/report"
+import type { DaysFilter, ReportTypeSelection } from "@/types/report/report"
 import {
   REPORT_OPTIONAL_COLS,
   type ReportColKey,
@@ -35,9 +35,10 @@ const DAYS_OPTIONS: { value: DaysFilter; label: string }[] = [
   { value: "only", label: "Only QA-hold > 2 days" },
 ]
 
-const REPORT_TYPES: { value: ReportType; label: string }[] = [
+const REPORT_TYPES: { value: ReportTypeSelection; label: string }[] = [
   { value: "jsw", label: "JSW" },
   { value: "jvml", label: "JVML" },
+  { value: "both", label: "Both" },
 ]
 
 export interface ReportToolbarProps {
@@ -48,7 +49,7 @@ export interface ReportToolbarProps {
   visibleCols: ReportColVisibility
   onToggleCol: (key: ReportColKey) => void
   onDate: (d: string | null) => void
-  onReportType: (t: ReportType) => void
+  onReportType: (t: ReportTypeSelection) => void
   onRegion: (id: string | null) => void
   onDays: (d: DaysFilter) => void
   onGenerate: () => void
