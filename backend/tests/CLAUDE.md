@@ -37,7 +37,8 @@ project `.env`.
 | `test_stock_filters.py` | JSW/JVML ingestion row gates. |
 | `test_report_aging.py` / `test_report_enrichment.py` | RAKE report aging + enrichment logic. |
 | `test_report_export.py` | Combined export pivot sheet ("BRANCH WISE PIVOT REPORT" via `export_combined`). |
-| `test_report_export_combined.py` | The combined multi-sheet workbook (`export_combined` sheet set + metadata). |
+| `test_report_export_combined.py` | The combined multi-sheet workbook (`export_combined` sheet set + metadata + browser-only RAKE/transport-mode exclusions). |
+| `test_report_export_route.py` | DB-free TestClient binding test for `GET\|POST /report/export-combined` (GET → `body=None`; POST parses the exclusions body). |
 | `test_setup_schemas.py` | Setup/schema validation. |
 
 ## Gotchas / fragile spots

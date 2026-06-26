@@ -63,6 +63,18 @@ toolbar "Columns" dropdown toggles `visibleCols` (`useReport`), and the table
 renders trailing columns conditionally. The registry of toggleable columns lives in
 `components/report/report-format.ts` (`REPORT_OPTIONAL_COLS` / `DEFAULT_REPORT_COLS`).
 
+**RAKE drill-down exclusions** are the other client-side view config — also *not*
+row filtering of a list, but a per-session adjustment of derived totals. In the
+Total Rake Report tab each drill-down row carries an **Incl.** checkbox; unchecking
+subtracts that row from the RAKE total, the Transport Mode total, and the drill-down
+footer (live), and — on export — from the rake-totals / transport-mode / breakdown
+sheets. State is plain `useState` in `useReport` (`exclusions`, never persisted,
+cleared on `generate()`). Row identity (`components/report/rake-exclusions.ts::rowKey`)
+is the backend 8-field merge key joined by `chr(31)` and **must stay byte-identical**
+to `backend/.../rake_drilldown.py::row_identity`, or unchecked rows fail to drop from
+the export. `exportCombined` switches `GET → POST` (with a JSON body) only when rows
+are unchecked.
+
 ---
 
 ## Settings config forms — file name is a stem, format is auto-detected

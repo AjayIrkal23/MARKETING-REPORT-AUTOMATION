@@ -74,3 +74,37 @@ the parser detects the container by content, so `.xlsx` / `.xlsm` / `.xlsb` all 
 - The settings **File name** field is a *stem* — never show or require a fixed
   extension in the UI.
 - `.xlsb` is binary (parsed via pyxlsb); `.xls` (OLE2) is intentionally unsupported.
+
+---
+
+## RAKE drill-down exclusions (browser-only, session-only)
+
+In the Report's "Total Rake Report" tab, a user can uncheck drill-down rows. Those
+rows are subtracted from the RAKE total, the Transport Mode total, and the drill-down
+footer (live, client-side) and omitted from the export's rake-totals / transport-mode
+/ breakdown sheets. Nothing is persisted; state clears on `generate()`.
+
+| Layer | File | Role |
+|-------|------|------|
+| Identity (shared contract) | `frontend/src/components/report/rake-exclusions.ts::rowKey` ⇄ `backend/app/services/report/rake_drilldown.py::row_identity` | 8-field merge key joined by `chr(31)` — **must match byte-for-byte** |
+| State | `frontend/src/components/report/hooks/useReport.ts` | `exclusions` (plain `useState`, not persisted) + `toggleExclusion`; cleared in `generate()`; folded into the export body |
+| UI — checkboxes | `frontend/src/components/report/RakeDrilldownTable.tsx` | Incl. column; footer = Σ checked rows |
+| UI — totals | `frontend/src/components/report/RakeTotalsTab.tsx` | RAKE + Transport Mode tables subtract via `subtractFor` / `transportSubtract` |
+| Toggle wiring | `frontend/src/components/report/ReportSection.tsx` | computes `matchInfoFor` (stock-scoped qty + transport mode) from drill-down rows |
+| Export API | `frontend/src/api/report/export.ts`, `frontend/src/types/report/report.ts` | `GET → POST` with `{exclusions, transport_subtract}` when any row is unchecked |
+| Export schema | `backend/app/schemas/report.py` | `RakeExclusion`, `CombinedExportBody` |
+| Export service | `backend/app/services/report/{export_combined,rake_breakdown_export}.py` | subtract totals (clamped ≥0); drop rows + recompute breakdown sheet totals; emit "TRANSPORT MODE TOTAL" sheet |
+| Route/controller | `backend/app/routes/report.py`, `backend/app/controllers/report.py` | `/report/export-combined` now `GET\|POST`; optional `CombinedExportBody` |
+| Tests | `backend/tests/test_report_export_combined.py`, `test_report_export_route.py` | exclusion subtraction/omission + GET/POST body binding |
+
+### Change-impact notes
+
+- **Never diverge the identity contract** — change the separator (`chr(31)`) or the
+  8 fields/order in `rake-exclusions.ts` and `rake_drilldown.py` together, or unchecked
+  rows silently stop dropping from the export.
+- Single jsw/jvml mode: the drill-down is a union superset, so totals subtraction is
+  **stock-type-scoped** (`matchInfoFor`) — an other-stock row subtracts 0 but is still
+  dropped from the breakdown sheet. `both` mode is exact.
+- Transport-mode buckets map empty → `"Unknown"` to match `generate.py::_compute_totals`.
+- Browser-only: exclusions live in `useReport` `useState` (never persisted), clear on
+  `generate()`, and ride the export as a transient POST body — no DB, no shared state.
