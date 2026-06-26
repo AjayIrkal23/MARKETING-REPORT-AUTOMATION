@@ -1,6 +1,5 @@
-import { ArrowLeft, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -10,14 +9,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import type { RakeDrilldownResponse } from "@/types/report/report"
+import { cn } from "@/lib/utils"
+import type { RakeDrilldownResponse, RakeDrilldownRow } from "@/types/report/report"
+import { isExcluded, rowKey, type RakeExclusions } from "./rake-exclusions"
 
-const COLS: { key: string; label: string; right?: boolean }[] = [
+export type DrilldownMode = "merged" | "raw"
+
+type Col = { key: string; label: string; right?: boolean }
+
+const COLS_RAW: Col[] = [
   { key: "stock_type", label: "Source" },
   { key: "so_sales_org", label: "Sales Org" },
   { key: "distr_chnl", label: "Distr Channel" },
-  { key: "sold_to_party", label: "Sold To Party" },
   { key: "sales_office", label: "BRANCH" },
+  { key: "sold_to_party", label: "Sold To Party" },
   { key: "party_code", label: "Party Code" },
   { key: "ship_to_party", label: "Ship To Party" },
   { key: "transport_mode", label: "Transport Mode" },
@@ -26,109 +31,149 @@ const COLS: { key: string; label: string; right?: boolean }[] = [
   { key: "stock_quantity", label: "Qty", right: true },
 ]
 
+// Merged view drops the two columns NOT in the merge key (Source, Ship To Party).
+const COLS_MERGED: Col[] = COLS_RAW.filter(
+  (c) => c.key !== "stock_type" && c.key !== "ship_to_party",
+)
+
+const TH_CLASS = "text-[11px] font-semibold uppercase tracking-wide text-foreground/70"
 const fmtQty = (n: number) => n.toLocaleString("en-IN")
 
+/**
+ * Drill-down body for one RAKE — the table only. Back button, RAKE title, and the
+ * Merged/Unmerged toggle live in `ReportSection` (on the tab-bar row); `mode` is
+ * passed in. Both row sets ride in one payload, so the toggle never refetches.
+ */
 export function RakeDrilldownTable({
-  rake,
   data,
   loading,
   error,
-  onBack,
+  mode,
+  rake,
+  exclusions,
+  onToggleRow,
 }: {
-  rake: string
   data: RakeDrilldownResponse | null
   loading: boolean
   error: string | null
-  onBack: () => void
+  mode: DrilldownMode
+  /** The open RAKE — exclusions are keyed per rake. */
+  rake: string | null
+  exclusions: RakeExclusions
+  /** Toggle one row's exclusion (key = canonical 8-field identity). */
+  onToggleRow: (key: string) => void
 }) {
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <Button variant="outline" size="sm" onClick={onBack}>
-          <ArrowLeft className="size-4 mr-2" aria-hidden />
-          Back
-        </Button>
-        <h3 className="text-sm font-semibold text-foreground">
-          RAKE <span className="text-primary">{rake}</span>
-          {data ? (
-            <span className="ml-2 font-normal text-muted-foreground">
-              {data.rows.length} row{data.rows.length === 1 ? "" : "s"} · jsw + jvml
-            </span>
-          ) : null}
-        </h3>
-      </div>
+  const cols = mode === "merged" ? COLS_MERGED : COLS_RAW
+  const rows = (
+    mode === "merged" ? (data?.merged_rows ?? []) : (data?.rows ?? [])
+  ) as unknown as Record<string, string | number | null>[]
 
-      {loading ? (
-        <div className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" aria-hidden />
-          Loading rows…
-        </div>
-      ) : error ? (
-        <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-6 text-center text-sm text-destructive">
-          {error}
-        </div>
-      ) : (
-        <div className="rounded-lg border overflow-hidden">
-          <Table containerClassName="max-h-[60vh] overflow-auto">
-            <TableHeader>
-              <TableRow className="bg-muted/50">
-                {COLS.map((c) => (
-                  <TableHead
-                    key={c.key}
-                    className={c.right ? "text-right" : undefined}
-                  >
-                    {c.label}
-                  </TableHead>
-                ))}
+  // Footer reflects only CHECKED visible rows (mode-aware union view), rounded to
+  // 3dp to match the backend; excluded rows drop out of both totals and export.
+  const checkedTotal =
+    Math.round(
+      rows.reduce(
+        (s, row) =>
+          isExcluded(exclusions, rake, rowKey(row as unknown as RakeDrilldownRow))
+            ? s
+            : s + Number(row.stock_quantity ?? 0),
+        0,
+      ) * 1000,
+    ) / 1000
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-muted/20 py-12 text-sm text-muted-foreground">
+        <Loader2 className="size-4 animate-spin" aria-hidden />
+        Loading rows…
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-6 text-center text-sm text-destructive">
+        {error}
+      </div>
+    )
+  }
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-border">
+      <Table containerClassName="max-h-[60vh] overflow-auto">
+        <TableHeader>
+          <TableRow className="bg-muted hover:bg-muted">
+            <TableHead className={cn(TH_CLASS, "w-12 text-center")}>Incl.</TableHead>
+            {cols.map((c) => (
+              <TableHead key={c.key} className={cn(TH_CLASS, c.right && "text-right")}>
+                {c.label}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.length > 0 ? (
+            rows.map((row, i) => {
+              const key = rowKey(row as unknown as RakeDrilldownRow)
+              const checked = !isExcluded(exclusions, rake, key)
+              return (
+              <TableRow key={i} className={cn("hover:bg-muted/40", !checked && "opacity-50")}>
+                <TableCell className="text-center">
+                  <input
+                    type="checkbox"
+                    className="size-4 cursor-pointer accent-primary align-middle"
+                    checked={checked}
+                    onChange={() => onToggleRow(key)}
+                    aria-label={checked ? "Exclude row from totals and export" : "Include row"}
+                  />
+                </TableCell>
+                {cols.map((c) => {
+                  if (c.key === "stock_quantity") {
+                    return (
+                      <TableCell key={c.key} className="text-right tabular-nums">
+                        {fmtQty(Number(row.stock_quantity ?? 0))}
+                      </TableCell>
+                    )
+                  }
+                  if (c.key === "stock_type") {
+                    return (
+                      <TableCell
+                        key={c.key}
+                        className="text-xs font-medium uppercase text-muted-foreground"
+                      >
+                        {row.stock_type}
+                      </TableCell>
+                    )
+                  }
+                  return <TableCell key={c.key}>{row[c.key] ?? "—"}</TableCell>
+                })}
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data && data.rows.length > 0 ? (
-                data.rows.map((row, i) => (
-                  <TableRow key={i} className="hover:bg-muted/30">
-                    <TableCell className="uppercase text-xs font-medium text-muted-foreground">
-                      {row.stock_type}
-                    </TableCell>
-                    <TableCell>{row.so_sales_org ?? "—"}</TableCell>
-                    <TableCell>{row.distr_chnl ?? "—"}</TableCell>
-                    <TableCell>{row.sold_to_party ?? "—"}</TableCell>
-                    <TableCell>{row.sales_office ?? "—"}</TableCell>
-                    <TableCell>{row.party_code ?? "—"}</TableCell>
-                    <TableCell>{row.ship_to_party ?? "—"}</TableCell>
-                    <TableCell>{row.transport_mode ?? "—"}</TableCell>
-                    <TableCell>{row.destination ?? "—"}</TableCell>
-                    <TableCell>{row.customer_name ?? "—"}</TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {fmtQty(row.stock_quantity)}
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={COLS.length}
-                    className="py-10 text-center text-sm text-muted-foreground"
-                  >
-                    No stock rows for this RAKE on {data?.date ?? "this date"}.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-            {data && data.rows.length > 0 ? (
-              <TableFooter>
-                <TableRow className="bg-muted/50">
-                  <TableCell colSpan={COLS.length - 1} className="font-semibold">
-                    Total
-                  </TableCell>
-                  <TableCell className="text-right font-semibold tabular-nums">
-                    {fmtQty(data.total_quantity)}
-                  </TableCell>
-                </TableRow>
-              </TableFooter>
-            ) : null}
-          </Table>
-        </div>
-      )}
+              )
+            })
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={cols.length + 1}
+                className="py-10 text-center text-sm text-muted-foreground"
+              >
+                No stock rows for this RAKE on {data?.date ?? "this date"}.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+        {rows.length > 0 ? (
+          <TableFooter>
+            <TableRow className="bg-muted">
+              <TableCell colSpan={cols.length} className="font-semibold">
+                Total
+              </TableCell>
+              <TableCell className="text-right font-semibold tabular-nums">
+                {fmtQty(checkedTotal)}
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        ) : null}
+      </Table>
     </div>
   )
 }

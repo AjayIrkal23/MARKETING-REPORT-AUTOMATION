@@ -21,6 +21,7 @@ Contains `useCreditReportList`, which owns query state, server state, and the vi
 ## Gotchas / fragile spots
 
 - The blocked/balance selects are fixed enums, not async options.
+- `query` is persisted to localStorage (`mra:credit-report:query`, sliding 1h TTL via `@/hooks/usePersistedState`) so filters/date/page/sort survive navigation; the today-date default applies only when no fresh entry exists. Rows aren't persisted — the refetch effect repopulates them on remount.
 
 ## Up / down
 

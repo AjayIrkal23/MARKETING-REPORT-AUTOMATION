@@ -23,7 +23,7 @@ HTTP/transport layer. Each subdirectory owns one domain concern.
 |------|------|
 | `shared/excel.py` | Format-agnostic `parse_workbook` (xlsx/xlsm/xlsb) shared by all report domains. |
 | `shared/resolve.py` | `resolve_report_file` — extension-agnostic report-file finder. |
-| `shared/export_style.py` | Shared Excel styling helpers (headers, auto-size, metadata, filters). |
+| `shared/excel_premium.py` | Shared **premium** flat-table export engine (`write_flat_table`, `write_records_sheet`, `safe_sheet_name`, `apply_cell_format`). Replaces the removed `export_style.py`; builds on the `utils/report/excel_style.py` primitives. |
 | `customer_code/excel.py` | Customer-code template headers, fingerprint, and workbook parser. |
 | `customer_code/query.py` | Customer-code filter builder used by list/export services. |
 

@@ -47,6 +47,44 @@ class ReportQuery(BaseModel):
     columns: str | None = Field(default=None, max_length=256)
 
 
+class CombinedExportQuery(ReportQuery):
+    """Query params for ``GET /report/export-combined`` (via FastAPI ``Depends()``).
+
+    The report export params plus ``sheets`` — a CSV of which sheets to include
+    (subset of pivot, rake_totals, rake_merged, rake_unmerged, jsw, jvml, credit).
+    Value validation (unknown / empty keys) happens in the combined service.
+    """
+
+    sheets: str = Field(min_length=1, max_length=128)
+
+
+class RakeExclusion(BaseModel):
+    """One RAKE's user-unchecked drill-down rows (export-only, transient).
+
+    ``keys`` — canonical 8-field identity strings (see ``rake_drilldown.row_identity``,
+    mirrored by the frontend ``rake-exclusions.ts::rowKey``) of rows to OMIT from the
+    rake_merged / rake_unmerged breakdown sheets. ``subtract`` — quantity to subtract
+    from this RAKE's TOTAL RAKE REPORT figure (stock-type-scoped, computed client-side).
+    Nothing is persisted; this only shapes one export.
+    """
+
+    keys: list[str] = Field(default_factory=list, max_length=10000)
+    subtract: float = 0.0
+
+
+class CombinedExportBody(BaseModel):
+    """Optional POST body for ``/report/export-combined`` — per-export RAKE exclusions.
+
+    ``exclusions`` maps RAKE → its excluded rows (subtract from the RAKE totals +
+    drop from the breakdown sheets). ``transport_subtract`` maps transport mode →
+    the same unchecks' qty (subtract from the TRANSPORT MODE TOTAL sheet). Both
+    empty/absent ⇒ no exclusions (GET-equivalent file).
+    """
+
+    exclusions: dict[str, RakeExclusion] = Field(default_factory=dict)
+    transport_subtract: dict[str, float] = Field(default_factory=dict)
+
+
 class ReportPivotRow(BaseModel):
     """One row of the RAKE pivot report."""
 
@@ -101,6 +139,24 @@ class RakeDrilldownRow(BaseModel):
     stock_quantity: float          # this row's quantity
 
 
+class RakeDrilldownMergedRow(BaseModel):
+    """A merged drill-down row: the 8-field business identity + summed quantity.
+
+    Source (stock_type) and Ship To Party are intentionally absent — they are not
+    part of the merge key and can vary within a merged group.
+    """
+
+    so_sales_org: str | None       # Sales Org
+    distr_chnl: str | None         # Distr Channel
+    sales_office: str | None       # rendered as BRANCH
+    sold_to_party: str | None      # Sold to party
+    party_code: str | None         # normalized display code
+    transport_mode: str | None     # from CustomerCode.transport_mode
+    destination: str | None        # from CustomerCode.destination
+    customer_name: str | None      # mapped customer
+    stock_quantity: float          # Σ stock_quantity for the merged group
+
+
 class RakeDrilldownResponse(BaseModel):
     """RAKE drill-down payload — individual jsw + jvml rows for one RAKE."""
 
@@ -110,6 +166,7 @@ class RakeDrilldownResponse(BaseModel):
     region_name: str
     days_filter: DaysFilter
     rows: list[RakeDrilldownRow]
+    merged_rows: list[RakeDrilldownMergedRow] = []  # rows collapsed by 8-field identity
     total_quantity: float
 
 

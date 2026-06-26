@@ -1,8 +1,8 @@
 /**
  * report-grouping — pure `buildRenderRows(rows, groupBy)` for the RAKE pivot.
  *
- * Walks the backend-pre-sorted rows (SO Sales Org → Distr.Chnl → Sold To Party →
- * BRANCH → Party Code → Ship-To Party → …) into a flat render list of:
+ * Walks the backend-pre-sorted rows (SO Sales Org → Distr.Chnl → BRANCH →
+ * Sold To Party → Party Code → Ship-To Party → …) into a flat render list of:
  *   - data rows, with leading "fixed" cells flagged for blanking when they repeat
  *     the parent above (visual grouping), and
  *   - a subtotal row at the bottom of each group (summing RAKE / Total / Yes+DO /
@@ -17,11 +17,15 @@
 
 import type { ReportPivotRow } from "@/types/report/report"
 
-/** Leading "fixed" columns eligible for repeated-parent blanking, left → right. */
+/**
+ * Leading "fixed" columns eligible for repeated-parent blanking, left → right.
+ * BRANCH (sales_office) is 2nd so each unique branch heads its items (grouped
+ * pivot column) under Distr. Channel, above Sold To Party.
+ */
 export const FIXED_COL_KEYS = [
   "distr_chnl",
-  "sold_to_party",
   "sales_office",
+  "sold_to_party",
   "party_code",
   "ship_to_party",
 ] as const

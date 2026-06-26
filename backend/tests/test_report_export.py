@@ -11,8 +11,13 @@ from unittest.mock import AsyncMock, patch
 
 from openpyxl import load_workbook
 
-from app.schemas.report import ReportPivotRow, ReportQuery, ReportResponse
-from app.services.report.export import export_report
+from app.schemas.report import (
+    CombinedExportQuery,
+    ReportPivotRow,
+    ReportQuery,
+    ReportResponse,
+)
+from app.services.report.export_combined import export_combined
 
 
 def _fake_report() -> ReportResponse:
@@ -58,11 +63,11 @@ def _fake_report() -> ReportResponse:
 def test_export_builds_xlsx_bytes() -> None:
     """export_report should return non-empty .xlsx bytes."""
     with patch(
-        "app.services.report.export.generate_report",
+        "app.services.report.export_combined.generate_report",
         new=AsyncMock(return_value=_fake_report()),
     ):
-        query = ReportQuery(date="23-06-2026", report_type="jsw")
-        data = asyncio.run(export_report(query))
+        query = CombinedExportQuery(date="23-06-2026", report_type="jsw", sheets="pivot")
+        data = asyncio.run(export_combined(query))
 
     assert isinstance(data, bytes)
     assert len(data) > 0
@@ -106,12 +111,12 @@ def test_export_groups_with_subtotals_and_blanked_parents() -> None:
     report.grand_required_credit = 35.0
 
     with patch(
-        "app.services.report.export.generate_report",
+        "app.services.report.export_combined.generate_report",
         new=AsyncMock(return_value=report),
     ):
-        data = asyncio.run(export_report(ReportQuery(date="23-06-2026", report_type="jsw")))
+        data = asyncio.run(export_combined(CombinedExportQuery(date="23-06-2026", report_type="jsw", sheets="pivot")))
 
-    ws = load_workbook(io.BytesIO(data))["Report"]
+    ws = load_workbook(io.BytesIO(data))["BRANCH WISE PIVOT REPORT"]
     grid = [[c.value for c in r] for r in ws.iter_rows()]
     header = grid[2]  # title banner at rows 1-2, table header at row 3
     total_col = header.index("Total")
@@ -139,28 +144,32 @@ def test_export_groups_with_subtotals_and_blanked_parents() -> None:
 def _export_headers(columns: str | None) -> list[str]:
     report = _fake_report()
     report.rows = [_mk_row(channel="OEM", party="40000001", total=10.0)]
-    query = ReportQuery(date="23-06-2026", report_type="jsw", columns=columns)
+    query = CombinedExportQuery(date="23-06-2026", report_type="jsw", columns=columns, sheets="pivot")
     with patch(
-        "app.services.report.export.generate_report",
+        "app.services.report.export_combined.generate_report",
         new=AsyncMock(return_value=report),
     ):
-        data = asyncio.run(export_report(query))
-    ws = load_workbook(io.BytesIO(data))["Report"]
+        data = asyncio.run(export_combined(query))
+    ws = load_workbook(io.BytesIO(data))["BRANCH WISE PIVOT REPORT"]
     return [c.value for c in ws[3]]
 
 
 def test_export_respects_columns_filter() -> None:
     """The export honours the optional-column filter, including Total as optional."""
-    always_on = {"Distr. Channel", "Sold To Party", "BRANCH", "Party Code", "Ship To Party", "KKU", "ROAD"}
+    # Only the 5 fixed left cols are always shown; the RAKE block is gated by "rake".
+    always_on = {"Distr. Channel", "BRANCH", "Sold To Party", "Party Code", "Ship To Party"}
 
-    # Filter to {total, route}: those two optional cols show; the rest are dropped.
+    # Filter to {total, route}: those two optional cols show; the rest (incl. RAKE block) drop.
     headers = _export_headers("total,route")
     assert always_on <= set(headers)
     assert "ROUTE" in headers and "Total" in headers
-    for dropped in ("Transport Mode", "Destination", "Yes+DO", "Blocked", "Credit Balance", "Required Credit", "Credit Note"):
+    for dropped in ("Transport Mode", "Destination", "Yes+DO", "Blocked", "Credit Balance", "Required Credit", "Credit Note", "KKU", "ROAD"):
         assert dropped not in headers
 
-    # Empty filter → only the always-on columns (every optional col hidden, Total included).
+    # The whole dynamic RAKE block is shown/hidden by the single "rake" key.
+    assert {"KKU", "ROAD"} <= set(_export_headers("rake"))
+
+    # Empty filter → only the always-on columns (every optional col + RAKE block hidden).
     bare = _export_headers("")
     assert set(bare) == always_on
 
@@ -171,6 +180,13 @@ def test_export_respects_columns_filter() -> None:
     # Hiding Total drops it (it is genuinely optional now).
     no_total = _export_headers("yes_do")
     assert "Total" not in no_total and "Yes+DO" in no_total
+
+
+def test_export_branch_grouped_after_distr_channel() -> None:
+    """BRANCH is the grouped pivot column immediately after Distr. Channel (above Sold To Party)."""
+    headers = _export_headers(None)
+    assert headers.index("BRANCH") == headers.index("Distr. Channel") + 1
+    assert headers.index("BRANCH") < headers.index("Sold To Party")
 
 
 def _styled_ws():
@@ -248,12 +264,12 @@ def _styled_ws():
     report.grand_required_credit = 78.0
 
     with patch(
-        "app.services.report.export.generate_report",
+        "app.services.report.export_combined.generate_report",
         new=AsyncMock(return_value=report),
     ):
-        data = asyncio.run(export_report(ReportQuery(date="23-06-2026", report_type="jsw")))
+        data = asyncio.run(export_combined(CombinedExportQuery(date="23-06-2026", report_type="jsw", sheets="pivot")))
 
-    return load_workbook(io.BytesIO(data))["Report"]
+    return load_workbook(io.BytesIO(data))["BRANCH WISE PIVOT REPORT"]
 
 
 def test_export_has_premium_title_banner() -> None:
@@ -400,12 +416,12 @@ def test_export_both_leads_with_so_org_column_and_subtotals() -> None:
     report.grand_required_credit = 17.0
 
     with patch(
-        "app.services.report.export.generate_report",
+        "app.services.report.export_combined.generate_report",
         new=AsyncMock(return_value=report),
     ):
-        data = asyncio.run(export_report(ReportQuery(date="23-06-2026", report_type="both")))
+        data = asyncio.run(export_combined(CombinedExportQuery(date="23-06-2026", report_type="both", sheets="pivot")))
 
-    ws = load_workbook(io.BytesIO(data))["Report"]
+    ws = load_workbook(io.BytesIO(data))["BRANCH WISE PIVOT REPORT"]
     assert [c.value for c in ws[3]][0] == "SO Sales Org"  # header row 3, first col
     first_col = [ws.cell(row=r, column=1).value for r in range(4, ws.max_row + 1)]
     assert "1001 Total" in first_col

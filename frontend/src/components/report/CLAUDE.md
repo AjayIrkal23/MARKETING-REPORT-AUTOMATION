@@ -27,9 +27,14 @@ no API calls live here (those are in `src/api/report/`).
   fixed left cols are always shown. The table reads
   `const rakeCols = visibleCols.rake ? report.rake_columns : []` and maps that at
   all 4 sites, so unchecking "RAKE columns" hides the whole block at once.
-- **The Export honours the same toggles.** `useReport.exportReport()` sends the
-  visible optional-column keys as a `columns` CSV; the backend (`services/report/
-  export.py`) filters the .xlsx to match. Param absent ⇒ all columns; empty ⇒ none.
+- **Export is a two-step sheet picker → combined download.** The toolbar Export
+  button calls `useReport.openExportDialog()`, which opens `ExportSheetsDialog`;
+  confirming runs `confirmExport(sheets)` → `exportCombined()` (`GET
+  /report/export-combined`). The chosen `sheets` CSV picks the workbook sheets
+  (pivot / rake totals / per-rake merged+unmerged / jsw / jvml / credit); the pivot
+  sheet still honours the on-screen optional-column toggles via a `columns` CSV
+  (absent ⇒ all columns; empty ⇒ none). JSW/JVML sheet options appear only when
+  `report_type` includes them.
 - **No client-side filtering of server data.** The only client-side view config
   is column *visibility* (the toolbar "Columns" dropdown → `visibleCols`) and the
   pivot *grouping/subtotals* (`buildRenderRows`) — both are presentation derived
@@ -41,15 +46,16 @@ no API calls live here (those are in `src/api/report/`).
 
 | File | Role |
 |------|------|
-| `hooks/useReport.ts` | All page state: 4 inputs (date/type/region/days; `report_type` is `jsw\|jvml\|both`), `generate()`/`exportReport()`, and `visibleCols`/`toggleCol`. **`both` is ONE call** — the backend merges jsw + jvml into a single `data: ReportResponse` (`report_type:"both"`); no client-side fan-out |
-| `ReportToolbar.tsx` | Date · **JSW / JVML / Both** segmented toggle · region combobox · **Columns** dropdown (Detail + RAKE + Credit groups) · days select · Generate · Export |
-| `ReportSection.tsx` | Renders the report block (summary line + no-stock/no-credit states + `ReportPivotTable`). One section always — `both` is a single merged response, so `groupBySoOrg` just switches the table layout (no second table) |
-| `ReportPivotTable.tsx` | The grouped pivot: fixed left cols (repeated parents blanked) + optional Detail cols + dynamic RAKE + Total + optional Credit cols; bounded scroll box with sticky header + grand-total footer. **`groupBySoOrg` prop** (Both mode) prepends an **SO Sales Org** column and subtotals per SO Sales Org instead of Distr.Channel |
+| `hooks/useReport.ts` | All page state: 4 inputs (date/type/region/days; `report_type` is `jsw\|jvml\|both`), `generate()`, the **two-step export** (`openExportDialog()` → `confirmExport(sheets)`, plus `exportDialogOpen`/`setExportDialogOpen`), and `visibleCols`/`toggleCol`. **`both` is ONE call** — the backend merges jsw + jvml into a single `data: ReportResponse` (`report_type:"both"`); no client-side fan-out |
+| `ExportSheetsDialog.tsx` | The Export **sheet-picker** modal: an icon + checkbox row per sheet option (Branch Wise Pivot Report, Total Rake Report, Rake Breakdown Merged, Rake Breakdown Unmerged, JSW Stock List, JVML Stock List, Credit Report). JSW/JVML rows show only when `report_type` includes them (jsw→JSW, jvml→JVML, both→both); defaults to all visible options selected; confirms the picked keys (canonical sheet order) to `useReport.confirmExport` |
+| `ReportToolbar.tsx` | Date · **JSW / JVML / Both** segmented toggle · region combobox · **Columns** dropdown (Detail + RAKE + Credit groups) · days select · Generate · Export (opens `ExportSheetsDialog` via `openExportDialog`) |
+| `ReportSection.tsx` | Renders the report block (summary line + no-stock/no-credit states + `ReportPivotTable`). One section always — `both` is a single merged response, so `groupBySoOrg` just switches the table layout (no second table). **Owns the RAKE drill-down**: holds `useRakeDrilldown` + the `mode` (Merged/Unmerged) state and renders the drill-down controls (Back · RAKE title · toggle) on the **same row as the tab switcher** (`flex justify-between`), not stacked below |
+| `ReportPivotTable.tsx` | The grouped pivot: fixed left cols (repeated parents blanked) + optional Detail cols + dynamic RAKE + Total + optional Credit cols; bounded scroll box with sticky header + grand-total footer. **Fixed-col order: Distr. Channel → BRANCH → Sold To Party → Party Code → Ship To Party** — BRANCH (`sales_office`) is the grouped pivot column right after Distr. Channel so each unique branch heads its items. **`groupBySoOrg` prop** (Both mode) prepends an **SO Sales Org** column and subtotals per SO Sales Org instead of Distr.Channel |
 | `report-grouping.ts` | Pure `buildRenderRows(rows, groupBy)` — walks the pre-sorted rows into data rows (with group-first flags) + bottom-of-group subtotals (summing RAKE/Total/Yes+DO/Required Credit). `groupBy` = `"distr_chnl"` (default, single) or `"so_sales_org"` (Both, SO Sales Org leads the blankable chain). No Party Code subtotal — group + grand totals are enough |
 | `report-cells.tsx` | Trailing credit/total cell builders (`trailingBodyCell`, `aggTrailingCell`, `TRAILING_META`) — split out to keep the table ≤250 lines |
 | `report-format.ts` | INR/qty formatters, sign colouring, and the side-aware optional-column registry/types |
-| `RakeTotalsTab.tsx` | The "Total Rake Report" tab: RAKE totals + Transport-mode totals, each a **full-width stacked row** (`flex flex-col gap-6`, not the old side-by-side grid). **RAKE rows are clickable** → drill-down; holds `useRakeDrilldown` and swaps in `RakeDrilldownTable` while a RAKE is open (Back returns) |
-| `RakeDrilldownTable.tsx` | Drill-down sub-table for one RAKE — individual jsw + jvml stock rows (Source · Sales Org · Distr Channel · Sold To Party · BRANCH · Party Code · Ship To Party · Transport Mode · Destination · Customer · Qty) + Back button + total footer. shadcn `Table` (own scroll box via `containerClassName`) |
+| `RakeTotalsTab.tsx` | The "Total Rake Report" tab: RAKE totals + Transport-mode totals, each a **full-width stacked row** (`flex flex-col gap-6`, not the old side-by-side grid). **RAKE rows are clickable** → calls the `onRakeClick` prop; the drill-down state + the Back/RAKE/toggle controls now live in `ReportSection` (on the tab-bar row), not here. **No export button** — RAKE totals are now one selectable sheet in the combined export (the `ExportSheetsDialog` picker), not a standalone download |
+| `RakeDrilldownTable.tsx` | Controlled drill-down **body (table only)** for one RAKE — individual jsw + jvml stock rows (Source · Sales Org · Distr Channel · BRANCH · Sold To Party · Party Code · Ship To Party · Transport Mode · Destination · Customer · Qty) + total footer + loading/error/empty states. **No header here** — Back · RAKE title · the **Merged Data / Data not Merged** toggle + the `mode` state live in `ReportSection` (tab-bar row); `mode` arrives as a **prop**. Merged renders the **server-computed** `data.merged_rows` (9 cols, drops Source + Ship To Party), unmerged renders `data.rows` (11 cols); one generic table driven by `COLS_RAW`(11)/`COLS_MERGED`(9). Footer Total = `total_quantity` (merge-invariant) in both modes; toggling **never refetches** (both row sets ride in one payload). The merge lives in the backend (`rake_drilldown.py::_merge_rows`), not here. shadcn `Table` (own scroll box via `containerClassName`) |
 
 ## Gotchas / fragile spots
 

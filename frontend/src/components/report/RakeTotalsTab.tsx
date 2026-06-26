@@ -1,11 +1,7 @@
-import { useState } from "react"
-import { Download, Loader2 } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { exportRakeTotals } from "@/api/report/export"
 import type { ReportResponse } from "@/types/report/report"
-import { useRakeDrilldown } from "./hooks/useRakeDrilldown"
-import { RakeDrilldownTable } from "./RakeDrilldownTable"
+import { subtractFor, transportSubtract, type RakeExclusions } from "./rake-exclusions"
 
 function TotalsTable({
   title,
@@ -21,13 +17,22 @@ function TotalsTable({
   const clickable = Boolean(onRowClick)
   return (
     <div className="flex flex-col gap-2">
-      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-      <div className="rounded-lg border overflow-hidden">
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        {clickable && (
+          <span className="text-[11px] text-muted-foreground">Select a RAKE to drill down</span>
+        )}
+      </div>
+      <div className="overflow-hidden rounded-xl border border-border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b bg-muted/50">
-              <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">{title}</th>
-              <th className="px-4 py-2.5 text-right font-medium text-muted-foreground">Total Qty</th>
+            <tr className="border-b bg-muted">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-foreground/70">
+                {title}
+              </th>
+              <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wide text-foreground/70">
+                Total Qty
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -35,10 +40,8 @@ function TotalsTable({
               <tr
                 key={label}
                 className={
-                  "border-b last:border-0 transition-colors " +
-                  (clickable
-                    ? "cursor-pointer hover:bg-primary/5"
-                    : "hover:bg-muted/30")
+                  "group border-b last:border-0 transition-colors " +
+                  (clickable ? "cursor-pointer hover:bg-muted/50" : "hover:bg-muted/30")
                 }
                 onClick={clickable ? () => onRowClick?.(label) : undefined}
                 role={clickable ? "button" : undefined}
@@ -56,20 +59,29 @@ function TotalsTable({
               >
                 <td
                   className={
-                    "px-4 py-2.5 font-medium " +
-                    (clickable
-                      ? "text-primary underline-offset-2 hover:underline"
-                      : "text-foreground")
+                    "px-4 py-2.5 font-medium " + (clickable ? "text-primary" : "text-foreground")
                   }
                 >
-                  {label}
+                  {clickable ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      {label}
+                      <ChevronRight
+                        className="size-3.5 -translate-x-0.5 text-primary/60 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+                        aria-hidden
+                      />
+                    </span>
+                  ) : (
+                    label
+                  )}
                 </td>
-                <td className="px-4 py-2.5 text-right tabular-nums">{qty.toLocaleString("en-IN")}</td>
+                <td className="px-4 py-2.5 text-right tabular-nums text-foreground">
+                  {qty.toLocaleString("en-IN")}
+                </td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={2} className="px-4 py-6 text-center text-muted-foreground text-xs">
+                <td colSpan={2} className="px-4 py-8 text-center text-xs text-muted-foreground">
                   No data
                 </td>
               </tr>
@@ -77,8 +89,10 @@ function TotalsTable({
           </tbody>
           {rows.length > 0 && (
             <tfoot>
-              <tr className="bg-muted/50 border-t">
-                <td className="px-4 py-2.5 font-semibold text-foreground">Grand Total</td>
+              <tr className="border-t border-border bg-muted">
+                <td className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-foreground">
+                  Grand Total
+                </td>
                 <td className="px-4 py-2.5 text-right font-semibold tabular-nums text-foreground">
                   {grandTotal.toLocaleString("en-IN")}
                 </td>
@@ -91,55 +105,34 @@ function TotalsTable({
   )
 }
 
-export function RakeTotalsTab({ report }: { report: ReportResponse }) {
-  const [exporting, setExporting] = useState(false)
-  const drill = useRakeDrilldown(report)
-
-  const rakeRows = Object.entries(report.rake_totals).sort((a, b) => a[0].localeCompare(b[0]))
-  const tmRows = Object.entries(report.transport_mode_totals).sort((a, b) => a[0].localeCompare(b[0]))
+export function RakeTotalsTab({
+  report,
+  exclusions,
+  onRakeClick,
+}: {
+  report: ReportResponse
+  /** Browser-only RAKE exclusions — subtracted from each RAKE figure (not transport mode). */
+  exclusions: RakeExclusions
+  /** Click a RAKE row → open its drill-down (state lives in ReportSection). */
+  onRakeClick: (rake: string) => void
+}) {
+  // Subtract each row's browser-only excluded qty (clamped ≥ 0) from BOTH the RAKE
+  // totals (grouped by rake) and the Transport Mode totals (same unchecks regrouped
+  // by transport mode).
+  const tmSub = transportSubtract(exclusions)
+  const rakeRows = Object.entries(report.rake_totals)
+    .map(([rake, qty]) => [rake, Math.max(0, qty - subtractFor(exclusions, rake))] as [string, number])
+    .sort((a, b) => a[0].localeCompare(b[0]))
+  const tmRows = Object.entries(report.transport_mode_totals)
+    .map(([tm, qty]) => [tm, Math.max(0, qty - (tmSub[tm] ?? 0))] as [string, number])
+    .sort((a, b) => a[0].localeCompare(b[0]))
   const rakeGrand = rakeRows.reduce((s, [, v]) => s + v, 0)
   const tmGrand = tmRows.reduce((s, [, v]) => s + v, 0)
 
-  const handleExport = () => {
-    setExporting(true)
-    exportRakeTotals({
-      date: report.date,
-      report_type: report.report_type,
-      days: report.days_filter,
-      region_id: report.region_id ?? undefined,
-    })
-      .finally(() => setExporting(false))
-  }
-
-  // Drill-down view replaces the totals while a RAKE is open.
-  if (drill.rake !== null) {
-    return (
-      <RakeDrilldownTable
-        rake={drill.rake}
-        data={drill.data}
-        loading={drill.loading}
-        error={drill.error}
-        onBack={drill.close}
-      />
-    )
-  }
-
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting}>
-          {exporting ? (
-            <Loader2 className="size-4 mr-2 animate-spin" aria-hidden />
-          ) : (
-            <Download className="size-4 mr-2" aria-hidden />
-          )}
-          Export
-        </Button>
-      </div>
-      <div className="flex flex-col gap-6">
-        <TotalsTable title="RAKE" rows={rakeRows} grandTotal={rakeGrand} onRowClick={drill.open} />
-        <TotalsTable title="Transport Mode" rows={tmRows} grandTotal={tmGrand} />
-      </div>
+    <div className="flex flex-col gap-6">
+      <TotalsTable title="RAKE" rows={rakeRows} grandTotal={rakeGrand} onRowClick={onRakeClick} />
+      <TotalsTable title="Transport Mode" rows={tmRows} grandTotal={tmGrand} />
     </div>
   )
 }

@@ -2,7 +2,7 @@
  * ReportPivotTable — the RAKE-pivot "Coil Stock" table.
  *
  * Columns, left → right:
- *   fixed (Distr.Channel · Sold To Party · BRANCH · Party Code · Ship To Party,
+ *   fixed (Distr.Channel · BRANCH · Sold To Party · Party Code · Ship To Party,
  *   repeated parents blanked) → optional Detail cols (Transport Mode · Destination
  *   · ROUTE) → dynamic RAKE cols → Total → optional Credit cols. Detail + Credit
  *   are the 8 toggles in the toolbar "Columns" dropdown.
@@ -46,8 +46,8 @@ const SO_ORG_COL: { key: FixedColKey; label: string; className: string } = {
 
 const FIXED_COLS: { key: FixedColKey; label: string; className: string }[] = [
   { key: "distr_chnl", label: "Distr. Channel", className: "min-w-[110px]" },
-  { key: "sold_to_party", label: "Sold To Party", className: "min-w-[160px]" },
   { key: "sales_office", label: "BRANCH", className: "min-w-[110px]" },
+  { key: "sold_to_party", label: "Sold To Party", className: "min-w-[160px]" },
   { key: "party_code", label: "Party Code", className: "min-w-[100px]" },
   { key: "ship_to_party", label: "Ship To Party", className: "min-w-[160px]" },
 ]
@@ -58,7 +58,8 @@ const DETAIL_META: Record<ReportDetailColKey, { label: string; thClass: string }
   route: { label: "ROUTE", thClass: "min-w-[100px]" },
 }
 
-const TH_STICKY = "sticky top-0 z-20 whitespace-nowrap bg-background"
+const TH_STICKY =
+  "sticky top-0 z-20 whitespace-nowrap bg-muted text-[11px] font-semibold uppercase tracking-wide text-foreground/70"
 
 function fixedBodyCell(key: FixedColKey, row: ReportPivotRow, blanked: boolean) {
   if (blanked) return <TableCell />
@@ -103,10 +104,12 @@ export function ReportPivotTable({
 }) {
   if (report.rows.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 py-16 text-muted-foreground">
-        <Boxes className="size-8 opacity-40" aria-hidden />
-        <p className="text-sm font-medium">No matching stock rows</p>
-        <p className="text-xs opacity-70">
+      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-muted/20 py-16 text-center">
+        <span className="flex size-11 items-center justify-center rounded-full bg-muted text-muted-foreground">
+          <Boxes className="size-5" aria-hidden />
+        </span>
+        <p className="text-sm font-medium text-foreground">No matching stock rows</p>
+        <p className="text-xs text-muted-foreground">
           No parties matched this date{report.region_id ? " for the selected region" : ""}.
         </p>
       </div>
@@ -133,7 +136,7 @@ export function ReportPivotTable({
   const renderRows = buildRenderRows(report.rows, groupBySoOrg ? "so_sales_org" : "distr_chnl")
 
   return (
-    <Table containerClassName="max-h-[calc(100vh-17rem)] overflow-auto rounded-lg border">
+    <Table containerClassName="max-h-[calc(100vh-17rem)] overflow-auto rounded-xl border border-border">
       <TableHeader>
         <TableRow>
           {fixedCols.map((h) => (
@@ -155,7 +158,7 @@ export function ReportPivotTable({
         {renderRows.map((rr, idx) =>
           rr.kind === "subtotal" ? (
             <TableRow key={`sub-${idx}`} className="bg-muted/50 font-medium hover:bg-muted/50">
-              <TableCell colSpan={leftColSpan} className="text-right text-xs text-foreground">{rr.label}</TableCell>
+              <TableCell colSpan={leftColSpan} className="text-right text-xs font-semibold text-foreground">{rr.label}</TableCell>
               {rakeCols.map((col) => rakeAggCell(col, rr.agg))}
               {trailingKeys.map((k) => (
                 <Fragment key={k}>{aggTrailingCell(k, rr.agg)}</Fragment>
@@ -183,8 +186,8 @@ export function ReportPivotTable({
       </TableBody>
 
       <TableFooter>
-        <TableRow className="sticky bottom-0 z-20 bg-muted font-semibold hover:bg-transparent">
-          <TableCell colSpan={leftColSpan} className="text-right text-sm text-foreground">Grand Total</TableCell>
+        <TableRow className="sticky bottom-0 z-20 border-t border-border bg-muted font-semibold hover:bg-muted">
+          <TableCell colSpan={leftColSpan} className="text-right text-xs font-semibold uppercase tracking-wide text-foreground">Grand Total</TableCell>
           {rakeCols.map((col) => (
             <TableCell key={col} />
           ))}

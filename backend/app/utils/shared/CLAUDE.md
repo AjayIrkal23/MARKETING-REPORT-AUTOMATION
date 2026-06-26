@@ -6,7 +6,8 @@
 ## What lives here
 
 Cross-domain Excel helpers: the format-agnostic workbook **parser** + file
-**resolver** (ingestion side) and styling helpers (export side).
+**resolver** (ingestion side) and the **premium flat-table export engine**
+(export side).
 
 ## Local conventions
 
@@ -26,7 +27,7 @@ Cross-domain Excel helpers: the format-agnostic workbook **parser** + file
 |------|------|
 | `excel.py` | Format-agnostic `parse_workbook` — content-detecting dispatcher: OOXML (xlsx/xlsm) via stdlib zip+iterparse (malformed-cell tolerant), `.xlsb` via pyxlsb. `.xls`/non-Excel rejected with `ValueError`. |
 | `resolve.py` | `resolve_report_file(folder, stem)` — extension-agnostic file finder (xlsx/xlsm/xlsb). |
-| `export_style.py` | `style_header_row`, `auto_size_columns`, `enable_filters`, `add_metadata_sheet`, etc. |
+| `excel_premium.py` | The shared **premium** flat-table export engine: `write_flat_table`, `write_records_sheet` (Mongo/pydantic docs → sheet), `safe_sheet_name` (Excel-legal ≤31-char unique names), `apply_cell_format` (kinds: text/num/qty/inr/credit/date/center). The tz-aware-datetime strip lives in `_record_cell` here (no longer in the domain export files). Builds on `utils/report/excel_style.py` primitives; used by stock/credit/customer-code exports + the report rake-breakdown. Replaces the removed `export_style.py`. |
 
 ## Gotchas / fragile spots
 

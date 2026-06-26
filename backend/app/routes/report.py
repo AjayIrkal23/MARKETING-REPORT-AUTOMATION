@@ -39,18 +39,11 @@ router.add_api_route(
     summary="Drill down a RAKE total to its individual jsw + jvml stock rows",
 )
 
-# GET /export — download the generated report as .xlsx
+# GET|POST /export-combined — download the chosen report sheets as one .xlsx.
+# POST carries an optional body of browser-only RAKE drill-down exclusions.
 router.add_api_route(
-    "/export",
-    ctrl.export_report_controller,
-    methods=["GET"],
-    summary="Export the Report JSW/JVML as .xlsx",
-)
-
-# GET /export-rake-totals — download RAKE + transport-mode totals as .xlsx
-router.add_api_route(
-    "/export-rake-totals",
-    ctrl.export_rake_totals_controller,
-    methods=["GET"],
-    summary="Export RAKE totals and transport-mode totals as .xlsx",
+    "/export-combined",
+    ctrl.export_combined_controller,
+    methods=["GET", "POST"],
+    summary="Export the selected report sheets as one combined .xlsx",
 )

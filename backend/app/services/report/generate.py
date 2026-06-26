@@ -30,11 +30,13 @@ _REPORT_MAP: dict[str, tuple[type, list[str]]] = {
 }
 
 # Row field display order; blank/null values sort as empty strings.
+# BRANCH (sales_office) sits right after Distr. Channel so each unique branch
+# heads its items (grouped pivot column), above Sold To Party.
 _ROW_SORT_KEYS = (
     "so_sales_org",
     "distr_chnl",
-    "sold_to_party",
     "sales_office",
+    "sold_to_party",
     "party_code",
     "ship_to_party",
     "transport_mode",

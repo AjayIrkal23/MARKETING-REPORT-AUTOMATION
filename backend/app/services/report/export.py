@@ -1,17 +1,20 @@
-"""Report JSW/JVML business logic: export the generated RAKE-pivot report as .xlsx."""
+"""Report JSW/JVML pivot sheet writer (``write_pivot_sheet``).
+
+Builds the grouped RAKE-pivot sheet — repeated parents blanked, per-group
+subtotals, a Grand Total, premium styling. Consumed by the combined report
+export (``export_combined``); there is no standalone report .xlsx endpoint.
+"""
 
 from __future__ import annotations
 
-import io
 from datetime import datetime, timezone
 from typing import Any
 
-from ...schemas.report import ReportQuery, ReportResponse
+from ...schemas.report import ReportResponse
 from ...utils.report.excel_style import (
     ALIGN_CENTER,
     ALIGN_LEFT,
     ALIGN_RIGHT,
-    add_premium_metadata_sheet,
     add_title_banner,
     apply_credit_balance_font,
     apply_pivot_view,
@@ -27,14 +30,14 @@ from ...utils.report.excel_style import (
     style_premium_header_row,
     style_subtotal_row,
 )
-from .generate import generate_report
 
 
-# Fixed row fields in display order.
+# Fixed row fields in display order. BRANCH (Sales Office) sits right after
+# Distr. Channel — a grouped pivot column heading its items, above Sold To Party.
 _FIXED_HEADERS = [
     "Distr. Channel",
-    "Sold To Party",
     "BRANCH",
+    "Sold To Party",
     "Party Code",
     "Ship To Party",
     "Transport Mode",
@@ -115,7 +118,8 @@ def _fmt_num(value: float | None) -> float | str:
 
 # Leading fixed cols eligible for repeated-parent blanking (mirrors the frontend
 # FIXED_COL_KEYS in report-grouping.ts). The 3 detail cols always show.
-_BLANK_KEYS = ("distr_chnl", "sold_to_party", "sales_office", "party_code", "ship_to_party")
+# BRANCH (sales_office) is 2nd so it groups under Distr. Channel, above Sold To Party.
+_BLANK_KEYS = ("distr_chnl", "sales_office", "sold_to_party", "party_code", "ship_to_party")
 
 
 def _group_key(row: Any, group_by_so: bool) -> tuple[str, ...]:
@@ -159,8 +163,8 @@ def _fixed_cells(row: Any, flags: dict[str, bool], group_by_so: bool) -> list[An
         cells.append("" if flags["so_sales_org"] else (row.so_sales_org or ""))
     cells += [
         "" if flags["distr_chnl"] else (row.distr_chnl or ""),
-        "" if flags["sold_to_party"] else (row.sold_to_party or ""),
         "" if flags["sales_office"] else (row.sales_office or ""),
+        "" if flags["sold_to_party"] else (row.sold_to_party or ""),
         "" if flags["party_code"] else row.party_code,
         "" if flags["ship_to_party"] else (row.ship_to_party or ""),
         row.transport_mode or "",
@@ -365,39 +369,17 @@ def _style_report(
     auto_size_columns(ws)
 
 
-async def export_report(query: ReportQuery) -> bytes:
-    """Generate the report and return it as a styled .xlsx workbook."""
-    import openpyxl
+def write_pivot_sheet(
+    wb, report: ReportResponse, visible: set[str] | None, sheet_title: str
+) -> None:
+    """Write the grouped premium pivot into a new *sheet_title* sheet on *wb*.
 
-    report = await generate_report(query)
-
-    # None ⇒ all optional columns (old clients / direct hits); a CSV ⇒ only those keys.
-    visible = None if query.columns is None else {c for c in query.columns.split(",") if c}
-
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Report"
-
+    Shared by the standalone ``/report/export`` and the combined report export so
+    the pivot is built+styled in exactly one place. *visible* is the optional
+    column filter (None ⇒ all). The in-sheet title banner is set inside
+    ``_write_report`` from the report type; *sheet_title* is the worksheet tab.
+    """
+    ws = wb.create_sheet(title=sheet_title)
     headers, rake_columns, fixed_col_count = _write_report(ws, report, visible)
     _style_report(ws, headers, rake_columns, fixed_col_count)
-    setup_print_page(ws, ws.title)
-
-    add_premium_metadata_sheet(
-        wb,
-        title="Report Export",
-        items={
-            "Export time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
-            "Report date": query.date,
-            "Report type": query.report_type.upper(),
-            "Region": report.region_name,
-            "Days filter": query.days,
-            "CCAs": ", ".join(report.ccas),
-            "Has stock": str(report.has_stock),
-            "Has credit report": str(report.has_credit_report),
-            "Coil price/qty": str(report.coil_price_per_qty) if report.coil_price_per_qty is not None else "Not set",
-        },
-    )
-
-    buf = io.BytesIO()
-    wb.save(buf)
-    return buf.getvalue()
+    setup_print_page(ws, sheet_title)

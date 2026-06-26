@@ -38,7 +38,7 @@ live here.
 | `jsw_stock_config.py` / `jvml_stock_config.py` | Stock scheduler config/status/run-now. |
 | `meta.py` | Root, health, ping, and WebSocket ping endpoints. |
 | `region.py` | Region admin CRUD and options endpoints. |
-| `report.py` | RAKE pivot report generate/export endpoints. |
+| `report.py` | RAKE pivot report generate + rake-drilldown + the single combined `export_combined_controller` (`GET /report/export-combined`, sheet picker). The old `export_report_controller` + `export_rake_totals_controller` were removed. |
 | `user.py` | Authenticated user list endpoint. |
 
 ## Gotchas / fragile spots

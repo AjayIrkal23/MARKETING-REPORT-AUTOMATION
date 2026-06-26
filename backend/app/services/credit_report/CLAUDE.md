@@ -28,6 +28,7 @@ ingestion is region-zone aware: active `Region` records drive folders under
 | `zone_polling.py` | Active-region folder loop, zone status roll-up, missing-zone alerts |
 | `list.py` / `options.py` / `serialize.py` | Server-driven list, filter options, and response serialization |
 | `config_service.py` / `status.py` | Admin config singleton + ingestion status |
+| `export.py` | **Premium** single-sheet `.xlsx` export (curated view): title banner + column header on **row 3** + zebra rows + INR / credit-balance number formats. Exposes `fetch_credit_report_docs` + `write_credit_report_sheet(wb, ...)` (the latter used by the combined report export) plus the standalone export entry. Built on `utils/shared/excel_premium.write_records_sheet`. |
 
 ## Gotchas / fragile spots
 

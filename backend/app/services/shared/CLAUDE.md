@@ -20,6 +20,7 @@ cross-cutting; otherwise create a domain-specific service.
 | File | Role |
 |------|------|
 | `ingest_cleanup.py` | Cross-cutting cleanup helpers for ingestion pipelines. |
+| `stock_export.py` | Shared JSW/JVML stock export engine: `fetch_stock_docs`, `write_stock_sheet`, `export_stock`, `stock_subtitle`. The `jsw_stock`/`jvml_stock` `export.py` modules are thin shims over this. Builds premium sheets via `utils/shared/excel_premium.py` (banner rows 1-2, column header on **row 3**). |
 
 ## Gotchas / fragile spots
 

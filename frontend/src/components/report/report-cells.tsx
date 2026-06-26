@@ -35,8 +35,17 @@ function BlockedCell({ blocked, creditStatus }: { blocked: boolean | null; credi
     return <span className="text-xs italic text-amber-600">N/A</span>
   }
   if (blocked === null) return <span className="text-muted-foreground/60">—</span>
-  if (blocked) return <span className="text-xs font-semibold text-destructive">Blocked</span>
-  return <span className="font-medium text-emerald-600 dark:text-emerald-400">No</span>
+  if (blocked)
+    return (
+      <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-semibold text-destructive">
+        Blocked
+      </span>
+    )
+  return (
+    <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+      No
+    </span>
+  )
 }
 
 function CreditBalanceCell({ row }: { row: ReportPivotRow }) {

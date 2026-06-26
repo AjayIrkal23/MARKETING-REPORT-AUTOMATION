@@ -21,6 +21,7 @@ Contains `useJswStockList`, which owns query state, server state, export state, 
 ## Gotchas / fragile spots
 
 - Export uses the same query params as the current list view.
+- `query` is persisted to localStorage (`mra:jsw-stock:query`, sliding 1h TTL via `@/hooks/usePersistedState`) so filters/date/page/sort survive navigation; the today-date default applies only when no fresh entry exists. Rows are NOT persisted — the refetch effect repopulates them from the restored query on remount.
 
 ## Up / down
 

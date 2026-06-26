@@ -6,19 +6,27 @@
  * it is explicit, not reactive). `fetchIdRef` guards against a stale response.
  */
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { format } from "date-fns"
 
-import { exportReport } from "@/api/report/export"
+import { exportCombined } from "@/api/report/export"
 import { generateReport } from "@/api/report/generate"
+import { loadPersisted, savePersisted } from "@/hooks/usePersistedState"
 import {
   DEFAULT_REPORT_COLS,
   REPORT_OPTIONAL_COLS,
   type ReportColKey,
   type ReportColVisibility,
 } from "@/components/report/report-format"
+import {
+  toExportBody,
+  transportSubtract,
+  type ExcludedEntry,
+  type RakeExclusions,
+} from "@/components/report/rake-exclusions"
 import type {
   DaysFilter,
+  ExportSheetKey,
   ReportResponse,
   ReportTypeSelection,
 } from "@/types/report/report"
@@ -42,31 +50,75 @@ export interface UseReportResult {
   exporting: boolean
   error: string | null
   generate: () => void
-  exportReport: () => void
+  /** Open the export sheet-picker dialog (validates a date is selected first). */
+  openExportDialog: () => void
+  exportDialogOpen: boolean
+  setExportDialogOpen: (open: boolean) => void
+  /** Download the combined .xlsx with the picked sheets. */
+  confirmExport: (sheets: ExportSheetKey[]) => void
   canGenerate: boolean
   visibleCols: ReportColVisibility
   toggleCol: (key: ReportColKey) => void
+  /** Browser-only RAKE drill-down exclusions (session-only; cleared on generate). */
+  exclusions: RakeExclusions
+  /** Toggle one drill-down row's exclusion for a rake (entry = stock-scoped qty + transport mode). */
+  toggleExclusion: (rake: string, key: string, entry: ExcludedEntry) => void
 }
 
 export function useReport(): UseReportResult {
-  const [inputs, setInputs] = useState<ReportInputs>(() => ({
-    date: format(new Date(), "dd-MM-yyyy"),
-    report_type: "jsw",
-    region_id: null,
-    days: "exclude",
-  }))
-  const [data, setData] = useState<ReportResponse | null>(null)
+  // Persisted across navigation (localStorage, sliding 1h TTL): the draft inputs
+  // AND the generated `data` survive away-and-back, resetting only after 1h idle.
+  // `data` must be stored too — unlike the list pages, the report has no auto-
+  // refetch on mount, so the generated payload would otherwise be lost.
+  const [inputs, setInputs] = useState<ReportInputs>(() =>
+    loadPersisted("mra:report:inputs", () => ({
+      date: format(new Date(), "dd-MM-yyyy"),
+      report_type: "jsw",
+      region_id: null,
+      days: "exclude",
+    })),
+  )
+  const [data, setData] = useState<ReportResponse | null>(() =>
+    loadPersisted<ReportResponse | null>("mra:report:data", null),
+  )
   const [loading, setLoading] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [exportDialogOpen, setExportDialogOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [visibleCols, setVisibleCols] = useState<ReportColVisibility>(
-    () => ({ ...DEFAULT_REPORT_COLS }),
+  const [visibleCols, setVisibleCols] = useState<ReportColVisibility>(() =>
+    loadPersisted("mra:report:cols", () => ({ ...DEFAULT_REPORT_COLS })),
   )
+  // Browser-only, session-only: never persisted, reset on every generate().
+  const [exclusions, setExclusions] = useState<RakeExclusions>({})
 
   const fetchIdRef = useRef(0)
 
+  // Persist inputs + generated report + column visibility across navigation
+  // (sliding 1h TTL). Split per-value so the (larger) report payload is only
+  // re-serialized when `data` itself changes — not on every input/column tweak.
+  // `data` is stored because the report has no auto-refetch on mount, so the
+  // generated payload would otherwise be lost on navigation.
+  useEffect(() => { savePersisted("mra:report:inputs", inputs) }, [inputs])
+  useEffect(() => { savePersisted("mra:report:data", data) }, [data])
+  useEffect(() => { savePersisted("mra:report:cols", visibleCols) }, [visibleCols])
+
   const toggleCol = useCallback(
     (key: ReportColKey) => setVisibleCols((p) => ({ ...p, [key]: !p[key] })),
+    [],
+  )
+
+  // Add/remove one drill-down row's exclusion (keyed by rake + canonical row key).
+  const toggleExclusion = useCallback(
+    (rake: string, key: string, entry: ExcludedEntry) =>
+      setExclusions((prev) => {
+        const group = { ...(prev[rake] ?? {}) }
+        if (key in group) delete group[key]
+        else group[key] = entry
+        const next = { ...prev }
+        if (Object.keys(group).length === 0) delete next[rake]
+        else next[rake] = group
+        return next
+      }),
     [],
   )
 
@@ -94,6 +146,7 @@ export function useReport(): UseReportResult {
       .then((result) => {
         if (id !== fetchIdRef.current) return
         setData(result)
+        setExclusions({})  // a fresh report starts with every row checked
       })
       .catch(() => {
         if (id !== fetchIdRef.current) return
@@ -104,27 +157,44 @@ export function useReport(): UseReportResult {
       })
   }, [inputs])
 
-  const exportReportCallback = useCallback(() => {
-    const date = inputs.date
-    if (!date) {
+  // Export is two-step: open the sheet-picker dialog, then download the picked sheets.
+  const openExportDialog = useCallback(() => {
+    if (!inputs.date) {
       setError("Select a date first.")
       return
     }
-    setExporting(true)
     setError(null)
-    // Export honours the same optional-column toggles as the on-screen table.
-    const columns = REPORT_OPTIONAL_COLS.filter((c) => visibleCols[c.key]).map((c) => c.key).join(",")
-    // "both" exports one merged .xlsx (jsw + jvml), grouped by SO Sales Org — same as the screen.
-    exportReport({
-      date,
-      report_type: inputs.report_type,
-      region_id: inputs.region_id ?? undefined,
-      days: inputs.days,
-      columns,
-    })
-      .catch(() => setError("Failed to export the report. Please try again."))
-      .finally(() => setExporting(false))
-  }, [inputs, visibleCols])
+    setExportDialogOpen(true)
+  }, [inputs.date])
+
+  const confirmExport = useCallback(
+    (sheets: ExportSheetKey[]) => {
+      const date = inputs.date
+      if (!date || sheets.length === 0) return
+      setExportDialogOpen(false)
+      setExporting(true)
+      setError(null)
+      // The pivot sheet honours the same optional-column toggles as the on-screen table.
+      const columns = REPORT_OPTIONAL_COLS.filter((c) => visibleCols[c.key]).map((c) => c.key).join(",")
+      // Browser-only RAKE exclusions → POST body; omitted (plain GET) when none.
+      // transport_subtract carries the same unchecks regrouped by transport mode.
+      const body = toExportBody(exclusions)
+      const hasExcl = Object.keys(body).length > 0
+      exportCombined({
+        date,
+        report_type: inputs.report_type,
+        region_id: inputs.region_id ?? undefined,
+        days: inputs.days,
+        columns,
+        sheets,
+        exclusions: hasExcl ? body : undefined,
+        transport_subtract: hasExcl ? transportSubtract(exclusions) : undefined,
+      })
+        .catch(() => setError("Failed to export the report. Please try again."))
+        .finally(() => setExporting(false))
+    },
+    [inputs, visibleCols, exclusions],
+  )
 
   return {
     inputs,
@@ -137,9 +207,14 @@ export function useReport(): UseReportResult {
     exporting,
     error,
     generate,
-    exportReport: exportReportCallback,
+    openExportDialog,
+    exportDialogOpen,
+    setExportDialogOpen,
+    confirmExport,
     canGenerate: inputs.date !== null,
     visibleCols,
     toggleCol,
+    exclusions,
+    toggleExclusion,
   }
 }

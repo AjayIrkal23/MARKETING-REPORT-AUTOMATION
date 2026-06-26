@@ -37,7 +37,7 @@ whitelist so unknown sort keys are rejected at parse time.
 | `credit_report.py` / `credit_report_record.py` / `credit_report_config.py` | Credit report query, row, config, status, and zone-run DTOs. |
 | `jsw_stock.py` / `jsw_stock_record.py` | JSW stock query and public row DTOs. |
 | `jvml_stock.py` / `jvml_stock_record.py` | JVML stock query and public row DTOs. |
-| `report.py` | RAKE pivot report query/response DTOs. |
+| `report.py` | RAKE pivot report query/response DTOs + `CombinedExportQuery(ReportQuery)` (adds a required `sheets` CSV field for `GET /report/export-combined`). |
 | `dashboard.py` | Dashboard ingestion-status DTOs. |
 | `cleanup.py` | Shared duplicate-cleanup response DTO. |
 

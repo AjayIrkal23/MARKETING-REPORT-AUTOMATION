@@ -27,6 +27,7 @@ fetched jsw+jvml rows, loading/error) — derives its query from the report
 ## Gotchas / fragile spots
 
 - The pivot relies on backend sort order for client-side grouping.
+- `inputs`, the generated `data`, and `visibleCols` are persisted to localStorage (`mra:report:{inputs,data,cols}`, sliding 1h TTL via `@/hooks/usePersistedState`). `data` is stored too — because generation is manual (no auto-refetch on mount), the generated report would otherwise be lost on navigation; it survives away-and-back and resets only after >1h idle. `ReportSection` likewise persists the active tab (`mra:report:tab`).
 
 ## Up / down
 

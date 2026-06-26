@@ -33,11 +33,12 @@ project `.env`.
 | `test_credit_report_zone_ingestion.py` | Region-zone ingest helpers and scoped delete behavior. |
 | `test_customer_code_template.py` | Customer-code import template. |
 | `test_ingest_cleanup.py` | Duplicate-row cleanup helper. |
-| `test_jsw_stock_export.py` / `test_jvml_stock_export.py` | Stock export behavior. |
+| `test_jsw_stock_export.py` / `test_jvml_stock_export.py` | Stock export behavior (header read from **row 3**; `CustomerCode` patched at `app.services.shared.stock_export`). |
 | `test_stock_filters.py` | JSW/JVML ingestion row gates. |
-| `test_report_aging.py` / `test_report_enrichment.py` / `test_report_export.py` | RAKE report logic. |
+| `test_report_aging.py` / `test_report_enrichment.py` | RAKE report aging + enrichment logic. |
+| `test_report_export.py` | Combined export pivot sheet ("BRANCH WISE PIVOT REPORT" via `export_combined`). |
+| `test_report_export_combined.py` | The combined multi-sheet workbook (`export_combined` sheet set + metadata). |
 | `test_setup_schemas.py` | Setup/schema validation. |
-| `test_shared_export_style.py` | Shared export conventions. |
 
 ## Gotchas / fragile spots
 
