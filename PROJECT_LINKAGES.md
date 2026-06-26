@@ -107,4 +107,6 @@ footer (live, client-side) and omitted from the export's rake-totals / transport
   dropped from the breakdown sheet. `both` mode is exact.
 - Transport-mode buckets map empty → `"Unknown"` to match `generate.py::_compute_totals`.
 - Browser-only: exclusions live in `useReport` `useState` (never persisted), clear on
-  `generate()`, and ride the export as a transient POST body — no DB, no shared state.
+  `generate()` **and on any toolbar input change** (so a stale export can't apply old
+  unchecks to a regenerated report), and ride the export as a transient POST body —
+  no DB, no shared state.

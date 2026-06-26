@@ -122,10 +122,17 @@ export function useReport(): UseReportResult {
     [],
   )
 
-  const setDate = useCallback((date: string | null) => setInputs((p) => ({ ...p, date })), [])
-  const setReportType = useCallback((report_type: ReportTypeSelection) => setInputs((p) => ({ ...p, report_type })), [])
-  const setRegionId = useCallback((region_id: string | null) => setInputs((p) => ({ ...p, region_id })), [])
-  const setDays = useCallback((days: DaysFilter) => setInputs((p) => ({ ...p, days })), [])
+  // Any toolbar change invalidates the generated drill-down, so drop now-stale
+  // exclusions — otherwise an export (which uses live inputs) would re-generate a
+  // DIFFERENT report yet apply unchecks computed against the old drill-down.
+  const patchInputs = useCallback((patch: Partial<ReportInputs>) => {
+    setInputs((p) => ({ ...p, ...patch }))
+    setExclusions((prev) => (Object.keys(prev).length ? {} : prev))
+  }, [])
+  const setDate = useCallback((date: string | null) => patchInputs({ date }), [patchInputs])
+  const setReportType = useCallback((report_type: ReportTypeSelection) => patchInputs({ report_type }), [patchInputs])
+  const setRegionId = useCallback((region_id: string | null) => patchInputs({ region_id }), [patchInputs])
+  const setDays = useCallback((days: DaysFilter) => patchInputs({ days }), [patchInputs])
 
   const generate = useCallback(() => {
     const date = inputs.date
