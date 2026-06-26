@@ -1,7 +1,7 @@
 /**
  * Report JSW/JVML — domain types mirroring the backend `report` domain
  * (`schemas/report.py`). RAKE-pivot layout: rows grouped by SO Sales Org →
- * Distr. Channel → Sold To Party → BRANCH (Sales Office) → Party Code →
+ * Distr. Channel → BRANCH (Sales Office) → Sold To Party → Party Code →
  * Ship-To Party → Transport Mode → Destination → ROUTE; dynamic RAKE columns
  * contain the sum of stock_quantity. Credit-report checks are preserved.
  */
@@ -72,6 +72,19 @@ export interface RakeDrilldownRow {
   stock_quantity: number           // this row's quantity
 }
 
+/** A merged drill-down row: 8-field identity + summed quantity (Source & Ship To Party dropped). */
+export interface RakeDrilldownMergedRow {
+  so_sales_org: string | null      // Sales Org
+  distr_chnl: string | null        // Distr Channel
+  sales_office: string | null      // rendered as BRANCH
+  sold_to_party: string | null     // Sold to party
+  party_code: string | null        // normalized display code
+  transport_mode: string | null    // from CustomerCode.transport_mode
+  destination: string | null       // from CustomerCode.destination
+  customer_name: string | null     // mapped customer
+  stock_quantity: number           // Σ stock_quantity for the merged group
+}
+
 /** GET /report/rake-drilldown payload — individual jsw + jvml rows for one RAKE. */
 export interface RakeDrilldownResponse {
   rake: string
@@ -80,6 +93,7 @@ export interface RakeDrilldownResponse {
   region_name: string
   days_filter: DaysFilter
   rows: RakeDrilldownRow[]
+  merged_rows: RakeDrilldownMergedRow[]   // rows collapsed by 8-field identity (server-computed)
   total_quantity: number
 }
 
@@ -91,11 +105,36 @@ export interface RakeDrilldownParams {
   days: DaysFilter
 }
 
-/** Query params for GET /report/generate + /report/export (date is "dd-MM-yyyy"). */
+/** Query params for GET /report/generate (date is "dd-MM-yyyy"). */
 export interface ReportQueryParams {
   date: string
   report_type: ReportTypeSelection  // "both" ⇒ one merged call (jsw + jvml)
   region_id?: string
   days: DaysFilter
   columns?: string                  // export only: CSV of visible optional-column keys
+}
+
+/** Which sheets the combined /report export should include (picker dialog keys). */
+export type ExportSheetKey =
+  | "pivot"          // BRANCH WISE PIVOT REPORT
+  | "rake_totals"    // TOTAL RAKE REPORT
+  | "rake_merged"    // one "{RAKE} - Merged" sheet per rake
+  | "rake_unmerged"  // one "{RAKE} - Unmerged" sheet per rake
+  | "jsw"            // JSW Stock List
+  | "jvml"           // JVML Stock List
+  | "credit"         // Credit Report
+
+/** One RAKE's browser-only exclusions, sent as the export POST body (per rake). */
+export interface RakeExclusionWire {
+  keys: string[]      // canonical row_identity strings to omit from breakdown sheets
+  subtract: number    // qty to subtract from this rake's TOTAL RAKE REPORT figure
+}
+
+/** Query params for GET|POST /report/export-combined (report params + chosen sheets). */
+export interface CombinedExportParams extends ReportQueryParams {
+  sheets: ExportSheetKey[]
+  /** Browser-only RAKE drill-down exclusions; present ⇒ POST with a JSON body. */
+  exclusions?: Record<string, RakeExclusionWire>
+  /** Same unchecks regrouped by transport mode → subtract from the transport-mode totals sheet. */
+  transport_subtract?: Record<string, number>
 }

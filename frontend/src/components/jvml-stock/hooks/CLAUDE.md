@@ -21,6 +21,7 @@ Contains `useJvmlStockList`, mirroring `useJswStockList` for the JVML domain.
 ## Gotchas / fragile spots
 
 - Any change to the JSW list hook should be evaluated for JVML parity.
+- `query` is persisted to localStorage (`mra:jvml-stock:query`, sliding 1h TTL via `@/hooks/usePersistedState`) so filters/date/page/sort survive navigation; mirror any JSW persistence change here. Rows aren't persisted — the refetch effect repopulates them on remount.
 
 ## Up / down
 

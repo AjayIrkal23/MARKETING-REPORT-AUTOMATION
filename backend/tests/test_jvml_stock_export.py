@@ -46,7 +46,7 @@ def test_export_builds_xlsx_bytes() -> None:
         return_value=mock_find,
     ):
         with patch(
-            "app.services.jvml_stock.export.CustomerCode.find",
+            "app.services.shared.stock_export.CustomerCode.find",
             return_value=MagicMock(to_list=AsyncMock(return_value=[]))(),
         ):
             query = JvmlStockListQuery(date="23-06-2026")
@@ -73,7 +73,7 @@ def test_export_includes_all_client_columns_and_uses_normalized_party_code() -> 
         return_value=mock_find,
     ):
         with patch(
-            "app.services.jvml_stock.export.CustomerCode.find",
+            "app.services.shared.stock_export.CustomerCode.find",
             return_value=MagicMock(to_list=AsyncMock(return_value=[]))(),
         ):
             query = JvmlStockListQuery(date="23-06-2026")
@@ -83,7 +83,7 @@ def test_export_includes_all_client_columns_and_uses_normalized_party_code() -> 
 
     wb = openpyxl.load_workbook(io.BytesIO(data))
     ws = wb["JVML Stock"]
-    headers = [cell.value for cell in ws[1]]
+    headers = [cell.value for cell in ws[3]]  # rows 1-2 = banner, header on row 3
 
     assert "Party Code (Normalized)" in headers
     assert "Customer Name" in headers
@@ -102,4 +102,4 @@ def test_export_includes_all_client_columns_and_uses_normalized_party_code() -> 
 
     # The normalized value should be written under the normalized header.
     normalized_idx = headers.index("Party Code (Normalized)") + 1
-    assert ws.cell(row=2, column=normalized_idx).value == "40122581"
+    assert ws.cell(row=4, column=normalized_idx).value == "40122581"  # first data row

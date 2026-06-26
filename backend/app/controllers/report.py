@@ -17,22 +17,23 @@ from ..core.errors import ValidationError
 from ..core.responses import SuccessEnvelope, success
 from ..schemas.auth import AuthUser
 from ..schemas.report import (
+    CombinedExportBody,
+    CombinedExportQuery,
     RakeDrilldownQuery,
     RakeDrilldownResponse,
     ReportQuery,
     ReportResponse,
 )
-from ..services.report.export import export_report
-from ..services.report.export_totals import export_rake_totals
+from ..services.report.export_combined import export_combined
 from ..services.report.generate import generate_report
 from ..services.report.rake_drilldown import rake_drilldown
 
 # Unknown-key rejection (backend-api-standards, OWASP A04).
 _ALLOWED_GENERATE_KEYS = frozenset({"date", "report_type", "region_id", "days"})
-# /export accepts the same params plus the optional `columns` filter.
-_ALLOWED_EXPORT_KEYS = frozenset({"date", "report_type", "region_id", "days", "columns"})
-# /export-rake-totals: same base params, no `columns`.
-_ALLOWED_TOTALS_KEYS = frozenset({"date", "report_type", "region_id", "days"})
+# /export-combined: the report params + the optional `columns` filter + `sheets`.
+_ALLOWED_COMBINED_KEYS = frozenset(
+    {"date", "report_type", "region_id", "days", "columns", "sheets"}
+)
 # /rake-drilldown: a single RAKE + date + region + aging filter (no report_type).
 _ALLOWED_DRILLDOWN_KEYS = frozenset({"rake", "date", "region_id", "days"})
 
@@ -74,45 +75,27 @@ async def rake_drilldown_controller(
     return success(result)
 
 
-async def export_report_controller(
+async def export_combined_controller(
     request: Request,
-    query: ReportQuery = Depends(),
+    query: CombinedExportQuery = Depends(),
+    body: CombinedExportBody | None = None,
     _user: AuthUser = Depends(get_current_user),
 ) -> StreamingResponse:
-    """``GET /report/export`` — export the generated report as .xlsx.
+    """``GET|POST /report/export-combined`` — export the chosen sheets as one .xlsx.
 
-    Accepts the same query parameters as ``/report/generate`` plus an optional
-    ``columns`` CSV of visible optional-column keys.
+    Accepts the report export params plus a ``sheets`` CSV (which sheets to
+    include) as query params. POST may also carry an optional JSON ``body`` with
+    browser-only RAKE drill-down exclusions; GET (no body) exports the full file.
+    Powers the /report page sheet-picker dialog.
     """
-    unknown = set(request.query_params.keys()) - _ALLOWED_EXPORT_KEYS
+    unknown = set(request.query_params.keys()) - _ALLOWED_COMBINED_KEYS
     if unknown:
         raise ValidationError(
             f"Unknown query parameter(s): {', '.join(sorted(unknown))}"
         )
 
-    data: bytes = await export_report(query)
-    filename = f"report_{query.report_type}_{query.date}.xlsx"
-    return StreamingResponse(
-        BytesIO(data),
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
-    )
-
-
-async def export_rake_totals_controller(
-    request: Request,
-    query: ReportQuery = Depends(),
-    _user: AuthUser = Depends(get_current_user),
-) -> StreamingResponse:
-    """``GET /report/export-rake-totals`` — export RAKE + transport-mode totals as .xlsx."""
-    unknown = set(request.query_params.keys()) - _ALLOWED_TOTALS_KEYS
-    if unknown:
-        raise ValidationError(
-            f"Unknown query parameter(s): {', '.join(sorted(unknown))}"
-        )
-
-    data: bytes = await export_rake_totals(query)
-    filename = f"rake_totals_{query.report_type}_{query.date}.xlsx"
+    data: bytes = await export_combined(query, body)
+    filename = f"report_combined_{query.report_type}_{query.date}.xlsx"
     return StreamingResponse(
         BytesIO(data),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

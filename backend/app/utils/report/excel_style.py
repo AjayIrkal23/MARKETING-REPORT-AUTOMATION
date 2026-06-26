@@ -17,6 +17,8 @@ from openpyxl.worksheet.worksheet import Worksheet
 # ---------------------------------------------------------------------------
 # Colour palette
 # ---------------------------------------------------------------------------
+BRAND_FILL = "0B5394"           # JSW corporate blue — title banner band
+BRAND_SUBTITLE_COLOUR = "D6E4F5"  # light blue — banner subtitle on the brand band
 HEADER_FILL = "0F172A"          # slate-900
 HEADER_FONT_COLOUR = "FFFFFF"   # white
 SUBTOTAL_FILL = "E2E8F0"        # slate-200
@@ -40,8 +42,8 @@ FONT_DATA = Font(size=10, name="Calibri")
 FONT_SUBTOTAL = Font(bold=True, size=10, color="1F2937", name="Calibri")
 FONT_SUBTOTAL_LABEL = Font(bold=True, size=10, color="1F2937", name="Calibri")
 FONT_GRAND_TOTAL = Font(bold=True, size=11, color=GRAND_TOTAL_FONT_COLOUR, name="Calibri")
-FONT_TITLE = Font(bold=True, size=16, color=HEADER_FILL, name="Calibri")
-FONT_SUBTITLE = Font(size=11, color="475569", name="Calibri")
+FONT_TITLE = Font(bold=True, size=16, color=HEADER_FONT_COLOUR, name="Calibri")
+FONT_SUBTITLE = Font(size=11, color=BRAND_SUBTITLE_COLOUR, name="Calibri")
 FONT_STATUS = Font(size=10, bold=True, name="Calibri")
 
 # ---------------------------------------------------------------------------
@@ -65,6 +67,7 @@ GRAND_TOTAL_BORDER = Border(
 # ---------------------------------------------------------------------------
 # Fill presets
 # ---------------------------------------------------------------------------
+FILL_BRAND = PatternFill(start_color=BRAND_FILL, end_color=BRAND_FILL, fill_type="solid")
 FILL_HEADER = PatternFill(start_color=HEADER_FILL, end_color=HEADER_FILL, fill_type="solid")
 FILL_SUBTOTAL = PatternFill(start_color=SUBTOTAL_FILL, end_color=SUBTOTAL_FILL, fill_type="solid")
 FILL_GRAND_TOTAL = PatternFill(
@@ -238,14 +241,21 @@ def add_title_banner(
     title: str,
     subtitle: str,
 ) -> None:
-    """Add a merged title banner above the table."""
+    """Add a merged, JSW-branded title banner (blue band + white title) above the table."""
+    banner_align = Alignment(horizontal="left", vertical="center", indent=1)
+
+    # Paint the whole two-row band brand-blue first so merged + trailing cells match.
+    for band_row in (row_idx, row_idx + 1):
+        for col in range(1, n_cols + 1):
+            ws.cell(row=band_row, column=col).fill = FILL_BRAND
+
     start_cell = ws.cell(row=row_idx, column=1, value=title)
     start_cell.font = FONT_TITLE
-    start_cell.alignment = Alignment(horizontal="left", vertical="center")
+    start_cell.alignment = banner_align
 
     subtitle_cell = ws.cell(row=row_idx + 1, column=1, value=subtitle)
     subtitle_cell.font = FONT_SUBTITLE
-    subtitle_cell.alignment = Alignment(horizontal="left", vertical="center")
+    subtitle_cell.alignment = banner_align
 
     if n_cols > 1:
         ws.merge_cells(start_row=row_idx, start_column=1, end_row=row_idx, end_column=n_cols)
@@ -253,7 +263,7 @@ def add_title_banner(
             start_row=row_idx + 1, start_column=1, end_row=row_idx + 1, end_column=n_cols
         )
 
-    ws.row_dimensions[row_idx].height = 28
+    ws.row_dimensions[row_idx].height = 30
     ws.row_dimensions[row_idx + 1].height = 20
 
 

@@ -159,6 +159,12 @@ day-filter, augmented with credit-report checks. Endpoint: `GET /report/generate
 `get_current_user`). Query (4 keys, unknown-key rejected): `date` (`dd-mm-yyyy`), `report_type`
 (`jsw`|`jvml`), `region_id?` (empty ⇒ all regions), `days` (`include`|`exclude`|`only`).
 
+- **Exports are now ONE endpoint:** `GET /report/export-combined` (params `date, report_type,
+  region_id, days, columns, sheets`) streams a single multi-sheet `.xlsx` chosen via the frontend
+  sheet picker (`sheets` CSV → pivot / rake totals / per-rake merged+unmerged / jsw / jvml / credit).
+  The old `GET /report/export` and `GET /report/export-rake-totals` routes were **removed**.
+  `GET /report/rake-drilldown` is unchanged.
+
 - **Algorithm** (`services/report/`): `generate.py` orchestrates → resolve region→`customer_codes`
   (`_resolve_codes`, codes normalized via `utils/report/normalize.py::normalize_code` = `lstrip("0")`,
   the **canonical** normalizer both ingest pollers now import) → `pivot.py::aggregate_pivot` runs ONE
@@ -180,9 +186,10 @@ day-filter, augmented with credit-report checks. Endpoint: `GET /report/generate
   `No Credit balance`; no active coil price → `required_credit=null`.
 - **Audit:** `"report"` category added to both `AuditCategory` Literals + `_CATEGORIES` +
   `_CATEGORY_PREFIXES` (`/report`, before the `/admin` fallback).
-- Files: `schemas/report.py`, `services/report/{generate,pivot,credit}.py`, `utils/report/normalize.py`,
-  `controllers/report.py`, `routes/report.py` (both register lines in `routes/__init__.py`). Spec +
-  audit + review: `.planning/report-jsw-jvml/{SPEC,AUDIT,REVIEW}.md`.
+- Files: `schemas/report.py`, `services/report/{generate,pivot,credit}.py` + the export writers
+  `services/report/{export,export_totals,rake_breakdown_export,export_combined}.py`,
+  `utils/report/normalize.py`, `controllers/report.py`, `routes/report.py` (both register lines in
+  `routes/__init__.py`). Spec + audit + review: `.planning/report-jsw-jvml/{SPEC,AUDIT,REVIEW}.md`.
 
 ---
 

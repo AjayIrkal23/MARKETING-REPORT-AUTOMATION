@@ -32,6 +32,7 @@ from datetime import time as dt_time
 from ...models.jsw_stock_config import JswStockConfig
 from ...models.jsw_stock_ingestion import JswStockIngestion
 from ...schemas.jsw_stock_config import JswStockStatusPublic
+from ...utils.shared.resolve import resolve_report_file
 from .emails import send_missing_alert
 from .ingest import ingest_file
 from .status import get_status
@@ -46,29 +47,6 @@ def _parse_hhmm(s: str) -> dt_time:
     """
     h, m = map(int, s.split(":"))
     return dt_time(h, m)
-
-
-def _resolve_report_file(folder: str, file_name: str) -> str | None:
-    """Return the path to ``<file_name>.xlsx`` inside *folder*, matching the
-    extension **case-insensitively**.
-
-    A Linux filesystem is case-sensitive, so a hard-coded ``".xlsx"`` would miss
-    a SAP export that arrives as ``.XLSX``. Fast-paths the common case variants,
-    then falls back to a directory scan (stem matched exactly, extension compared
-    lower-cased). Returns ``None`` when no matching file exists.
-    """
-    for ext in (".xlsx", ".XLSX", ".Xlsx"):
-        candidate = os.path.join(folder, file_name + ext)
-        if os.path.isfile(candidate):
-            return candidate
-    try:
-        for entry in os.listdir(folder):
-            stem, ext = os.path.splitext(entry)
-            if stem == file_name and ext.lower() == ".xlsx":
-                return os.path.join(folder, entry)
-    except OSError:
-        pass
-    return None
 
 
 async def run_poll() -> JswStockStatusPublic:
@@ -125,7 +103,7 @@ async def run_poll() -> JswStockStatusPublic:
         return await get_status()
 
     # ── 5. Check for the Excel file (case-insensitive ext — SAP may ship .XLSX) ─
-    fpath = _resolve_report_file(folder, cfg.file_name)
+    fpath = resolve_report_file(folder, cfg.file_name)
 
     if fpath is not None:
         # ── 5a. File found — ingest ──────────────────────────────────────────

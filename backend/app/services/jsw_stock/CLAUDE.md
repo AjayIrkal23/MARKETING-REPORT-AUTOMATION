@@ -25,6 +25,7 @@ JSW Stock ingestion, listing, options, config and status services.
 | `customer_map.py` | Batch `CustomerCode` lookup at ingest time |
 | `list.py` / `options.py` / `query.py` | Server-driven list + filter options |
 | `config_service.py` / `status.py` | Admin config singleton + ingestion status |
+| `export.py` | **Thin shim** over `services/shared/stock_export.py` (the old byte-for-byte duplication is gone). Defines the `(header, field, kind)` column triples and exposes `fetch_jsw_stock_docs` / `write_jsw_stock_sheet` (used by the combined report export) plus the standalone `export_*` entry. Premium sheet: title banner rows 1-2, column header on **row 3** (was row 1). |
 
 ## Gotchas / fragile spots
 
@@ -33,8 +34,9 @@ JSW Stock ingestion, listing, options, config and status services.
 - `cleanup_duplicates` is called automatically after every ingest; the admin
   endpoint `POST /admin/jsw-stock/cleanup-duplicates` is available for manual
   repair.
-- `export.py::_cell_value` strips tzinfo from datetimes — Mongo returns tz-aware
-  values (`tz_aware=True`) and openpyxl rejects them on `wb.save`.
+- The tzinfo strip for datetimes now lives in `utils/shared/excel_premium._record_cell`
+  (shared by all premium exports), **not** in this domain `export.py`. Mongo returns
+  tz-aware values (`tz_aware=True`) and openpyxl rejects them on `wb.save`.
 
 ## Up / down
 

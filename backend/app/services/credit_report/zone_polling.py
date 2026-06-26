@@ -11,6 +11,7 @@ from ...models.credit_report import CreditReport
 from ...models.credit_report_config import CreditReportConfig
 from ...models.credit_report_ingestion import CreditReportIngestion, CreditReportZoneRun
 from ...models.region import Region
+from ...utils.shared.resolve import resolve_report_file
 from .emails import send_missing_alert
 from .ingest import ingest_region, purge_legacy_flat_rows
 
@@ -27,22 +28,6 @@ def safe_dir(name: str) -> str:
     cleaned = re.sub(r"_+", "_", cleaned)
     cleaned = cleaned.strip(" .")
     return cleaned if cleaned.strip("_") else "region"
-
-
-def resolve_report_file(folder: str, file_name: str) -> str | None:
-    """Return ``<file_name>.xlsx`` inside *folder*, extension case-insensitive."""
-    for ext in (".xlsx", ".XLSX", ".Xlsx"):
-        candidate = os.path.join(folder, file_name + ext)
-        if os.path.isfile(candidate):
-            return candidate
-    try:
-        for entry in os.listdir(folder):
-            stem, ext = os.path.splitext(entry)
-            if stem == file_name and ext.lower() == ".xlsx":
-                return os.path.join(folder, entry)
-    except OSError:
-        pass
-    return None
 
 
 async def active_regions() -> list[Region]:

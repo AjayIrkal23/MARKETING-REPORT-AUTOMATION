@@ -1,9 +1,10 @@
 """RAKE-pivot aggregation for the Report JSW/JVML feature.
 
 Builds the row-level aggregation grouped by the stock row fields
-(SO Sales Org → Distr. Channel → Sold To Party → Sales Office → Party Code →
-Ship-To Party) for one date, restricted to a set of normalized customer codes,
-with the aging day-filter applied.
+(SO Sales Org → Distr. Channel → Sales Office (BRANCH) → Sold To Party →
+Party Code → Ship-To Party) for one date, restricted to a set of normalized
+customer codes, with the aging day-filter applied. (The ``$group`` key order
+below is irrelevant to grouping; display order is set in ``generate.py``.)
 
 CustomerCode enrichment (RAKE, Transport Mode, Destination, ROUTE) and the
 RAKE-column pivot happen in ``services.report.generate`` after this step.

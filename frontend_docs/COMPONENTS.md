@@ -63,6 +63,37 @@ toolbar "Columns" dropdown toggles `visibleCols` (`useReport`), and the table
 renders trailing columns conditionally. The registry of toggleable columns lives in
 `components/report/report-format.ts` (`REPORT_OPTIONAL_COLS` / `DEFAULT_REPORT_COLS`).
 
+**RAKE drill-down exclusions** are the other client-side view config — also *not*
+row filtering of a list, but a per-session adjustment of derived totals. In the
+Total Rake Report tab each drill-down row carries an **Incl.** checkbox; unchecking
+subtracts that row from the RAKE total, the Transport Mode total, and the drill-down
+footer (live), and — on export — from the rake-totals / transport-mode / breakdown
+sheets. State is plain `useState` in `useReport` (`exclusions`, never persisted,
+cleared on `generate()`). Row identity (`components/report/rake-exclusions.ts::rowKey`)
+is the backend 8-field merge key joined by `chr(31)` and **must stay byte-identical**
+to `backend/.../rake_drilldown.py::row_identity`, or unchecked rows fail to drop from
+the export. `exportCombined` switches `GET → POST` (with a JSON body) only when rows
+are unchecked.
+
+---
+
+## Settings config forms — file name is a stem, format is auto-detected
+
+The three ingestion scheduler cards (JSW / JVML / Credit Report) share one
+`StockConfigPanel` driven by `config-domains.ts`. The **File name** input stores a
+file *stem only* — no extension. The backend resolves that stem against any Excel
+extension by content, so `.xlsx` / `.xlsm` / `.xlsb` all ingest.
+
+- Do **not** show or require a fixed extension in this UI. The field has no `.xlsx`
+  suffix badge; `ResolvedPathPreview.tsx` renders `<stem>` followed by a muted
+  `.xlsx / .xlsm / .xlsb`, and the copy button copies the folder + stem (the exact
+  extension is resolved at ingest, so a hard-coded one would mislead).
+- The accepted-format copy lives in `config-domains.ts` (`fileNameHint` + the
+  validate error). If the backend's supported extensions change
+  (`backend/app/utils/shared/resolve.py::EXCEL_EXTS`), update this copy to match.
+
+See the cross-layer chain in `PROJECT_LINKAGES.md` → "Report ingestion config".
+
 ---
 
 ## Route Page vs Feature Component

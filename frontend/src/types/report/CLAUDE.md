@@ -16,7 +16,7 @@ Contains the query params, response payload, and row/column types for the RAKE p
 
 | File | Role |
 |------|------|
-| `report.ts` | Report query, response, and row types. |
+| `report.ts` | Report query, response, and row types, plus the export-picker types: `ExportSheetKey` (union: `pivot` \| `rake_totals` \| `rake_merged` \| `rake_unmerged` \| `jsw` \| `jvml` \| `credit`) and `CombinedExportParams` (`ReportQueryParams` + `sheets`). |
 
 ## Gotchas / fragile spots
 

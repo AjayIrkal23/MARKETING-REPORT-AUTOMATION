@@ -5,14 +5,39 @@
 
 ## What lives here
 
-Cross-domain Excel styling and formatting helpers used by multiple report
-export services.
+Cross-domain Excel helpers: the format-agnostic workbook **parser** + file
+**resolver** (ingestion side) and the **premium flat-table export engine**
+(export side).
+
+## Local conventions
+
+- `excel.py` is the one workbook parser for all three report domains
+  (credit_report, jsw_stock, jvml_stock). It detects the container by **content,
+  not extension** and supports `.xlsx` / `.xlsm` (stdlib zip + iterparse) and
+  `.xlsb` (pyxlsb). Each `utils/<domain>/excel.py` is a thin shim binding its
+  column map: `parse_workbook(data, header_to_field, normalize_header)`.
+- `resolve.py` finds a report file from its stem against any Excel extension
+  (xlsx > xlsm > xlsb, case-insensitive). Pollers import it — do not re-hardcode `.xlsx`.
+- Import `openpyxl` / `pyxlsb` lazily inside functions so `app.main` imports
+  without them; `pyxlsb` is loaded only on the `.xlsb` path.
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `export_style.py` | `style_header_row`, `auto_size_columns`, `enable_filters`, `add_metadata_sheet`, etc. |
+| `excel.py` | Format-agnostic `parse_workbook` — content-detecting dispatcher: OOXML (xlsx/xlsm) via stdlib zip+iterparse (malformed-cell tolerant), `.xlsb` via pyxlsb. `.xls`/non-Excel rejected with `ValueError`. |
+| `resolve.py` | `resolve_report_file(folder, stem)` — extension-agnostic file finder (xlsx/xlsm/xlsb). |
+| `excel_premium.py` | The shared **premium** flat-table export engine: `write_flat_table`, `write_records_sheet` (Mongo/pydantic docs → sheet), `safe_sheet_name` (Excel-legal ≤31-char unique names), `apply_cell_format` (kinds: text/num/qty/inr/credit/date/center). The tz-aware-datetime strip lives in `_record_cell` here (no longer in the domain export files). Builds on `utils/report/excel_style.py` primitives; used by stock/credit/customer-code exports + the report rake-breakdown. Replaces the removed `export_style.py`. |
+
+## Gotchas / fragile spots
+
+- `excel.py` does NOT use openpyxl for OOXML — SAP source files have malformed
+  numeric cells (`"1.057.000"`) that crash openpyxl; the raw zip parser keeps
+  them verbatim.
+- `.xlsb` is binary (BIFF12), not zip-of-XML — needs `pyxlsb`. A real `.xlsb`
+  can't be generated here (LibreOffice has no xlsb export filter), so the xlsb
+  parity test is `skipif`-gated on `tests/fixtures/sample.xlsb`; the xlsb mapping
+  path is covered with pyxlsb stubbed.
 
 ## Up / down
 

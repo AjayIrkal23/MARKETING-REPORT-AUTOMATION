@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom"
+import { ChevronRight } from "lucide-react"
 
 import {
   Sidebar,
@@ -11,11 +12,35 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { NAV_ITEMS, ADMIN_NAV_ITEMS } from "@/components/layout/nav-items"
 import { useAppSelector } from "@/app/hooks"
 import { selectIsAdmin } from "@/store/auth/selectors"
+
+// Shared menu-button styling, reused by leaf nav items, the collapsible
+// "Stock List" trigger, and the admin items (previously duplicated inline).
+const navButtonClass = `
+  relative h-9 gap-3 rounded-md pl-3
+  text-sidebar-foreground/80
+  transition-all duration-150 ease-in-out
+  hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
+  focus-visible:ring-2 focus-visible:ring-sidebar-ring
+  data-[active=true]:bg-sidebar-accent
+  data-[active=true]:font-medium
+  data-[active=true]:text-sidebar-accent-foreground
+  [&_svg]:transition-colors [&_svg]:duration-150
+  data-[active=true]:[&_svg]:text-sidebar-primary
+  group-data-[collapsible=icon]:pl-2
+`
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AppSidebar — premium redesign
@@ -108,6 +133,73 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="gap-0.5 px-1">
               {NAV_ITEMS.map((item) => {
+                // ── Group parent (e.g. "Stock List") → collapsible sub-menu ──
+                if (item.children) {
+                  const childActive = item.children.some(
+                    (c) =>
+                      pathname === c.to || pathname.startsWith(c.to + "/"),
+                  )
+
+                  return (
+                    <Collapsible
+                      key={item.label}
+                      asChild
+                      defaultOpen={childActive}
+                      className="group/collapsible"
+                    >
+                      <SidebarMenuItem className="relative">
+                        {childActive && (
+                          <div
+                            aria-hidden
+                            className="
+                              absolute inset-y-1 left-0 w-[3px] rounded-full
+                              bg-sidebar-primary
+                              group-data-[collapsible=icon]:hidden
+                            "
+                          />
+                        )}
+
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            isActive={childActive}
+                            tooltip={item.label}
+                            size="default"
+                            className={navButtonClass}
+                          >
+                            <item.icon aria-hidden="true" />
+                            <span>{item.label}</span>
+                            <ChevronRight
+                              aria-hidden="true"
+                              className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden"
+                            />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            {item.children.map((child) => {
+                              const isActive =
+                                pathname === child.to ||
+                                pathname.startsWith(child.to + "/")
+
+                              return (
+                                <SidebarMenuSubItem key={child.to}>
+                                  <SidebarMenuSubButton asChild isActive={isActive}>
+                                    <NavLink to={child.to}>
+                                      <span>{child.label}</span>
+                                    </NavLink>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              )
+                            })}
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  )
+                }
+
+                // ── Leaf nav item ──────────────────────────────────────────
                 const isActive =
                   pathname === item.to || pathname.startsWith(item.to + "/")
 
@@ -134,21 +226,9 @@ export function AppSidebar() {
                       isActive={isActive}
                       tooltip={item.label}
                       size="default"
-                      className="
-                        relative h-9 gap-3 rounded-md pl-3
-                        text-sidebar-foreground/80
-                        transition-all duration-150 ease-in-out
-                        hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
-                        focus-visible:ring-2 focus-visible:ring-sidebar-ring
-                        data-[active=true]:bg-sidebar-accent
-                        data-[active=true]:font-medium
-                        data-[active=true]:text-sidebar-accent-foreground
-                        [&_svg]:transition-colors [&_svg]:duration-150
-                        data-[active=true]:[&_svg]:text-sidebar-primary
-                        group-data-[collapsible=icon]:pl-2
-                      "
+                      className={navButtonClass}
                     >
-                      <NavLink to={item.to}>
+                      <NavLink to={item.to!}>
                         <item.icon aria-hidden="true" />
                         <span>{item.label}</span>
                       </NavLink>
@@ -191,21 +271,9 @@ export function AppSidebar() {
                         isActive={isActive}
                         tooltip={item.label}
                         size="default"
-                        className="
-                          relative h-9 gap-3 rounded-md pl-3
-                          text-sidebar-foreground/80
-                          transition-all duration-150 ease-in-out
-                          hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
-                          focus-visible:ring-2 focus-visible:ring-sidebar-ring
-                          data-[active=true]:bg-sidebar-accent
-                          data-[active=true]:font-medium
-                          data-[active=true]:text-sidebar-accent-foreground
-                          [&_svg]:transition-colors [&_svg]:duration-150
-                          data-[active=true]:[&_svg]:text-sidebar-primary
-                          group-data-[collapsible=icon]:pl-2
-                        "
+                        className={navButtonClass}
                       >
-                        <NavLink to={item.to}>
+                        <NavLink to={item.to!}>
                           <item.icon aria-hidden="true" />
                           <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                         </NavLink>

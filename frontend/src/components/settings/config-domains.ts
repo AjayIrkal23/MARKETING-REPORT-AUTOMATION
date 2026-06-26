@@ -27,7 +27,7 @@ export const JSW_DOMAIN: StockConfigDomain = {
   basePathPlaceholder: "/data/jsw-stock",
   fileNamePlaceholder: "ZSD_CURRSTK_HR",
   fileNameHint:
-    "Letters, numbers, hyphens, and underscores only — no extension.",
+    "Letters, numbers, hyphens, and underscores only — no extension (.xlsx / .xlsm / .xlsb auto-detected).",
   validateFileName: (name) =>
     JSW_FILE_NAME_RE.test(name)
       ? undefined
@@ -46,10 +46,10 @@ export const JVML_DOMAIN: StockConfigDomain = {
   basePathPlaceholder: "/data/jvml-stock",
   fileNamePlaceholder: "JVML Stock (99)",
   fileNameHint:
-    "Spaces and parentheses are fine — just no slashes or '..'. Omit the extension.",
+    "Spaces and parentheses are fine — just no slashes or '..'. Omit the extension (.xlsx / .xlsm / .xlsb auto-detected).",
   validateFileName: (name) =>
     JVML_FILE_NAME_INVALID_RE.test(name)
-      ? "Must not contain / \\ or .. — enter the name without the .xlsx extension (spaces are fine)."
+      ? "Must not contain / \\ or .. — enter the name without the extension (spaces are fine)."
       : undefined,
   enableAriaLabel: "Enable JVML Stock scheduled ingestion",
   alertNoun: "JVML STOCK EXCEL",
@@ -65,10 +65,10 @@ export const CREDIT_REPORT_DOMAIN: StockConfigDomain = {
   basePathPlaceholder: "/data/credit-report",
   fileNamePlaceholder: "credit report",
   fileNameHint:
-    "Spaces are fine — just no slashes or '..'. Omit the .xlsx extension.",
+    "Spaces are fine — just no slashes or '..'. Omit the extension (.xlsx / .xlsm / .xlsb auto-detected).",
   validateFileName: (name) =>
     CREDIT_REPORT_FILE_NAME_INVALID_RE.test(name)
-      ? "Must not contain / \\ or .. — enter the name without the .xlsx extension (spaces are fine)."
+      ? "Must not contain / \\ or .. — enter the name without the extension (spaces are fine)."
       : undefined,
   enableAriaLabel: "Enable Credit Report scheduled ingestion",
   alertNoun: "CREDIT REPORT EXCEL",

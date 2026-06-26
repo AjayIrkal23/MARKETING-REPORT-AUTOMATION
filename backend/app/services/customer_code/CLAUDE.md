@@ -34,7 +34,7 @@ except `region_link` helpers and the shared `audit` event helper.
 | `get.py` | Fetch single record by ObjectId. |
 | `list.py` | Paginated, sorted, filtered list with `region_name` batch resolution. |
 | `import_rows.py` | Bulk import from parsed `.xlsx`; upserts rows and returns inserted/updated/skipped/error counts. |
-| `export.py` | Builds an `.xlsx` export of all rows matching the current filters, using the same 15-column template order. |
+| `export.py` | Builds an `.xlsx` export of all rows matching the current filters, using the same 15-column template order. Uses the **premium** slate header + zebra styling from `utils/shared/excel_premium`, but **deliberately keeps headers on row 1 with NO title banner** — the export doubles as a re-importable template (+ a hidden fingerprint), and a banner would push headers off row 1 and break re-import. |
 | `bulk_delete.py` | Delete up to 100 ``CustomerCode`` documents by ObjectId in one operation. |
 | `options.py` | Distinct-value lookup for async-combobox field filters. |
 | `template.py` | Builds the blank 15-column import template. |
@@ -50,6 +50,9 @@ except `region_link` helpers and the shared `audit` event helper.
 - `_norm_ship_to` treats empty/whitespace as `None`; this is part of the match
   key, so a blank ship-to is a distinct value from a populated one.
 - `export.py` ignores pagination and always exports every matching row.
+- `export.py` is the **one** premium export that does NOT get a title banner —
+  headers must stay on row 1 so the file can be re-imported. Don't add
+  `add_title_banner` here.
 
 ## Up / down
 

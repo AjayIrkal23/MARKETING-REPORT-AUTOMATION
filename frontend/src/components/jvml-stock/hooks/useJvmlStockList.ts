@@ -18,6 +18,7 @@ import { format } from "date-fns"
 
 import { exportJvmlStock } from "@/api/jvml-stock/export"
 import { listJvmlStock } from "@/api/jvml-stock/list"
+import { loadPersisted, savePersisted } from "@/hooks/usePersistedState"
 
 import type { PaginationMeta } from "@/types/api/envelope"
 import type {
@@ -69,12 +70,16 @@ const FILTER_KEYS = [
 // ---------------------------------------------------------------------------
 
 export function useJvmlStockList(): UseJvmlStockListResult {
-  // Lazy initializer: seed `date` to today on mount (not module load) so a
-  // long-lived tab still opens on the correct day after midnight.
-  const [query, setQuery] = useState<JvmlStockQueryState>(() => ({
-    ...DEFAULT_QUERY,
-    date: format(new Date(), "dd-MM-yyyy"),
-  }))
+  // Persisted across navigation (localStorage, sliding 1h TTL). The lazy
+  // default seeds `date` to today only when nothing fresh is stored — on return
+  // within the hour the saved query (date + filters + page + sort) is restored
+  // and the refetch effect below repopulates the table with fresh rows.
+  const [query, setQuery] = useState<JvmlStockQueryState>(() =>
+    loadPersisted("mra:jvml-stock:query", () => ({
+      ...DEFAULT_QUERY,
+      date: format(new Date(), "dd-MM-yyyy"),
+    })),
+  )
   const [rows, setRows] = useState<JvmlStock[]>([])
   const [meta, setMeta] = useState<PaginationMeta | null>(null)
   const [loading, setLoading] = useState(false)
@@ -123,6 +128,9 @@ export function useJvmlStockList(): UseJvmlStockListResult {
   // Refetch whenever query object identity changes (also triggered by refetch()).
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { void doFetch(query) }, [doFetch, query])
+
+  // Persist the query so it survives navigation; refreshes the sliding 1h TTL.
+  useEffect(() => { savePersisted("mra:jvml-stock:query", query) }, [query])
 
   // ---------------------------------------------------------------------------
   // Param setters — filter/sort/date changes reset page to 1.

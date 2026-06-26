@@ -48,3 +48,63 @@ checks. On-demand (Generate button) — the pivot+credit join is heavy.
 - **`so_sales_org`** is grouped/sorted on and returned in the payload, but is intentionally not rendered
   in the table nor written to the export. Don't re-add to one without the other.
 - The DTOs in `schemas/report.py` and `types/report/report.ts` are a manual mirror — change them together.
+
+---
+
+## Report ingestion config + format-agnostic parsing (Settings, admin)
+
+The three scheduler config cards (JSW / JVML / Credit) store a base path + a file
+**stem** (no extension). The poller resolves the stem against any Excel extension and
+the parser detects the container by content, so `.xlsx` / `.xlsm` / `.xlsb` all ingest.
+
+| Layer | File | Role |
+|-------|------|------|
+| Settings UI | `frontend/src/components/settings/{StockConfigPanel,ResolvedPathPreview}.tsx`, `config-domains.ts` | File name = stem only; UI shows `.xlsx / .xlsm / .xlsb` auto-detected (no fixed `.xlsx`) |
+| Resolver | `backend/app/utils/shared/resolve.py` | `resolve_report_file(folder, stem)` → xlsx > xlsm > xlsb |
+| Parser | `backend/app/utils/shared/excel.py` | content-detecting `parse_workbook`; OOXML raw-zip + `.xlsb` via pyxlsb |
+| Domain shims | `backend/app/utils/{jsw_stock,jvml_stock,credit_report}/excel.py` | bind the column map → shared parser |
+| Pollers | `backend/app/services/{jsw_stock,jvml_stock}/poller.py`, `credit_report/zone_polling.py` | use the shared resolver |
+| Tests | `backend/tests/test_shared_{excel,resolve}.py` | parser dispatch + resolver priority |
+
+### Change-impact notes
+
+- **Add/drop a supported format** → edit `utils/shared/excel.py` (dispatch) and
+  `resolve.py::EXCEL_EXTS`, then mirror the extension list in the FE copy
+  (`config-domains.ts` hints + `ResolvedPathPreview.tsx`).
+- The settings **File name** field is a *stem* — never show or require a fixed
+  extension in the UI.
+- `.xlsb` is binary (parsed via pyxlsb); `.xls` (OLE2) is intentionally unsupported.
+
+---
+
+## RAKE drill-down exclusions (browser-only, session-only)
+
+In the Report's "Total Rake Report" tab, a user can uncheck drill-down rows. Those
+rows are subtracted from the RAKE total, the Transport Mode total, and the drill-down
+footer (live, client-side) and omitted from the export's rake-totals / transport-mode
+/ breakdown sheets. Nothing is persisted; state clears on `generate()`.
+
+| Layer | File | Role |
+|-------|------|------|
+| Identity (shared contract) | `frontend/src/components/report/rake-exclusions.ts::rowKey` ⇄ `backend/app/services/report/rake_drilldown.py::row_identity` | 8-field merge key joined by `chr(31)` — **must match byte-for-byte** |
+| State | `frontend/src/components/report/hooks/useReport.ts` | `exclusions` (plain `useState`, not persisted) + `toggleExclusion`; cleared in `generate()`; folded into the export body |
+| UI — checkboxes | `frontend/src/components/report/RakeDrilldownTable.tsx` | Incl. column; footer = Σ checked rows |
+| UI — totals | `frontend/src/components/report/RakeTotalsTab.tsx` | RAKE + Transport Mode tables subtract via `subtractFor` / `transportSubtract` |
+| Toggle wiring | `frontend/src/components/report/ReportSection.tsx` | computes `matchInfoFor` (stock-scoped qty + transport mode) from drill-down rows |
+| Export API | `frontend/src/api/report/export.ts`, `frontend/src/types/report/report.ts` | `GET → POST` with `{exclusions, transport_subtract}` when any row is unchecked |
+| Export schema | `backend/app/schemas/report.py` | `RakeExclusion`, `CombinedExportBody` |
+| Export service | `backend/app/services/report/{export_combined,rake_breakdown_export}.py` | subtract totals (clamped ≥0); drop rows + recompute breakdown sheet totals; emit "TRANSPORT MODE TOTAL" sheet |
+| Route/controller | `backend/app/routes/report.py`, `backend/app/controllers/report.py` | `/report/export-combined` now `GET\|POST`; optional `CombinedExportBody` |
+| Tests | `backend/tests/test_report_export_combined.py`, `test_report_export_route.py` | exclusion subtraction/omission + GET/POST body binding |
+
+### Change-impact notes
+
+- **Never diverge the identity contract** — change the separator (`chr(31)`) or the
+  8 fields/order in `rake-exclusions.ts` and `rake_drilldown.py` together, or unchecked
+  rows silently stop dropping from the export.
+- Single jsw/jvml mode: the drill-down is a union superset, so totals subtraction is
+  **stock-type-scoped** (`matchInfoFor`) — an other-stock row subtracts 0 but is still
+  dropped from the breakdown sheet. `both` mode is exact.
+- Transport-mode buckets map empty → `"Unknown"` to match `generate.py::_compute_totals`.
+- Browser-only: exclusions live in `useReport` `useState` (never persisted), clear on
+  `generate()`, and ride the export as a transient POST body — no DB, no shared state.

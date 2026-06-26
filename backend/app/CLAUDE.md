@@ -52,8 +52,10 @@ schemas/models`, with `core/` for cross-cutting concerns.
   module errors; then import domain cron jobs.
 - `core/scheduler.py` uses local imports for scheduler↔cron↔service wiring to break a
   circular import chain — preserve those `# noqa: PLC0415` local imports.
-- `jsw_stock` / `jvml_stock` / `credit_report` parsers are raw-zip readers, **not**
-  `openpyxl` — the source files contain malformed numeric cells that crash openpyxl.
+- `jsw_stock` / `jvml_stock` / `credit_report` ingestion shares one parser
+  (`utils/shared/excel.py`), content-detected (not extension): OOXML (xlsx/xlsm)
+  via raw-zip — **not** `openpyxl` (malformed numeric cells crash it) — and
+  `.xlsb` via `pyxlsb`.
 
 ## Up / down
 

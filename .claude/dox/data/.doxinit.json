@@ -1,7 +1,7 @@
 {
   "autoManaged": true,
   "version": 2,
-  "fingerprint": "aaf569f1f9b288eb",
+  "fingerprint": "08989befcbd15445",
   "documentedDirs": [
     "backend",
     "backend/app",
@@ -43,7 +43,11 @@
     "backend/app/utils/shared",
     "backend/app/utils/user",
     "backend/tests",
+    "backend/tests/fixtures",
     "backend_docs",
+    "docs",
+    "docs/superpowers",
+    "docs/superpowers/plans",
     "frontend",
     "frontend/public",
     "frontend/src",
@@ -144,7 +148,11 @@
     "frontend/src/types/user",
     "frontend_docs",
     "macro_docs",
-    "macro_files"
+    "macro_files",
+    "macro_files/25-06-2026",
+    "macro_files/25-06-2026/CREDITREPORT",
+    "macro_files/25-06-2026/CREDITREPORT/WEST CENTRAL",
+    "macro_files/26-06-2026"
   ],
   "missingChildren": []
 }

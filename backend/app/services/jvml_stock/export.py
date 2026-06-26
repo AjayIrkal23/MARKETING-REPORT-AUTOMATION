@@ -1,96 +1,49 @@
-"""JVML Stock domain business logic: export matching rows as an .xlsx workbook."""
+"""JVML Stock export — thin shim over the shared stock export (premium .xlsx)."""
 
 from __future__ import annotations
 
-import io
-from datetime import datetime, timezone
-
-from ...models.customer_code import CustomerCode
 from ...models.jvml_stock import JvmlStock
 from ...schemas.jvml_stock import JvmlStockListQuery
 from ...utils.jvml_stock.columns import COLUMNS
 from ...utils.jvml_stock.query import build_jvml_stock_filter
-from ...utils.shared.export_style import (
-    add_metadata_sheet,
-    auto_size_columns,
-    enable_filters,
-    style_header_row,
-)
+from ..shared.stock_export import export_stock, fetch_stock_docs, write_stock_sheet
 
+SHEET_TITLE = "JVML Stock"
 
-# Export every client-facing source column plus the resolved customer name
-# and report date.  System-generated columns (id, row_hash, customer_code_id,
-# source_file, created_at, updated_at) are excluded.  Party Code is exported
-# using the normalized value (leading zeros stripped) rather than the raw
-# zero-padded source value.
-_EXPORT_COLUMNS: list[tuple[str, str]] = [
+# (header, field, format-kind) — see jsw_stock/export.py for the mapping rules.
+_EXPORT_COLUMNS: list[tuple[str, str, str]] = [
     *[
         (
             "Party Code (Normalized)" if field == "party_code" else header,
             "party_code_normalized" if field == "party_code" else field,
+            "num" if ctype == "number" else "date" if ctype == "date" else "text",
         )
-        for header, field, _ in COLUMNS
+        for header, field, ctype in COLUMNS
     ],
-    ("Customer Name", "customer_name"),
-    ("Report Date", "report_date"),
+    ("Customer Name", "customer_name", "text"),
+    ("Report Date", "report_date", "text"),
 ]
 
 
-def _cell_value(doc: JvmlStock, attr: str) -> object:
-    """Return a printable value for *attr* on *doc*."""
-    value = getattr(doc, attr, None)
-    if value is None:
-        return ""
-    # openpyxl rejects tz-aware datetimes (Mongo returns them with tz_aware=True)
-    if isinstance(value, datetime) and value.tzinfo is not None:
-        return value.replace(tzinfo=None)
-    return value
+async def fetch_jvml_stock_docs(query: JvmlStockListQuery) -> list[JvmlStock]:
+    """All JVML stock rows matching *query* (for the combined report export)."""
+    return await fetch_stock_docs(JvmlStock, build_jvml_stock_filter, query)
+
+
+def write_jvml_stock_sheet(wb, docs: list[JvmlStock], *, subtitle: str) -> None:
+    """Write the premium JVML Stock sheet into *wb* (combined report export)."""
+    write_stock_sheet(
+        wb, docs=docs, columns=_EXPORT_COLUMNS, sheet_title=SHEET_TITLE, subtitle=subtitle
+    )
 
 
 async def export_jvml_stock(query: JvmlStockListQuery) -> bytes:
-    """Build and return an .xlsx export of all JVML stock rows matching *query*.
-
-    Applies the same predicates as ``list_jvml_stock`` but returns every
-    matching row without pagination. Every client-facing column is exported;
-    system-generated columns (id, row_hash, customer_code_id, source_file,
-    created_at, updated_at) are excluded. Party Code uses the normalized value.
-    """
-    import openpyxl
-
-    filt = build_jvml_stock_filter(query)
-
-    if query.region:
-        region_docs = await CustomerCode.find({"region_id": query.region}).to_list()
-        region_ids = [str(doc.id) for doc in region_docs]
-        filt["customer_code_id"] = {"$in": region_ids}
-
-    docs = await JvmlStock.find(filt).sort("+party_code").to_list()
-
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "JVML Stock"
-
-    headers = [label for label, _ in _EXPORT_COLUMNS]
-    ws.append(headers)
-    style_header_row(ws[1])
-
-    for doc in docs:
-        ws.append([_cell_value(doc, attr) for _, attr in _EXPORT_COLUMNS])
-
-    enable_filters(ws)
-    auto_size_columns(ws)
-
-    add_metadata_sheet(
-        wb,
-        title="JVML Stock Export",
-        items={
-            "Export time": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
-            "Report date": query.date or "All dates",
-            "Region": query.region or "All regions",
-            "Rows exported": str(len(docs)),
-        },
+    """Standalone premium .xlsx export of all JVML stock rows matching *query*."""
+    return await export_stock(
+        model=JvmlStock,
+        build_filter=build_jvml_stock_filter,
+        query=query,
+        columns=_EXPORT_COLUMNS,
+        sheet_title=SHEET_TITLE,
+        meta_title="JVML Stock Export",
     )
-
-    buf = io.BytesIO()
-    wb.save(buf)
-    return buf.getvalue()

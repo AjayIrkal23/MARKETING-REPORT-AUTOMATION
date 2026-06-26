@@ -6,7 +6,8 @@ Shared utilities used by the RAKE pivot report and ingestion pipelines.
 ## What lives here
 
 Normalization logic that must stay consistent across stock, customer-code, and
-credit-report domains.
+credit-report domains, plus the low-level Excel styling primitives that the
+shared premium export engine (`utils/shared/excel_premium.py`) builds on.
 
 ## Local conventions
 
@@ -19,6 +20,7 @@ credit-report domains.
 |------|------|
 | `__init__.py` | Empty package marker. |
 | `normalize.py` | `normalize_code()` — canonical SAP code (strip leading zeros). |
+| `excel_style.py` | Low-level styling primitives (header rows, zebra, filters, metadata sheet) for the premium exports. `add_title_banner` now paints a JSW corporate-blue (`#0B5394`) brand band with a white title — rebranding **every** sheet at one source (`BRAND_FILL` + brand fonts). Consumed by `utils/shared/excel_premium.py`. |
 
 ## Gotchas / fragile spots
 

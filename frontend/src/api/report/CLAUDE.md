@@ -17,7 +17,7 @@ On-demand generation and export of the Coil Stock RAKE pivot report with credit-
 | File | Role |
 |------|------|
 | `generate.ts` | `GET /report/generate` — pivot + credit payload. |
-| `export.ts` | `GET /report/export` — binary `.xlsx` download. |
+| `export.ts` | `exportCombined(params)` → `GET /report/export-combined` — binary multi-sheet `.xlsx` download (chosen `sheets` + optional-column `columns` CSV). Replaces the removed `exportReport` / `exportRakeTotals`. |
 | `rake-drilldown.ts` | `GET /report/rake-drilldown` — individual jsw + jvml rows for one RAKE (always both collections). |
 
 ## Gotchas / fragile spots
