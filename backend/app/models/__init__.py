@@ -1,6 +1,7 @@
 """Database models (Beanie documents)."""
 
 from .audit_log import AuditLog
+from .cleanup_config import CleanupConfig
 from .coil_price import CoilPrice
 from .credit_report import CreditReport
 from .credit_report_config import CreditReportConfig
@@ -17,6 +18,7 @@ from .user import User
 
 __all__ = [
     "AuditLog",
+    "CleanupConfig",
     "CoilPrice",
     "CreditReport",
     "CreditReportConfig",

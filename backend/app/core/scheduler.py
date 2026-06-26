@@ -23,7 +23,11 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from .scheduler_stock import remove_stock_jobs, schedule_stock_jobs
+from .scheduler_stock import (
+    remove_stock_jobs,
+    schedule_cleanup_job,
+    schedule_stock_jobs,
+)
 
 if TYPE_CHECKING:
     from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -45,6 +49,9 @@ JVML_STOCK_DEADLINE_JOB_ID = "jvml_stock.deadline"
 # Stable ids for the Credit Report jobs.
 CREDIT_REPORT_JOB_ID = "credit_report.poll"
 CREDIT_REPORT_DEADLINE_JOB_ID = "credit_report.deadline"
+
+# Stable id for the daily stale-folder cleanup job.
+CLEANUP_JOB_ID = "cleanup.daily"
 
 
 def get_scheduler() -> AsyncIOScheduler | None:  # type: ignore[return]
@@ -162,6 +169,27 @@ async def start_scheduler() -> None:
                 )
         except Exception:  # noqa: BLE001
             logger.warning("Credit Report job boot-registration skipped.", exc_info=True)
+
+        # Boot-register the daily stale-folder cleanup job if enabled in the DB.
+        try:
+            from ..models.cleanup_config import CleanupConfig  # noqa: PLC0415
+            from ..services.cron.cleanup import cleanup_old_folders_job  # noqa: PLC0415
+
+            cl_cfg = await CleanupConfig.find_one({"key": "default"})
+            if cl_cfg is not None and cl_cfg.enabled:
+                schedule_cleanup_job(
+                    sched,
+                    cleanup_old_folders_job,
+                    job_id=CLEANUP_JOB_ID,
+                    run_hour=cl_cfg.run_hour,
+                )
+                logger.info(
+                    "Cleanup job registered at startup: daily at %02d:00 (retention %dd).",
+                    cl_cfg.run_hour,
+                    cl_cfg.retention_days,
+                )
+        except Exception:  # noqa: BLE001
+            logger.warning("Cleanup job boot-registration skipped.", exc_info=True)
 
         sched.start()
         _scheduler = sched
@@ -311,3 +339,39 @@ async def apply_credit_report_schedule() -> None:
             logger.info("Credit Report jobs removed (disabled).")
     except Exception:  # noqa: BLE001
         logger.warning("apply_credit_report_schedule failed.", exc_info=True)
+
+
+async def apply_cleanup_schedule() -> None:
+    """Add/replace or remove the daily stale-folder cleanup job from live config.
+
+    Called by ``cleanup.config_service.upsert_config`` after every save. When
+    enabled, (re)schedules the daily cleanup at ``run_hour`` (LOCAL tz); when
+    disabled, removes it. Tolerates the scheduler not running (no-op).
+    """
+    sched = get_scheduler()
+    if sched is None:
+        logger.warning("apply_cleanup_schedule: scheduler not running — skipped.")
+        return
+
+    try:
+        from ..models.cleanup_config import CleanupConfig  # noqa: PLC0415
+        from ..services.cron.cleanup import cleanup_old_folders_job  # noqa: PLC0415
+
+        cfg = await CleanupConfig.find_one({"key": "default"})
+        if cfg is not None and cfg.enabled:
+            schedule_cleanup_job(
+                sched,
+                cleanup_old_folders_job,
+                job_id=CLEANUP_JOB_ID,
+                run_hour=cfg.run_hour,
+            )
+            logger.info(
+                "Cleanup job scheduled — daily at %02d:00 (retention %dd).",
+                cfg.run_hour,
+                cfg.retention_days,
+            )
+        else:
+            remove_stock_jobs(sched, CLEANUP_JOB_ID)
+            logger.info("Cleanup job removed (disabled).")
+    except Exception:  # noqa: BLE001
+        logger.warning("apply_cleanup_schedule failed.", exc_info=True)

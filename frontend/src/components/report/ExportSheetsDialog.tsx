@@ -35,8 +35,8 @@ interface SheetOption {
 const SHEET_OPTIONS: SheetOption[] = [
   { key: "pivot", label: "Branch Wise Pivot Report", desc: "Grouped coil-stock pivot", Icon: LayoutGrid },
   { key: "rake_totals", label: "Total Rake Report", desc: "RAKE totals + grand total", Icon: TrainTrack },
-  { key: "rake_merged", label: "Rake Breakdown — Merged", desc: "One sheet per rake (merged rows)", Icon: Combine },
-  { key: "rake_unmerged", label: "Rake Breakdown — Unmerged", desc: "One sheet per rake (raw rows)", Icon: Rows3 },
+  { key: "rake_merged", label: "Total Rake Wise", desc: "One sheet per rake (merged rows)", Icon: Combine },
+  { key: "rake_unmerged", label: "Batch Rake Wise", desc: "One sheet per rake (raw rows)", Icon: Rows3 },
   { key: "jsw", label: "JSW Stock List", desc: "Full JSW current-stock export", Icon: Boxes },
   { key: "jvml", label: "JVML Stock List", desc: "Full JVML current-stock export", Icon: Boxes },
   { key: "credit", label: "Credit Report", desc: "Credit-control export", Icon: CreditCard },

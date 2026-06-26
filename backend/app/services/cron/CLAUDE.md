@@ -24,6 +24,7 @@ invoke them without import cycles.
 | `jsw_stock.py` | JSW Stock poll job wrapper. |
 | `jvml_stock.py` | JVML Stock poll job wrapper. |
 | `credit_report.py` | Credit Report poll job wrapper. |
+| `cleanup.py` | `cleanup_old_folders_job` (`cron.cleanup`) — daily stale-folder purge; defers to `services/cleanup/runner.py`. |
 
 ## Gotchas / fragile spots
 

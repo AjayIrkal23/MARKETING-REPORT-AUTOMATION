@@ -118,8 +118,8 @@ export interface ReportQueryParams {
 export type ExportSheetKey =
   | "pivot"          // BRANCH WISE PIVOT REPORT
   | "rake_totals"    // TOTAL RAKE REPORT
-  | "rake_merged"    // one "{RAKE} - Merged" sheet per rake
-  | "rake_unmerged"  // one "{RAKE} - Unmerged" sheet per rake
+  | "rake_merged"    // one "{RAKE} - Total Rake Wise" sheet per rake (merged rows)
+  | "rake_unmerged"  // one "{RAKE} - Batch Rake Wise" sheet per rake (raw rows)
   | "jsw"            // JSW Stock List
   | "jvml"           // JVML Stock List
   | "credit"         // Credit Report

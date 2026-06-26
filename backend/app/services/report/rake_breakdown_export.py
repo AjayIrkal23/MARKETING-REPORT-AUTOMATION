@@ -1,8 +1,8 @@
 """Per-rake breakdown sheets for the combined report export.
 
 Enumerates the region's unique RAKE values and, for each, runs the existing
-``rake_drilldown`` and writes a "{RAKE} - Merged" and/or "{RAKE} - Unmerged"
-premium sheet. Empty rakes (no stock on the date) still get a sheet with a
+``rake_drilldown`` and writes a "{RAKE} - Total Rake Wise" (merged rows) and/or
+"{RAKE} - Batch Rake Wise" (raw rows) premium sheet. Empty rakes (no stock on the date) still get a sheet with a
 "(no rows)" note — full rake coverage, by product decision.
 
 ``# ponytail:`` this runs one drill-down (two Mongo queries) per rake; fine for
@@ -125,15 +125,15 @@ async def write_rake_breakdown_sheets(
         for rake, result in results:
             rows, total = _keep(result.merged_rows, excl.get(rake))
             _write_one(
-                wb, used, rake=rake, date=query.date, suffix=" - Merged",
-                kind_label="Merged", rows=rows, columns=_MERGED_COLUMNS,
+                wb, used, rake=rake, date=query.date, suffix=" - Total Rake Wise",
+                kind_label="Total Rake Wise", rows=rows, columns=_MERGED_COLUMNS,
                 total_qty=total, subtitle=subtitle,
             )
     if unmerged:
         for rake, result in results:
             rows, total = _keep(result.rows, excl.get(rake))
             _write_one(
-                wb, used, rake=rake, date=query.date, suffix=" - Unmerged",
-                kind_label="Unmerged", rows=rows, columns=_UNMERGED_COLUMNS,
+                wb, used, rake=rake, date=query.date, suffix=" - Batch Rake Wise",
+                kind_label="Batch Rake Wise", rows=rows, columns=_UNMERGED_COLUMNS,
                 total_qty=total, subtitle=subtitle,
             )

@@ -1,11 +1,12 @@
 /**
  * SettingsPage — admin settings screen.
  *
- * Hosts the two Stock Excel ingestion configs (JVML + JSW) side by side in a
- * row, both always visible (no tabs) since they are independent jobs of an
- * identical shape. Each panel owns its own data hook and loads in parallel.
- * The two cards stretch to equal height so their footers align. Stacks to a
- * single column below the `lg` breakpoint.
+ * Hosts the Stock Excel ingestion configs (JVML + JSW), the Credit Report
+ * config, and the ingestion-folder cleanup config — each always visible (no
+ * tabs) since they are independent automation jobs. Each card owns its own data
+ * hook and loads in parallel. The cards stretch to equal height so their
+ * footers align. Stacks to a single column below the `lg` breakpoint; the
+ * Cleanup card sits beside Credit Report in the second row.
  *
  * Gated by AdminRoute in App.tsx.
  */
@@ -14,6 +15,7 @@ import { Settings } from "lucide-react"
 import { JvmlStockConfigCard } from "@/components/settings/JvmlStockConfigCard"
 import { JswStockConfigCard } from "@/components/settings/JswStockConfigCard"
 import { CreditReportConfigCard } from "@/components/settings/CreditReportConfigCard"
+import { CleanupConfigCard } from "@/components/settings/CleanupConfigCard"
 
 export function SettingsPage() {
   return (
@@ -37,6 +39,7 @@ export function SettingsPage() {
         <JvmlStockConfigCard />
         <JswStockConfigCard />
         <CreditReportConfigCard />
+        <CleanupConfigCard />
       </div>
     </div>
   )

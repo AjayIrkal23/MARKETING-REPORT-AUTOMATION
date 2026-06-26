@@ -17,7 +17,10 @@ Cross-domain Excel helpers: the format-agnostic workbook **parser** + file
   `.xlsb` (pyxlsb). Each `utils/<domain>/excel.py` is a thin shim binding its
   column map: `parse_workbook(data, header_to_field, normalize_header)`.
 - `resolve.py` finds a report file from its stem against any Excel extension
-  (xlsx > xlsm > xlsb, case-insensitive). Pollers import it — do not re-hardcode `.xlsx`.
+  (case-insensitive). It also matches re-download suffixes — `NAME(1)`, `NAME 2`,
+  `NAME (3)` (anchored to a numeric suffix, so `NAME SUMMARY` is NOT matched) — and
+  returns the **newest** match (mtime; xlsx > xlsm > xlsb breaks ties). Pollers
+  import it — do not re-hardcode `.xlsx`.
 - Import `openpyxl` / `pyxlsb` lazily inside functions so `app.main` imports
   without them; `pyxlsb` is loaded only on the `.xlsb` path.
 
@@ -26,7 +29,7 @@ Cross-domain Excel helpers: the format-agnostic workbook **parser** + file
 | File | Role |
 |------|------|
 | `excel.py` | Format-agnostic `parse_workbook` — content-detecting dispatcher: OOXML (xlsx/xlsm) via stdlib zip+iterparse (malformed-cell tolerant), `.xlsb` via pyxlsb. `.xls`/non-Excel rejected with `ValueError`. |
-| `resolve.py` | `resolve_report_file(folder, stem)` — extension-agnostic file finder (xlsx/xlsm/xlsb). |
+| `resolve.py` | `resolve_report_file(folder, stem)` — extension-agnostic, **suffix-aware** finder: matches `stem` + browser re-download suffixes (`NAME(1)`/`NAME 2`/`NAME (3)`), newest mtime wins (xlsx/xlsm/xlsb tie-break). `_matches_stem` is the anchored matcher. |
 | `excel_premium.py` | The shared **premium** flat-table export engine: `write_flat_table`, `write_records_sheet` (Mongo/pydantic docs → sheet), `safe_sheet_name` (Excel-legal ≤31-char unique names), `apply_cell_format` (kinds: text/num/qty/inr/credit/date/center). The tz-aware-datetime strip lives in `_record_cell` here (no longer in the domain export files). Builds on `utils/report/excel_style.py` primitives; used by stock/credit/customer-code exports + the report rake-breakdown. Replaces the removed `export_style.py`. |
 
 ## Gotchas / fragile spots

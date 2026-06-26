@@ -15,6 +15,7 @@ from pymongo import AsyncMongoClient
 from .config import get_settings
 from ..models import (
     AuditLog,
+    CleanupConfig,
     CoilPrice,
     CreditReport,
     CreditReportConfig,
@@ -36,6 +37,7 @@ logger = logging.getLogger(__name__)
 DOCUMENT_MODELS = [
     User,
     AuditLog,
+    CleanupConfig,
     CustomerCode,
     Region,
     CoilPrice,

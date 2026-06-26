@@ -99,8 +99,8 @@ def test_combined_rake_breakdown_one_sheet_per_rake() -> None:
                 AsyncMock(return_value=drill),
         },
     )
-    assert names[:2] == ["CWCJ - Merged", "ROAD - Merged"]  # all merged first
-    assert "CWCJ - Unmerged" in names and "ROAD - Unmerged" in names
+    assert names[:2] == ["CWCJ - Total Rake Wise", "ROAD - Total Rake Wise"]  # all merged first
+    assert "CWCJ - Batch Rake Wise" in names and "ROAD - Batch Rake Wise" in names
 
 
 def _drill_two_rows() -> RakeDrilldownResponse:
@@ -161,8 +161,8 @@ def test_combined_exclusions_subtract_totals_and_drop_breakdown_rows() -> None:
     tm = {r[0]: r[1] for r in wb["TRANSPORT MODE TOTAL"].iter_rows(values_only=True) if r and r[0]}
     assert tm.get("ROAD") == 35.0
 
-    # KKU - Unmerged: ALPHA (excluded) gone, BETA remains, Total recomputed to 25.
-    cells = [c for row in wb["KKU - Unmerged"].iter_rows(values_only=True) for c in row if c is not None]
+    # KKU - Batch Rake Wise: ALPHA (excluded) gone, BETA remains, Total recomputed to 25.
+    cells = [c for row in wb["KKU - Batch Rake Wise"].iter_rows(values_only=True) for c in row if c is not None]
     assert "40000001" not in cells and "40000002" in cells
     assert any(c == "Total" for c in cells)
     assert 25.0 in cells and 55.0 not in cells

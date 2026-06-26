@@ -20,6 +20,7 @@ from .heartbeat import audited_job, heartbeat_job
 from .jsw_stock import jsw_stock_poll_job
 from .jvml_stock import jvml_stock_poll_job
 from .credit_report import credit_report_poll_job
+from .cleanup import cleanup_old_folders_job
 
 __all__ = [
     "heartbeat_job",
@@ -27,4 +28,5 @@ __all__ = [
     "jsw_stock_poll_job",
     "jvml_stock_poll_job",
     "credit_report_poll_job",
+    "cleanup_old_folders_job",
 ]

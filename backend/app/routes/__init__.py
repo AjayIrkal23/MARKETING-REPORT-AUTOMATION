@@ -9,6 +9,7 @@ from . import (
     analytics,
     audit_log,
     auth,
+    cleanup,
     coil_price,
     credit_report,
     customer_code,
@@ -36,6 +37,7 @@ api_router.include_router(jvml_stock.router)
 api_router.include_router(jvml_stock.config_router)
 api_router.include_router(credit_report.router)
 api_router.include_router(credit_report.config_router)
+api_router.include_router(cleanup.config_router)
 api_router.include_router(dashboard.router)
 api_router.include_router(report.router)
 api_router.include_router(analytics.router)

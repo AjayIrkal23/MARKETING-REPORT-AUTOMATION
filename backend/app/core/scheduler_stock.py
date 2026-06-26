@@ -88,3 +88,28 @@ def remove_stock_jobs(sched: AsyncIOScheduler, *job_ids: str) -> None:
     for job_id in job_ids:
         if sched.get_job(job_id) is not None:
             sched.remove_job(job_id)
+
+
+def schedule_cleanup_job(
+    sched: AsyncIOScheduler,
+    job_func: Callable[[], Awaitable[None]],
+    *,
+    job_id: str,
+    run_hour: int,
+) -> None:
+    """(Re)register the daily stale-folder cleanup job at ``run_hour`` (LOCAL tz).
+
+    A single ``CronTrigger`` pinned to ``run_hour:00`` in the server's local
+    timezone (matching the pollers' naive local clock). ``run_cleanup`` is
+    idempotent, so a replaced job can never double-delete.
+    """
+    from apscheduler.triggers.cron import CronTrigger  # noqa: PLC0415
+
+    sched.add_job(
+        job_func,
+        trigger=CronTrigger(hour=run_hour, minute=0, timezone=local_tzinfo()),
+        id=job_id,
+        name="Stale ingestion folder cleanup",
+        replace_existing=True,
+        misfire_grace_time=3600,
+    )

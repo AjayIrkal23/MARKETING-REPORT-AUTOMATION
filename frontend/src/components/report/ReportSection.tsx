@@ -23,8 +23,8 @@ import { matchInfoFor, type ExcludedEntry, type RakeExclusions } from "./rake-ex
 import { fmtINR, type ReportColVisibility } from "./report-format"
 
 const DRILL_TABS: readonly [DrilldownMode, string][] = [
-  ["merged", "Merged Data"],
-  ["raw", "Data not Merged"],
+  ["merged", "Total Rake Wise"],
+  ["raw", "Batch Rake Wise"],
 ]
 
 /** One label/value pair in the summary meta strip. */
