@@ -69,7 +69,9 @@ Total Rake Report tab each drill-down row carries an **Incl.** checkbox; uncheck
 subtracts that row from the RAKE total, the Transport Mode total, and the drill-down
 footer (live), and — on export — from the rake-totals / transport-mode / breakdown
 sheets. State is plain `useState` in `useReport` (`exclusions`, never persisted,
-cleared on `generate()`). Row identity (`components/report/rake-exclusions.ts::rowKey`)
+cleared on `generate()` **and on any toolbar input change** — otherwise an export,
+which reads live inputs, could re-generate a *different* report yet apply unchecks
+computed against the old drill-down). Row identity (`components/report/rake-exclusions.ts::rowKey`)
 is the backend 8-field merge key joined by `chr(31)` and **must stay byte-identical**
 to `backend/.../rake_drilldown.py::row_identity`, or unchecked rows fail to drop from
 the export. `exportCombined` switches `GET → POST` (with a JSON body) only when rows
