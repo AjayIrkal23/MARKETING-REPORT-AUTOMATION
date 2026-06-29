@@ -85,6 +85,7 @@ async def get_status() -> JvmlStockStatusPublic:
         last_row_count=latest.row_count if latest is not None else None,
         last_found_at=latest.found_at if latest is not None else None,
         last_alerted_at=latest.alerted_at if latest is not None else None,
+        last_run_at=latest.last_run_at if latest is not None else None,
         last_error=latest.error if latest is not None else None,
         recent=recent,
     )

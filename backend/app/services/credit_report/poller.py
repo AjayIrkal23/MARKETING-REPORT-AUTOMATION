@@ -36,16 +36,14 @@ async def _run_flat(
     cfg: CreditReportConfig,
     today: str,
     *,
-    force: bool,
     send_alerts: bool,
 ) -> None:
+    # Re-ingest on every in-window poll tick (no skip-once guard) — snapshot
+    # refresh of today's rows; see jsw_stock/poller.py for the rationale.
     folder = os.path.join(cfg.base_path, today)
     os.makedirs(folder, exist_ok=True)
     ingestion = await get_or_create_ingestion(today)
     ingestion.zones = []
-
-    if ingestion.status == "ingested" and not force:
-        return
 
     fpath = resolve_report_file(folder, cfg.file_name)
     if fpath is None:
@@ -77,7 +75,8 @@ async def _run_flat(
             )
             logger.exception("Credit report flat ingest failed for %s.", today)
     ingestion.dup_party_count = 0
-    ingestion.updated_at = datetime.now()
+    ingestion.last_run_at = datetime.now()
+    ingestion.updated_at = ingestion.last_run_at
     await ingestion.save()
 
 
@@ -100,11 +99,10 @@ async def run_poll(*, force: bool = False) -> CreditReportStatusPublic:
                 today,
                 regions,
                 regions,
-                force=force,
                 send_alerts=True,
             )
         else:
-            await _run_flat(cfg, today, force=force, send_alerts=True)
+            await _run_flat(cfg, today, send_alerts=True)
     except Exception:  # noqa: BLE001
         logger.exception("run_poll: unexpected error")
     return await get_status()
@@ -131,7 +129,6 @@ async def run_poll_zone(region_id: str) -> CreditReportStatusPublic:
         today,
         regions,
         [region],
-        force=True,
         send_alerts=False,
     )
     return await get_status()

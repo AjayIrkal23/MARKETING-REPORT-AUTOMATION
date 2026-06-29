@@ -12,6 +12,8 @@
 import type {
   RakeDrilldownMergedRow,
   RakeDrilldownRow,
+  ReportPivotRow,
+  ReportResponse,
   ReportTypeSelection,
 } from "@/types/report/report"
 
@@ -36,9 +38,9 @@ const IDENTITY_FIELDS = [
   "customer_name",
 ] as const
 
-type IdentityRow = RakeDrilldownRow | RakeDrilldownMergedRow
+type IdentityRow = RakeDrilldownRow | RakeDrilldownMergedRow | ReportPivotRow
 
-/** Canonical identity string for a drill-down row — mirror of backend `row_identity`. */
+/** Canonical identity string for a drill-down or pivot row — mirror of backend `row_identity`. */
 export function rowKey(row: IdentityRow): string {
   const r = row as unknown as Record<string, unknown>
   return IDENTITY_FIELDS.map((f) => (r[f] ?? "").toString().trim()).join(KEY_SEP)
@@ -109,4 +111,35 @@ export function toExportBody(
     if (keys.length > 0) out[rake] = { keys, subtract: subtractFor(excl, rake) }
   }
   return out
+}
+
+/** Every excluded identity key across all rakes (one identity → one rake, so safe to union). */
+export function excludedKeyUnion(excl: RakeExclusions): Set<string> {
+  const keys = new Set<string>()
+  for (const rake in excl) for (const k in excl[rake]) keys.add(k)
+  return keys
+}
+
+/**
+ * Net excluded drill-down identities out of the PIVOT view: drop matching rows and
+ * recompute the grand-total scalars from the survivors. `rake_totals` /
+ * `transport_mode_totals` are left untouched (RakeTotalsTab subtracts those itself).
+ * Returns the report unchanged when there are no exclusions. Mirrors the backend
+ * `exclusion.apply_pivot_exclusions`, so the on-screen pivot == the exported pivot.
+ */
+export function applyPivotExclusions(
+  report: ReportResponse,
+  excl: RakeExclusions,
+): ReportResponse {
+  const keys = excludedKeyUnion(excl)
+  if (keys.size === 0) return report
+  const rows = report.rows.filter((r) => !keys.has(rowKey(r)))
+  const reqs = rows.map((r) => r.required_credit).filter((v): v is number => v != null)
+  return {
+    ...report,
+    rows,
+    grand_total: rows.reduce((s, r) => s + (r.total || 0), 0),
+    grand_nco_yes_do: rows.reduce((s, r) => s + (r.nco_yes_do || 0), 0),
+    grand_required_credit: reqs.length ? reqs.reduce((s, v) => s + v, 0) : null,
+  }
 }

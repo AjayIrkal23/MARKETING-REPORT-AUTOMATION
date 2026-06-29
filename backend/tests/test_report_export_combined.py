@@ -123,20 +123,47 @@ def _drill_two_rows() -> RakeDrilldownResponse:
     )
 
 
-def test_combined_exclusions_subtract_totals_and_drop_breakdown_rows() -> None:
-    """Browser-only exclusions: the unchecked row leaves the totals + breakdown sheets."""
-    drill = _drill_two_rows()
-    excluded_key = row_identity(drill.rows[0])  # ALPHA / ROAD / 30
-    body = CombinedExportBody(
-        exclusions={"KKU": RakeExclusion(keys=[excluded_key], subtract=30.0)},
-        transport_subtract={"ROAD": 30.0},
+def _report_two_parties() -> ReportResponse:
+    """Pivot whose rows mirror the KKU drill rows (ALPHA 30 + BETA 25) plus an
+    untouched CWCJ/RAIL row — so excluding ALPHA's identity nets it out of the
+    recomputed pivot + rake + transport totals (the backend derives the subtraction
+    from the keys, not the FE-sent ``subtract`` float)."""
+    common = dict(
+        so_sales_org="1001", distr_chnl="OEM", sold_to_party="ACME",
+        sales_office="Mumbai", ship_to_party="ST", destination="Pune", route="KAT1",
+        nco_yes_do=0.0, nco_yes_do_count=0, blocked=False, credit_balance=5.0,
+        required_credit=5.0, credit_sufficient=True, credit_status="",
+        credit_note="Balance Available",
     )
+    alpha = ReportPivotRow(party_code="40000001", customer_name="ALPHA", transport_mode="ROAD",
+                           rake_quantities={"KKU": 30.0}, total=30.0, **common)
+    beta = ReportPivotRow(party_code="40000002", customer_name="BETA", transport_mode="ROAD",
+                          rake_quantities={"KKU": 25.0}, total=25.0, **common)
+    gamma = ReportPivotRow(party_code="40000003", customer_name="GAMMA", transport_mode="RAIL",
+                           rake_quantities={"CWCJ": 10.0}, total=10.0, **common)
+    return ReportResponse(
+        date="23-06-2026", report_type="jsw", region_id=None, region_name="All Regions",
+        days_filter="include", ccas=["VJ0H"], has_stock=True, has_credit_report=True,
+        coil_price_per_qty=1.0, rake_columns=["KKU", "CWCJ"], rows=[alpha, beta, gamma],
+        grand_total=65.0, grand_nco_yes_do=0.0, grand_required_credit=15.0,
+        rake_totals={"KKU": 55.0, "CWCJ": 10.0},
+        transport_mode_totals={"ROAD": 55.0, "RAIL": 10.0},
+    )
+
+
+def test_combined_exclusions_net_totals_pivot_and_breakdown() -> None:
+    """An unchecked identity leaves the pivot, the rake/transport totals, and the
+    breakdown sheets — all key-driven (the FE ``subtract`` float is ignored)."""
+    drill = _drill_two_rows()
+    excluded_key = row_identity(drill.rows[0])  # ALPHA / 30
+    # subtract=0 on purpose: totals must drop from the KEYS, not the FE float.
+    body = CombinedExportBody(exclusions={"KKU": RakeExclusion(keys=[excluded_key], subtract=0.0)})
     query = CombinedExportQuery(
-        date="23-06-2026", report_type="jsw", sheets="rake_totals,rake_unmerged"
+        date="23-06-2026", report_type="jsw", sheets="pivot,rake_totals,rake_unmerged"
     )
     stack = [
         patch("app.services.report.export_combined.generate_report",
-              new=AsyncMock(return_value=_fake_report())),
+              new=AsyncMock(return_value=_report_two_parties())),
         patch("app.services.report.rake_breakdown_export._resolve_region_customers",
               new=AsyncMock(return_value=("All Regions", set(), {}, ["KKU"]))),
         patch("app.services.report.rake_breakdown_export.rake_drilldown",
@@ -152,14 +179,20 @@ def test_combined_exclusions_subtract_totals_and_drop_breakdown_rows() -> None:
 
     wb = load_workbook(io.BytesIO(data))
 
-    # TOTAL RAKE REPORT: KKU dropped from 55 → 25; ROAD (no exclusion) stays 10.
+    # TOTAL RAKE REPORT: KKU 55 → 25 (ALPHA out); CWCJ untouched at 10.
     totals = {r[0]: r[1] for r in wb["TOTAL RAKE REPORT"].iter_rows(values_only=True) if r and r[0]}
     assert totals.get("KKU") == 25.0
-    assert totals.get("ROAD") == 10.0
+    assert totals.get("CWCJ") == 10.0
 
-    # TRANSPORT MODE TOTAL: ROAD dropped from 65 → 35 (the same unchecked row).
+    # TRANSPORT MODE TOTAL: ROAD 55 → 25; RAIL untouched at 10.
     tm = {r[0]: r[1] for r in wb["TRANSPORT MODE TOTAL"].iter_rows(values_only=True) if r and r[0]}
-    assert tm.get("ROAD") == 35.0
+    assert tm.get("ROAD") == 25.0
+    assert tm.get("RAIL") == 10.0
+
+    # BRANCH WISE PIVOT REPORT: ALPHA's party gone; BETA + GAMMA remain.
+    pivot_cells = [c for row in wb["BRANCH WISE PIVOT REPORT"].iter_rows(values_only=True) for c in row if c is not None]
+    assert "40000001" not in pivot_cells
+    assert "40000002" in pivot_cells and "40000003" in pivot_cells
 
     # KKU - Batch Rake Wise: ALPHA (excluded) gone, BETA remains, Total recomputed to 25.
     cells = [c for row in wb["KKU - Batch Rake Wise"].iter_rows(values_only=True) for c in row if c is not None]

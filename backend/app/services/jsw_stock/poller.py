@@ -98,9 +98,12 @@ async def run_poll() -> JswStockStatusPublic:
         ingestion = JswStockIngestion(report_date=today, status="pending")
         await ingestion.save()
 
-    if ingestion.status == "ingested":
-        logger.debug("run_poll: already ingested for %s.", today)
-        return await get_status()
+    # Re-ingest on EVERY in-window poll tick — no skip-once guard. Each run is a
+    # snapshot refresh of today's rows (ingest_file deletes the date then bulk
+    # re-inserts), so new party codes / items get picked up and duplicates are
+    # impossible. `last_run_at` is stamped every tick so the dashboard/status UI
+    # can show the poll is live (persisted by whichever branch saves below).
+    ingestion.last_run_at = now
 
     # ── 5. Check for the Excel file (case-insensitive ext — SAP may ship .XLSX) ─
     fpath = resolve_report_file(folder, cfg.file_name)

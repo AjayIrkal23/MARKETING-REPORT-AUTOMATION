@@ -45,7 +45,8 @@ standalone pivot or rake-totals export endpoint.
 | `export.py` | `write_pivot_sheet(wb, report, visible, sheet_title)` — writes ONE **grouped** .xlsx pivot sheet into a workbook: repeated parent cells blanked + per-group subtotal rows + Grand Total (no Party Code subtotal). Single mode groups by Distr.Channel (`{channel} Total`); **`both` leads with an SO Sales Org column and groups by SO Sales Org (`{org} Total`)** via a `group_by_so` branch threaded through the helpers. Honours the `ReportQuery.columns` CSV filter (3 detail + the **`rake`** block + 6 trailing incl. **Total**); only the fixed cols are always written. The whole dynamic RAKE block shares one `"rake"` key in `_kept_indices` — absent from `columns` ⇒ the block is dropped. `columns=None` ⇒ all; `""` ⇒ none. The standalone `export_report` + `GET /report/export` endpoint were **removed** — `export_combined.py` owns the pivot now |
 | `export_totals.py` | `write_totals_sheet(wb, *, sheet_title, table_header, rows, subtitle)` — writes the "TOTAL RAKE REPORT" RAKE-totals sheet. The old standalone `export_rake_totals` + `GET /report/export-rake-totals` endpoint were **removed** |
 | `rake_breakdown_export.py` | `write_rake_breakdown_sheets(wb, query, *, merged, unmerged, exclusions=None)` — enumerates the region's unique rakes, runs the existing `rake_drilldown` per rake (cached), writes all "{RAKE} - Total Rake Wise" sheets (merged rows) first then all "{RAKE} - Batch Rake Wise" (raw rows); an empty rake still gets a sheet with a "(no rows)" note. `exclusions` (RAKE → set of `row_identity` keys) drops user-unchecked rows via `_keep()` and **recomputes** each sheet's Total from the survivors (never reuses `result.total_quantity`) |
-| `export_combined.py` | `export_combined(query: CombinedExportQuery, body: CombinedExportBody \| None = None) -> bytes` — builds ONE workbook from the chosen `sheets` set: `pivot`→"BRANCH WISE PIVOT REPORT", `rake_totals`→"TOTAL RAKE REPORT" **+ "TRANSPORT MODE TOTAL"** (two sheets under the one pick, mirroring the on-screen tab), `rake_merged`/`rake_unmerged`→per-rake sheets, `jsw`→"JSW Stock", `jvml`→"JVML Stock", `credit`→"Credit Report", plus a "Metadata" sheet. Sheet order = pivot, rake total, transport-mode total, all merged, all unmerged, jsw, jvml, credit. Validates the sheets CSV (unknown/empty → `ValidationError`). **Optional `body`** carries browser-only exclusions: per-rake `subtract` is removed from the RAKE totals, `transport_subtract` from the transport-mode totals (both clamped ≥0), and the `keys` set is threaded to the breakdown writer. Backs `GET\|POST /report/export-combined` |
+| `exclusion.py` | Pure export-time exclusion helpers, **key-driven** (no FE-sent floats). `excluded_key_union(body)` = flat union of every `exclusions[*].keys`. `stock_doc_identity(doc, first_doc)` rebuilds the canonical 8-field `row_identity` for a raw JSW/JVML doc (transport_mode/destination re-derived from the CustomerCode `first_doc` map). `apply_pivot_exclusions(report, keys)` drops `report.rows` whose `row_identity` ∈ keys and recomputes `grand_*` + `rake_totals`/`transport_mode_totals` (via `_compute_totals`) in place — so the pivot AND both totals fall out of the keys alone. `filter_stock_docs(docs, first_doc, keys)` drops excluded docs from the JSW/JVML stock sheets. Mirrored by the frontend `rake-exclusions.ts::applyPivotExclusions` so on-screen pivot == exported pivot |
+| `export_combined.py` | `export_combined(query: CombinedExportQuery, body: CombinedExportBody \| None = None) -> bytes` — builds ONE workbook from the chosen `sheets` set: `pivot`→"BRANCH WISE PIVOT REPORT", `rake_totals`→"TOTAL RAKE REPORT" **+ "TRANSPORT MODE TOTAL"** (two sheets under the one pick, mirroring the on-screen tab), `rake_merged`/`rake_unmerged`→per-rake sheets, `jsw`→"JSW Stock", `jvml`→"JVML Stock", `credit`→"Credit Report", plus a "Metadata" sheet. Sheet order = pivot, rake total, transport-mode total, all merged, all unmerged, jsw, jvml, credit. Validates the sheets CSV (unknown/empty → `ValidationError`). **Optional `body`** carries browser-only exclusions (`exclusion.excluded_key_union`): `apply_pivot_exclusions` nets the keys out of the pivot + RAKE/transport totals (recomputed from the surviving rows), the `keys` set is threaded to the breakdown writer, and `filter_stock_docs` drops them from the JSW/JVML sheets (region `first_doc` resolved once, lazily). The FE-sent `subtract`/`transport_subtract` floats are now **ignored** (key-driven). Backs `GET\|POST /report/export-combined` |
 
 ## Gotchas / fragile spots
 
@@ -86,17 +87,26 @@ standalone pivot or rake-totals export endpoint.
   with a real delivery-order number count toward the NCO+DO bucket. This guards against
   old data ingested before the gate-5/gate-6 fix (2026-06-25).
 
-- **Browser-only RAKE exclusions (export side).** The `/report` page lets a user uncheck
-  drill-down rows; those are subtracted on-screen AND sent (transient, never persisted) as
-  the `CombinedExportBody` POST body so the rake_totals + transport-mode + breakdown sheets
-  match. Matching is by `row_identity` (the 8-field merge key) — the **separator (`chr(31)`)
-  and field order MUST stay identical** to the frontend `rake-exclusions.ts`, or unchecked
-  rows silently fail to drop. Totals subtraction trusts the client-sent `subtract` /
-  `transport_subtract` (it's the user's own report, not a security boundary) to avoid
-  re-deriving the stock-type-scoped qty in Python. Pivot / jsw / jvml / credit sheets ignore
-  exclusions entirely. Single jsw/jvml mode: only same-stock rows reduce a total (the
-  drill-down is a union superset), so a `subtract` of 0 is normal and still drops the row
-  from the breakdown sheet.
+- **Browser-only RAKE exclusions (export side) — now applies EVERYWHERE, key-driven.**
+  The `/report` page lets a user uncheck drill-down rows; those are sent (transient, never
+  persisted) as the `CombinedExportBody` POST body. The backend nets them out of **every**
+  data sheet by `row_identity` (the 8-field merge key): pivot + rake_totals + transport-mode
+  (recomputed from the surviving pivot rows via `exclusion.apply_pivot_exclusions`), the
+  rake_merged/rake_unmerged breakdowns (via `_keep`), and the JSW/JVML stock sheets (via
+  `exclusion.filter_stock_docs`, which rebuilds each raw doc's identity with
+  `stock_doc_identity` — transport_mode/destination from the CustomerCode `first_doc`). Only
+  credit is unaffected. The **separator (`chr(31)`) and field order MUST stay identical** to
+  the frontend `rake-exclusions.ts`, or unchecked rows silently fail to drop. This requires
+  `customer_name` on `ReportPivotRow` (added to the `$group._id` in `pivot.aggregate_pivot`,
+  so a party with case/space-variant names splits exactly like the drill-down identity) so a
+  pivot row's identity matches the drill-down's. The FE-sent `subtract`/`transport_subtract`
+  floats are kept on the wire for back-compat but **ignored** — totals derive from the keys.
+  The on-screen pivot mirrors this client-side via `rake-exclusions.ts::applyPivotExclusions`
+  (instant, no round-trip), so screen == export. Single jsw/jvml mode: a key for the other
+  stock simply matches no row in that sheet (the drill-down is a union superset) — a no-op,
+  by design. JSW/JVML exclusion is row-presence removal of the party's identity (no
+  qa-hold/`days` filter on the stock sheets); when there are no exclusions those sheets are
+  byte-for-byte unchanged.
 
 ## Up / down
 

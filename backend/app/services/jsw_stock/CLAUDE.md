@@ -13,6 +13,11 @@ JSW Stock ingestion, listing, options, config and status services.
 - `ingest.py` is the only writer for the `jsw_stock` collection. It deletes all
   rows for the target `report_date` before inserting, then runs a defensive
   duplicate-cleanup pass.
+- `poller.py` re-ingests on **EVERY in-window poll tick** — the old
+  `status == "ingested"` skip-once guard is gone. Each tick is a snapshot refresh
+  (delete-then-insert), so new party codes / items get picked up hourly and
+  duplicates are impossible. `ingestion.last_run_at` is stamped every tick
+  (naive-local clock, BE-14) and surfaced on the dashboard + settings status.
 - Use the shared `services.shared.ingest_cleanup._row_hash` helper; do not invent
   a domain-specific hashing scheme.
 
@@ -21,7 +26,7 @@ JSW Stock ingestion, listing, options, config and status services.
 | File | Role |
 |------|------|
 | `ingest.py` | Parse `ZSD_CURRSTK_HR.xlsx`, map party codes, bulk insert, dedupe |
-| `poller.py` | Scheduled daily poll + missing-file alert |
+| `poller.py` | Hourly poll (snapshot re-ingest, no skip-once guard) + missing-file alert; stamps `last_run_at` every tick |
 | `customer_map.py` | Batch `CustomerCode` lookup at ingest time |
 | `list.py` / `options.py` / `query.py` | Server-driven list + filter options |
 | `config_service.py` / `status.py` | Admin config singleton + ingestion status |

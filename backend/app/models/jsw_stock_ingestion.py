@@ -23,6 +23,7 @@ class JswStockIngestion(Document):
     file_path:   str | None = None
     found_at:    datetime | None = None
     alerted_at:  datetime | None = None
+    last_run_at: datetime | None = None   # stamped on EVERY poll tick (local clock, BE-14)
     error:       str | None = None
     created_at:  datetime = Field(default_factory=_now_utc)
     updated_at:  datetime = Field(default_factory=_now_utc)

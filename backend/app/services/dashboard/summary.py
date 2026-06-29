@@ -97,6 +97,7 @@ async def _report_status(
         missing=status in _MISSING_STATUSES,
         row_count=ingestion.row_count if ingestion is not None else 0,
         found_at=ingestion.found_at if ingestion is not None else None,
+        last_run_at=ingestion.last_run_at if ingestion is not None else None,
         enabled=config.enabled if config is not None else False,
         zones=_credit_zone_statuses(ingestion, active_regions)
         if key == "credit_report"

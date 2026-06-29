@@ -1,7 +1,7 @@
 {
   "autoManaged": true,
   "version": 2,
-  "fingerprint": "08989befcbd15445",
+  "fingerprint": "bd429ecdff3b6ae5",
   "documentedDirs": [
     "backend",
     "backend/app",
@@ -18,6 +18,7 @@
     "backend/app/services/audit",
     "backend/app/services/audit_log",
     "backend/app/services/auth",
+    "backend/app/services/cleanup",
     "backend/app/services/coil_price",
     "backend/app/services/credit_report",
     "backend/app/services/cron",
@@ -48,6 +49,7 @@
     "docs",
     "docs/superpowers",
     "docs/superpowers/plans",
+    "docs/superpowers/specs",
     "frontend",
     "frontend/public",
     "frontend/src",
@@ -68,6 +70,7 @@
     "frontend/src/api/meta",
     "frontend/src/api/report",
     "frontend/src/api/settings",
+    "frontend/src/api/settings/cleanup-config",
     "frontend/src/api/settings/credit-report-config",
     "frontend/src/api/settings/jsw-stock-config",
     "frontend/src/api/settings/jvml-stock-config",

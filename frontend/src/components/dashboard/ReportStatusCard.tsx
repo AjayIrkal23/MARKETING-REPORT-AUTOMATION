@@ -164,6 +164,12 @@ export function ReportStatusCard({ report }: { report: DashboardReportStatus }) 
           {note.text}
         </p>
 
+        {report.last_run_at && (
+          <p className="text-[0.6875rem] text-muted-foreground tabular-nums">
+            Last run · {format(new Date(report.last_run_at), "HH:mm")}
+          </p>
+        )}
+
         {report.key === "credit_report" && report.zones.length > 0 && (
           <div className="border-t border-border/60 pt-2">
             <p className="mb-1 text-[0.625rem] font-semibold uppercase tracking-wider text-muted-foreground">

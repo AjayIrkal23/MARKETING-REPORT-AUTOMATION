@@ -45,6 +45,7 @@ export interface StockStatus {
   last_row_count: number | null
   last_found_at: string | null
   last_alerted_at: string | null
+  last_run_at: string | null
   last_error: string | null
   recent: StockIngestionRow[]
 }

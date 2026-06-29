@@ -31,6 +31,7 @@ project `.env`.
 | `test_credit_report_export.py` | Credit-report export behavior. |
 | `test_credit_report_filters.py` | Credit-report list filters. |
 | `test_credit_report_zone_ingestion.py` | Region-zone ingest helpers and scoped delete behavior. |
+| `test_jsw_stock_poller_rerun.py` | Hourly re-ingest: poll re-runs `ingest_file` on an already-`"ingested"` date (skip-guard removed) + stamps `last_run_at`. DB-free `monkeypatch` + `asyncio.run`. |
 | `test_customer_code_template.py` | Customer-code import template. |
 | `test_ingest_cleanup.py` | Duplicate-row cleanup helper. |
 | `test_jsw_stock_export.py` / `test_jvml_stock_export.py` | Stock export behavior (header read from **row 3**; `CustomerCode` patched at `app.services.shared.stock_export`). |

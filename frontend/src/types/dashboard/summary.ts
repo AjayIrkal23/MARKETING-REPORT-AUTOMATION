@@ -35,6 +35,7 @@ export interface DashboardReportStatus {
   missing: boolean                     // status ∈ {missing, alerted}
   row_count: number
   found_at: string | null              // ISO datetime when ingested, else null
+  last_run_at: string | null           // ISO datetime the poll last ran today (every tick)
   enabled: boolean
   zones: DashboardZoneStatus[]
 }

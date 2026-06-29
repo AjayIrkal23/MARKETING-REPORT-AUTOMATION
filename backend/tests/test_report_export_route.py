@@ -8,8 +8,10 @@ exclusions body — the one seam the service-level tests don't exercise.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.core.auth_deps import get_current_user
@@ -17,10 +19,20 @@ from app.main import app
 from app.schemas.auth import AuthUser
 from app.schemas.report import CombinedExportBody
 
-app.dependency_overrides[get_current_user] = lambda: AuthUser(
-    emailid="tester@example.com", isAdmin=False
-)
 client = TestClient(app, raise_server_exceptions=False)
+
+
+@pytest.fixture(autouse=True)
+def _override_auth() -> Iterator[None]:
+    """Authenticate this module's requests, then REMOVE the override after each
+    test so it cannot leak into other modules. (Set at module scope it persisted
+    for the whole session, making the admin-auth gating tests see this fake
+    non-admin user and return 403/400 instead of 401.)"""
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
+        emailid="tester@example.com", isAdmin=False
+    )
+    yield
+    app.dependency_overrides.pop(get_current_user, None)
 
 _URL = "/report/export-combined?date=23-06-2026&report_type=jsw&days=include&sheets=rake_totals"
 

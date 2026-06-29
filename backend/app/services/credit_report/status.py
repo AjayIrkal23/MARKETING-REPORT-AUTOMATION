@@ -124,6 +124,7 @@ async def get_status() -> CreditReportStatusPublic:
         last_row_count=latest.row_count if latest is not None else None,
         last_found_at=latest.found_at if latest is not None else None,
         last_alerted_at=latest.alerted_at if latest is not None else None,
+        last_run_at=latest.last_run_at if latest is not None else None,
         last_error=latest.error if latest is not None else None,
         dup_party_count=today_doc.dup_party_count if today_doc is not None else 0,
         zones=_zone_statuses(today_doc, active_regions),

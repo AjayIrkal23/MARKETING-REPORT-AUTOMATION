@@ -22,6 +22,7 @@ export interface ReportPivotRow {
   sales_office: string | null      // rendered as BRANCH
   party_code: string               // normalized display code
   ship_to_party: string | null
+  customer_name: string | null     // stock-row customer; for the 8-field exclusion identity
   transport_mode: string | null    // from CustomerCode.transport_mode
   destination: string | null       // from CustomerCode.destination
   route: string | null             // from CustomerCode.route

@@ -93,6 +93,9 @@ export function StockLastRun({ status, isLoading }: { status: StockStatus | null
           <Stat label="Found at">
             <span className="tabular-nums">{fmtDateTime(status?.last_found_at ?? null)}</span>
           </Stat>
+          <Stat label="Last run at">
+            <span className="tabular-nums">{fmtDateTime(status?.last_run_at ?? null)}</span>
+          </Stat>
         </dl>
       ) : (
         <div className="flex items-center gap-2.5 rounded-md border border-dashed border-border bg-muted/30 px-3 py-2.5 text-xs text-muted-foreground">

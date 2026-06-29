@@ -62,27 +62,29 @@ class RakeExclusion(BaseModel):
     """One RAKE's user-unchecked drill-down rows (export-only, transient).
 
     ``keys`` — canonical 8-field identity strings (see ``rake_drilldown.row_identity``,
-    mirrored by the frontend ``rake-exclusions.ts::rowKey``) of rows to OMIT from the
-    rake_merged / rake_unmerged breakdown sheets. ``subtract`` — quantity to subtract
-    from this RAKE's TOTAL RAKE REPORT figure (stock-type-scoped, computed client-side).
+    mirrored by the frontend ``rake-exclusions.ts::rowKey``). The backend nets these
+    identities out of every sheet (pivot, rake/transport totals, breakdowns, jsw/jvml)
+    — see ``services.report.exclusion``. ``subtract`` — **DEPRECATED / ignored**: the
+    backend now derives the subtraction from ``keys``; kept on the wire for back-compat.
     Nothing is persisted; this only shapes one export.
     """
 
     keys: list[str] = Field(default_factory=list, max_length=10000)
-    subtract: float = 0.0
+    subtract: float = 0.0  # deprecated — ignored by the backend (key-driven)
 
 
 class CombinedExportBody(BaseModel):
     """Optional POST body for ``/report/export-combined`` — per-export RAKE exclusions.
 
-    ``exclusions`` maps RAKE → its excluded rows (subtract from the RAKE totals +
-    drop from the breakdown sheets). ``transport_subtract`` maps transport mode →
-    the same unchecks' qty (subtract from the TRANSPORT MODE TOTAL sheet). Both
-    empty/absent ⇒ no exclusions (GET-equivalent file).
+    ``exclusions`` maps RAKE → its excluded rows; the backend nets those identities
+    out of the pivot, the rake/transport totals, the breakdown sheets, and the
+    jsw/jvml sheets (all key-driven — ``services.report.exclusion``). Empty/absent ⇒
+    no exclusions (GET-equivalent file). ``transport_subtract`` — **DEPRECATED /
+    ignored**: the transport-mode total is now recomputed from the surviving rows.
     """
 
     exclusions: dict[str, RakeExclusion] = Field(default_factory=dict)
-    transport_subtract: dict[str, float] = Field(default_factory=dict)
+    transport_subtract: dict[str, float] = Field(default_factory=dict)  # deprecated — ignored
 
 
 class ReportPivotRow(BaseModel):
@@ -94,6 +96,7 @@ class ReportPivotRow(BaseModel):
     sales_office: str | None       # rendered as BRANCH
     party_code: str                # normalized display code
     ship_to_party: str | None
+    customer_name: str | None = None  # stock-row customer; for the 8-field exclusion identity
     transport_mode: str | None     # from CustomerCode.transport_mode
     destination: str | None        # from CustomerCode.destination
     route: str | None              # from CustomerCode.route

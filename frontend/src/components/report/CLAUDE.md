@@ -38,19 +38,25 @@ no API calls live here (those are in `src/api/report/`).
   `exportCombined` switches to **POST** with a JSON body (`exclusions` +
   `transport_subtract`) so the rake-totals / transport-mode / breakdown sheets drop
   them; with none, it stays a plain GET.
-- **Browser-only RAKE drill-down exclusions (session-only).** In the Total Rake
-  Report tab, each drill-down row has an **Incl.** checkbox (default checked).
-  Unchecking subtracts that row from the RAKE total AND the Transport Mode total
-  (live, on-screen) and from the drill-down footer, and omits it from the export's
-  rake-totals / transport-mode / breakdown sheets. State lives in `useReport`
-  (`exclusions`, plain `useState`, **never persisted**) and is cleared on every
-  `generate()`. Identity = the backend's 8-field merge key (`rake-exclusions.ts`),
-  so merged & unmerged rows of one group toggle together. The pivot / jsw / jvml /
-  credit sheets and the on-screen pivot are unaffected.
+- **Browser-only RAKE drill-down exclusions (session-only) — applies EVERYWHERE.**
+  In the Total Rake Report tab, each drill-down row has an **Incl.** checkbox (default
+  checked). Unchecking nets that identity out of **every** view, live and in the export:
+  the RAKE total, the Transport Mode total, the drill-down footer, the **on-screen PIVOT**
+  (via `applyPivotExclusions` in `ReportSection` — instant, no round-trip), and the export's
+  pivot / rake-totals / transport-mode / breakdown / **JSW / JVML** sheets. Only credit is
+  unaffected. State lives in `useReport` (`exclusions`, plain `useState`, **never
+  persisted**) and is cleared on every `generate()`. Identity = the backend's 8-field merge
+  key (`rake-exclusions.ts`), so merged & unmerged rows of one group toggle together. The
+  pivot subtraction is client-side and exact because `ReportPivotRow` now carries
+  `customer_name` (the 8th identity field) — the same key the backend trims by, so screen ==
+  export.
 - **No client-side filtering of server data.** The only client-side view config
-  is column *visibility* (the toolbar "Columns" dropdown → `visibleCols`) and the
-  pivot *grouping/subtotals* (`buildRenderRows`) — both are presentation derived
-  from already-fetched rows, not row filtering. Rows arrive pre-sorted by the full
+  is column *visibility* (the toolbar "Columns" dropdown → `visibleCols`), the
+  pivot *grouping/subtotals* (`buildRenderRows`), and the browser-only RAKE
+  *exclusion* (`applyPivotExclusions` nets unchecked drill-down identities out of the
+  pivot rows — the user's own session view, consistent with the rake/transport
+  subtraction, not server-data filtering) — all presentation derived
+  from already-fetched rows, not query filtering. Rows arrive pre-sorted by the full
   hierarchy tuple from the backend (`services/report/generate.py::_ROW_SORT_KEYS`),
   which is what makes contiguous client-side grouping safe.
 
@@ -59,10 +65,10 @@ no API calls live here (those are in `src/api/report/`).
 | File | Role |
 |------|------|
 | `hooks/useReport.ts` | All page state: 4 inputs (date/type/region/days; `report_type` is `jsw\|jvml\|both`), `generate()`, the **two-step export** (`openExportDialog()` → `confirmExport(sheets)`, plus `exportDialogOpen`/`setExportDialogOpen`), `visibleCols`/`toggleCol`, and the browser-only **`exclusions`** + `toggleExclusion` (cleared on `generate()`; folded into the export body via `toExportBody`/`transportSubtract`). **`both` is ONE call** — the backend merges jsw + jvml into a single `data: ReportResponse` (`report_type:"both"`); no client-side fan-out |
-| `rake-exclusions.ts` | Pure helpers for the browser-only RAKE exclusions: `rowKey(row)` (canonical 8-field identity — **must mirror backend `rake_drilldown.py::row_identity`**, separator `String.fromCharCode(31)`, `null`→`""`), `RakeExclusions` type (`rake → key → {qty, tm}`), `isExcluded`, `subtractFor(rake)`, `transportSubtract()` (qty by transport mode, empty→`"Unknown"` to match the pivot), `matchInfoFor(rows, key, reportType)` (stock-scoped qty + transport mode), `toExportBody` (POST wire shape). No React/state |
+| `rake-exclusions.ts` | Pure helpers for the browser-only RAKE exclusions: `rowKey(row)` (canonical 8-field identity — **must mirror backend `rake_drilldown.py::row_identity`**, separator `String.fromCharCode(31)`, `null`→`""`), `RakeExclusions` type (`rake → key → {qty, tm}`), `isExcluded`, `subtractFor(rake)`, `transportSubtract()` (qty by transport mode, empty→`"Unknown"` to match the pivot), `matchInfoFor(rows, key, reportType)` (stock-scoped qty + transport mode), `toExportBody` (POST wire shape), `excludedKeyUnion(excl)` (all keys across rakes), and `applyPivotExclusions(report, excl)` (drops excluded pivot rows + recomputes the grand-total scalars — mirrors backend `exclusion.apply_pivot_exclusions`; `rowKey` now also accepts a `ReportPivotRow`). No React/state |
 | `ExportSheetsDialog.tsx` | The Export **sheet-picker** modal: an icon + checkbox row per sheet option (Branch Wise Pivot Report, Total Rake Report, Total Rake Wise, Batch Rake Wise, JSW Stock List, JVML Stock List, Credit Report — the `rake_merged`/`rake_unmerged` keys are labelled "Total Rake Wise"/"Batch Rake Wise"). JSW/JVML rows show only when `report_type` includes them (jsw→JSW, jvml→JVML, both→both); defaults to all visible options selected; confirms the picked keys (canonical sheet order) to `useReport.confirmExport` |
 | `ReportToolbar.tsx` | Date · **JSW / JVML / Both** segmented toggle · region combobox · **Columns** dropdown (Detail + RAKE + Credit groups) · days select · Generate · Export (opens `ExportSheetsDialog` via `openExportDialog`) |
-| `ReportSection.tsx` | Renders the report block (summary line + no-stock/no-credit states + `ReportPivotTable`). One section always — `both` is a single merged response, so `groupBySoOrg` just switches the table layout (no second table). **Owns the RAKE drill-down**: holds `useRakeDrilldown` + the `mode` (Merged/Unmerged) state and renders the drill-down controls (Back · RAKE title · toggle) on the **same row as the tab switcher** (`flex justify-between`), not stacked below |
+| `ReportSection.tsx` | Renders the report block (summary line + no-stock/no-credit states + `ReportPivotTable`). One section always — `both` is a single merged response, so `groupBySoOrg` just switches the table layout (no second table). **Owns the RAKE drill-down**: holds `useRakeDrilldown` + the `mode` (Merged/Unmerged) state and renders the drill-down controls (Back · RAKE title · toggle) on the **same row as the tab switcher** (`flex justify-between`), not stacked below. **Nets exclusions into the pivot** via a `pivotReport` memo (`applyPivotExclusions(report, exclusions)`) handed to `ReportPivotTable`, so the on-screen pivot drops unchecked rows live; `RakeTotalsTab` keeps the raw `report` (it subtracts the totals itself) |
 | `ReportPivotTable.tsx` | The grouped pivot: fixed left cols (repeated parents blanked) + optional Detail cols + dynamic RAKE + Total + optional Credit cols; bounded scroll box with sticky header + grand-total footer. **Fixed-col order: Distr. Channel → BRANCH → Sold To Party → Party Code → Ship To Party** — BRANCH (`sales_office`) is the grouped pivot column right after Distr. Channel so each unique branch heads its items. **`groupBySoOrg` prop** (Both mode) prepends an **SO Sales Org** column and subtotals per SO Sales Org instead of Distr.Channel |
 | `report-grouping.ts` | Pure `buildRenderRows(rows, groupBy)` — walks the pre-sorted rows into data rows (with group-first flags) + bottom-of-group subtotals (summing RAKE/Total/Yes+DO/Required Credit). `groupBy` = `"distr_chnl"` (default, single) or `"so_sales_org"` (Both, SO Sales Org leads the blankable chain). No Party Code subtotal — group + grand totals are enough |
 | `report-cells.tsx` | Trailing credit/total cell builders (`trailingBodyCell`, `aggTrailingCell`, `TRAILING_META`) — split out to keep the table ≤250 lines |

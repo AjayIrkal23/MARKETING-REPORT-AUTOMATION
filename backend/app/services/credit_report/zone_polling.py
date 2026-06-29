@@ -59,17 +59,6 @@ def sync_zone_slots(
     ingestion.zones = synced
 
 
-def zone_already_ingested(
-    ingestion: CreditReportIngestion,
-    region: Region,
-) -> bool:
-    region_id = str(region.id)
-    return any(
-        zone.region_id == region_id and zone.status == "ingested"
-        for zone in ingestion.zones
-    )
-
-
 def mark_zone(
     ingestion: CreditReportIngestion,
     region: Region,
@@ -119,6 +108,7 @@ def roll_up(ingestion: CreditReportIngestion) -> None:
     else:
         ingestion.status = "pending"
     ingestion.updated_at = datetime.now()
+    ingestion.last_run_at = ingestion.updated_at
 
 
 async def count_dup_parties(report_date: str) -> int:
@@ -175,9 +165,10 @@ async def run_regions(
     all_regions: list[Region],
     regions_to_run: list[Region],
     *,
-    force: bool,
     send_alerts: bool,
 ) -> None:
+    # Re-ingest every requested zone on every in-window poll tick (no skip-once
+    # guard) — snapshot refresh; see jsw_stock/poller.py for the rationale.
     folder = os.path.join(cfg.base_path, today)
     os.makedirs(os.path.join(folder, REPORT_SUBDIR), exist_ok=True)
     await purge_legacy_flat_rows()
@@ -185,8 +176,6 @@ async def run_regions(
     sync_zone_slots(ingestion, all_regions)
 
     for region in regions_to_run:
-        if not force and zone_already_ingested(ingestion, region):
-            continue
         await ingest_one_zone(cfg, folder, today, region, ingestion)
 
     roll_up(ingestion)

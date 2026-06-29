@@ -42,6 +42,7 @@ class DashboardReportStatus(BaseModel):
     missing: bool                    # status in {missing, alerted}
     row_count: int                   # rows ingested today (0 when not ingested)
     found_at: datetime | None        # when today's file was found/ingested
+    last_run_at: datetime | None = None  # when the poll last executed today (every tick)
     enabled: bool                    # whether scheduled polling is enabled
     zones: list[DashboardZoneStatus] = Field(default_factory=list)
 

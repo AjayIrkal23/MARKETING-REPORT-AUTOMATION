@@ -216,6 +216,7 @@ def _build_pivot_rows(
                 sales_office=ident.get("sales_office"),
                 party_code=party_key,
                 ship_to_party=ident.get("ship_to_party"),
+                customer_name=_strip_or_none(ident.get("customer_name")),
                 transport_mode=transport_mode,
                 destination=destination,
                 route=route,

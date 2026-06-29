@@ -36,6 +36,7 @@ class CreditReportIngestion(Document):
     file_path:   str | None = None
     found_at:    datetime | None = None
     alerted_at:  datetime | None = None
+    last_run_at: datetime | None = None   # stamped on EVERY poll tick (local clock, BE-14)
     error:       str | None = None
     zones:       list[CreditReportZoneRun] = Field(default_factory=list)
     created_at:  datetime = Field(default_factory=_now_utc)

@@ -8,7 +8,7 @@
  * the tab switcher instead of stacking below it.
  */
 
-import { useCallback, useState, type ReactNode } from "react"
+import { useCallback, useMemo, useState, type ReactNode } from "react"
 import { Info, FileX2, ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -19,7 +19,7 @@ import { ReportPivotTable } from "./ReportPivotTable"
 import { RakeTotalsTab } from "./RakeTotalsTab"
 import { RakeDrilldownTable, type DrilldownMode } from "./RakeDrilldownTable"
 import { useRakeDrilldown } from "./hooks/useRakeDrilldown"
-import { matchInfoFor, type ExcludedEntry, type RakeExclusions } from "./rake-exclusions"
+import { applyPivotExclusions, matchInfoFor, type ExcludedEntry, type RakeExclusions } from "./rake-exclusions"
 import { fmtINR, type ReportColVisibility } from "./report-format"
 
 const DRILL_TABS: readonly [DrilldownMode, string][] = [
@@ -58,6 +58,13 @@ export function ReportSection({
   const [tab, setTab] = usePersistedState<"branch" | "rake">("mra:report:tab", "branch")
   const drill = useRakeDrilldown(report)
   const [mode, setMode] = useState<DrilldownMode>("merged")
+
+  // Pivot reflects exclusions live: drop unchecked drill-down identities + recompute
+  // grand totals (mirrors the backend export). Other tabs keep the raw report.
+  const pivotReport = useMemo(
+    () => applyPivotExclusions(report, exclusions),
+    [report, exclusions],
+  )
 
   // Excluding a row drops the WHOLE merge group; matchQty is its stock-scoped total
   // (computed from the unmerged rows, which carry stock_type).
@@ -159,7 +166,7 @@ export function ReportSection({
             </div>
 
             <TabsContent value="branch">
-              <ReportPivotTable report={report} visibleCols={visibleCols} groupBySoOrg={groupBySoOrg} />
+              <ReportPivotTable report={pivotReport} visibleCols={visibleCols} groupBySoOrg={groupBySoOrg} />
             </TabsContent>
 
             <TabsContent value="rake">

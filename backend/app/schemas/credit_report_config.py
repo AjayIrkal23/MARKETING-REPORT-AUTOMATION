@@ -190,6 +190,7 @@ class CreditReportStatusPublic(BaseModel):
     last_row_count: int | None
     last_found_at: datetime | None
     last_alerted_at: datetime | None
+    last_run_at: datetime | None = None   # when the poll last executed (every tick)
     last_error: str | None
     dup_party_count: int
     zones: list[CreditReportZoneStatus]

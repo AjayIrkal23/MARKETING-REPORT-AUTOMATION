@@ -18,14 +18,20 @@ ingestion is region-zone aware: active `Region` records drive folders under
   a domain-specific hashing scheme.
 - Stored `CreditReport.region_id` is ingest provenance only. The user-facing
   list region filter still joins `customer` to `CustomerCode.region_id`.
+- `poller.py` / `zone_polling.py` re-ingest on **EVERY in-window poll tick** —
+  the `status == "ingested"` (flat) and per-zone `zone_already_ingested` skip
+  guards are gone (snapshot refresh; new parties/zones picked up hourly). `force`
+  on `run_poll` now **only** bypasses the start-time window (run-now); it no
+  longer affects re-ingest. `ingestion.last_run_at` is stamped in `roll_up` /
+  `_run_flat` every tick and surfaced on the dashboard + settings status.
 
 ## Key files
 
 | File | Role |
 |------|------|
 | `ingest.py` | Parse `credit report.XLSX`, filter to JV0H/VJ0H, bulk insert, dedupe |
-| `poller.py` | Scheduled/manual poll entrypoints |
-| `zone_polling.py` | Active-region folder loop, zone status roll-up, missing-zone alerts |
+| `poller.py` | Scheduled/manual poll entrypoints (hourly snapshot re-ingest; `force` = window bypass only) |
+| `zone_polling.py` | Active-region folder loop (re-ingests every zone per tick), zone status roll-up + `last_run_at`, missing-zone alerts |
 | `list.py` / `options.py` / `serialize.py` | Server-driven list, filter options, and response serialization |
 | `config_service.py` / `status.py` | Admin config singleton + ingestion status |
 | `export.py` | **Premium** single-sheet `.xlsx` export (curated view): title banner + column header on **row 3** + zebra rows + INR / credit-balance number formats. Exposes `fetch_credit_report_docs` + `write_credit_report_sheet(wb, ...)` (the latter used by the combined report export) plus the standalone export entry. Built on `utils/shared/excel_premium.write_records_sheet`. |

@@ -23,9 +23,10 @@ from ..credit_report.export import fetch_credit_report_docs, write_credit_report
 from ..jsw_stock.export import fetch_jsw_stock_docs, write_jsw_stock_sheet
 from ..jvml_stock.export import fetch_jvml_stock_docs, write_jvml_stock_sheet
 from ..shared.stock_export import stock_subtitle
+from .exclusion import apply_pivot_exclusions, excluded_key_union, filter_stock_docs
 from .export import write_pivot_sheet
 from .export_totals import write_totals_sheet
-from .generate import generate_report
+from .generate import _resolve_region_customers, generate_report
 from .rake_breakdown_export import write_rake_breakdown_sheets
 
 # Valid picker keys → sheets. Frontend hides jsw/jvml that don't match report_type;
@@ -58,14 +59,22 @@ async def export_combined(
     """Build the selected sheets into one premium .xlsx and return its bytes.
 
     ``body.exclusions`` (optional) carries the user's browser-only unchecked RAKE
-    drill-down rows; they are subtracted from the TOTAL RAKE REPORT figures and
-    omitted from the rake_merged / rake_unmerged sheets. All other sheets ignore it.
+    drill-down rows (8-field identity keys). Their identities are netted out of the
+    pivot, the TOTAL RAKE / TRANSPORT MODE totals (all recomputed from the surviving
+    rows), the rake_merged / rake_unmerged breakdown sheets, and the JSW / JVML
+    stock sheets. Credit is unaffected.
     """
     import openpyxl
 
     sheets = _parse_sheets(query.sheets)
     excl = body.exclusions if body is not None else {}
-    tm_sub = body.transport_subtract if body is not None else {}
+    excluded_keys = excluded_key_union(body)
+
+    # CustomerCode first-doc map — only needed to net excluded identities out of the
+    # raw JSW/JVML stock sheets (transport_mode/destination aren't on the stock row).
+    first_doc: dict | None = None
+    if excluded_keys and sheets & {"jsw", "jvml"}:
+        _, _, first_doc, _ = await _resolve_region_customers(query.region_id)
 
     wb = openpyxl.Workbook()
     wb.remove(wb.active)  # writers create named sheets; drop the empty default
@@ -74,6 +83,7 @@ async def export_combined(
     report = None
     if sheets & {"pivot", "rake_totals"}:
         report = await generate_report(query)
+        apply_pivot_exclusions(report, excluded_keys)  # no-op when none
 
     if "pivot" in sheets and report is not None:
         visible = None if query.columns is None else {c for c in query.columns.split(",") if c}
@@ -85,12 +95,10 @@ async def export_combined(
             f"Days Filter: {report.days_filter}  |  "
             f"Exported: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}"
         )
-        # Subtract each RAKE's browser-only excluded qty (stock-type-scoped client-side),
-        # clamped at 0. No exclusions ⇒ untouched totals.
-        adj_rows = sorted(
-            (rake, max(0.0, qty - (excl[rake].subtract if rake in excl else 0.0)))
-            for rake, qty in report.rake_totals.items()
-        )
+        # rake_totals / transport_mode_totals already reflect exclusions — they were
+        # recomputed from the surviving pivot rows (apply_pivot_exclusions), the
+        # trustworthy key-driven source. No exclusions ⇒ untouched totals.
+        adj_rows = sorted(report.rake_totals.items())
         write_totals_sheet(
             wb,
             sheet_title="TOTAL RAKE REPORT",
@@ -99,11 +107,8 @@ async def export_combined(
             subtitle=subtitle,
         )
         # Mirror the on-screen "Total Rake Report" tab: the Transport Mode table is
-        # a second sheet under the same pick, with the same unchecks subtracted.
-        tm_rows = sorted(
-            (tm, max(0.0, qty - tm_sub.get(tm, 0.0)))
-            for tm, qty in report.transport_mode_totals.items()
-        )
+        # a second sheet under the same pick, recomputed from the surviving rows.
+        tm_rows = sorted(report.transport_mode_totals.items())
         write_totals_sheet(
             wb,
             sheet_title="TRANSPORT MODE TOTAL",
@@ -124,6 +129,8 @@ async def export_combined(
         docs = await fetch_jsw_stock_docs(
             JswStockListQuery(date=query.date, region=query.region_id)
         )
+        if first_doc is not None:
+            docs = filter_stock_docs(docs, first_doc, excluded_keys)
         write_jsw_stock_sheet(
             wb, docs, subtitle=stock_subtitle(query.date, query.region_id, len(docs))
         )
@@ -132,6 +139,8 @@ async def export_combined(
         docs = await fetch_jvml_stock_docs(
             JvmlStockListQuery(date=query.date, region=query.region_id)
         )
+        if first_doc is not None:
+            docs = filter_stock_docs(docs, first_doc, excluded_keys)
         write_jvml_stock_sheet(
             wb, docs, subtitle=stock_subtitle(query.date, query.region_id, len(docs))
         )

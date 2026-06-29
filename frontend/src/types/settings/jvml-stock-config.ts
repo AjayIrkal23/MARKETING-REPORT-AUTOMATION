@@ -139,6 +139,11 @@ export interface JvmlStockStatus {
    */
   last_alerted_at: string | null
   /**
+   * ISO-8601 datetime when the poll job last executed (every tick, not just on
+   * success), or null if it has never run.
+   */
+  last_run_at: string | null
+  /**
    * Error message from the most recent failed ingestion,
    * or null if the last attempt did not produce an error.
    */

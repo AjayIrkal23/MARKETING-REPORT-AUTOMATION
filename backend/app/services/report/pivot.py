@@ -78,7 +78,8 @@ async def aggregate_pivot(
                      "sold_to_party": str|None,
                      "sales_office": str|None,
                      "party": str,
-                     "ship_to_party": str|None},
+                     "ship_to_party": str|None,
+                     "customer_name": str|None},
              "total": float,
              "nco_yes_do": float,
              "nco_yes_do_count": int}
@@ -112,6 +113,10 @@ async def aggregate_pivot(
                     "sales_office": "$sales_office",
                     "party": "$party_code_normalized",
                     "ship_to_party": "$ship_to_party",
+                    # In the group KEY (not $first) so a party with case/space-variant
+                    # customer_names splits into separate rows exactly like the
+                    # drill-down's 8-field exclusion identity — keeps netting exact.
+                    "customer_name": "$customer_name",
                 },
                 "total": {"$sum": "$stock_quantity"},
                 "nco_yes_do": {
